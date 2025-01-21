@@ -1,6 +1,6 @@
 package com.example.Identity_Service.exception;
 
-import com.example.Identity_Service.dto.Response.ApiResponse;
+import com.example.Identity_Service.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -1,7 +1,7 @@
 package com.example.Identity_Service.mapper;
 
-import com.example.Identity_Service.dto.Request.UserCreationRequest;
-import com.example.Identity_Service.dto.Response.UserResponse;
+import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

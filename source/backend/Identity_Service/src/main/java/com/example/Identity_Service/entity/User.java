@@ -22,5 +22,7 @@ public class User {
     String email;
     String password;
     LocalDate birthday;
+    @ManyToMany
+    Set<Role> roles;
 
 }

@@ -1,9 +1,5 @@
-package com.example.Identity_Service.dto.Request;
+package com.example.Identity_Service.dto.response;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCreationRequest {
+public class UserResponse {
     String username;
     String email;
     String password;
