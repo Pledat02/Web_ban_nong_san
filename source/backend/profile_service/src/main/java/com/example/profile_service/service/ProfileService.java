@@ -1,6 +1,7 @@
 package com.example.profile_service.service;
 
 import com.example.profile_service.dto.request.CreationProfileRequest;
+import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.ProfileResponse;
 import com.example.profile_service.entity.Profile;
 import com.example.profile_service.mapper.ProfileMapper;
@@ -11,6 +12,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,18 +24,15 @@ public class ProfileService {
     ProfileMapper profileMapper;
 
     public ProfileResponse saveProfile(CreationProfileRequest request) {
-        log.info("Saving profile for user: {}", request);
         Profile profile = profileMapper.toProfile(request);
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 
     public ProfileResponse getProfileById(String userId) {
-        log.info("Getting profile for user: {}", userId);
         return profileMapper.toProfileResponse(profileRepository.findById(userId).orElseThrow(() -> new RuntimeException("Profile not found")));
     }
 
-    public void updateProfile(String userId, CreationProfileRequest request) {
-        log.info("Updating profile for user: {}", userId);
+    public void updateProfile(String userId, UpdationProfileRequest request) {
         Profile profile = profileRepository.findById(userId).orElseThrow(
                 () -> new RuntimeException("Profile not found"));
         profileMapper.updateProfile(profile, request);
@@ -39,7 +40,11 @@ public class ProfileService {
     }
 
     public void deleteProfile(String userId) {
-        log.info("Deleting profile for user: {}", userId);
         profileRepository.deleteById(userId);
+    }
+    public List<ProfileResponse> getProfiles() {
+        List<ProfileResponse> profiles = new ArrayList<>();
+        profileRepository.findAll().forEach(profile -> profiles.add(profileMapper.toProfileResponse(profile)));
+        return profiles;
     }
 }
