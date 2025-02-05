@@ -11,7 +11,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
     Profile toProfile(CreationProfileRequest profileRequest);
-    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "id_user", ignore = true)
     void updateProfile(@MappingTarget Profile user, UpdationProfileRequest rq);
     ProfileResponse toProfileResponse(Profile user);
 }

@@ -1,5 +1,6 @@
 package com.example.Identity_Service.configuration;
 
+import com.example.Identity_Service.constant.PredefinedRole;
 import com.example.Identity_Service.repository.RoleRepository;
 import com.example.Identity_Service.repository.UserRepository;
 import com.example.Identity_Service.entity.Role;
@@ -26,11 +27,11 @@ public class AppInitConfig {
     ApplicationRunner appRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
             // Ensure "admin" role exists
-            Optional<Role> adminRoleOptional = roleRepository.findById("admin");
+            Optional<Role> adminRoleOptional = roleRepository.findById(PredefinedRole.ADMIN_ROLE);
             Role adminRole;
             if (adminRoleOptional.isEmpty()) {
                 adminRole = Role.builder()
-                        .name("admin")
+                        .name(PredefinedRole.ADMIN_ROLE)
                         .description("Administrator role")
                         .build();
                 roleRepository.save(adminRole);
