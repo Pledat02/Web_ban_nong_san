@@ -1,9 +1,6 @@
 package com.example.product_service.dto.request;
 
 import com.example.product_service.entity.OptionType;
-import com.example.product_service.entity.ProductOption;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.ManyToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,8 +15,13 @@ public class ProductRequest {
     String name;
     Double price;
     String description;
-    String category;
+    CategoryRequest category;
     String image;
     boolean isOrganic;
-    List<ProductOption> options;
+    String origin;
+    String packaging;
+    String brand;
+    String howToUse;
+    String howToPreserve;
+    List<OptionTypeRequest> options;
 }

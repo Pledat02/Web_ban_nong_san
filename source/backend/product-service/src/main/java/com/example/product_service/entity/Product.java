@@ -1,10 +1,8 @@
 package com.example.product_service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
@@ -13,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity(name = "Product")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +19,17 @@ public class Product {
     String name;
     Double price;
     String description;
-    String category;
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    Category category;
     String image;
     boolean isOrganic;
-    @OneToMany()
-    List<ProductOption> options;
+    String origin;
+    String packaging;
+    String brand;
+    String howToUse;
+    String howToPreserve;
+    @ManyToMany()
+    List<OptionType> options;
 
 }

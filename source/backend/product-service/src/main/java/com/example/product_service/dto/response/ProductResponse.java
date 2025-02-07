@@ -1,6 +1,5 @@
 package com.example.product_service.dto.response;
 
-import com.example.product_service.entity.ProductOption;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,8 +17,13 @@ public class ProductResponse {
     String description;
     int average_rating;
     List<ReviewResponse> reviews;
-    String category;
+    CategoryResponse category;
     String image;
     boolean isOrganic;
-    List<ProductOption> options;
+    String origin;
+    String packaging;
+    String brand;
+    String howToUse;
+    String howToPreserve;
+    List<OptionTypeResponse> options;
 }
