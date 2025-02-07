@@ -1,23 +1,23 @@
-package com.example.product_service.dto.request;
+package com.example.product_service.dto.response;
 
-import com.example.product_service.entity.OptionType;
 import com.example.product_service.entity.ProductOption;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.ManyToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductRequest {
+public class ProductResponse {
     long id_product;
     String name;
     Double price;
     String description;
+    int average_rating;
+    List<ReviewResponse> reviews;
     String category;
     String image;
     boolean isOrganic;

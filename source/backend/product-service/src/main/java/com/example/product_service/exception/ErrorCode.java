@@ -21,7 +21,7 @@ public enum ErrorCode {
     PASSWORD_INVALID(1004,"Your password must be least {min} character",HttpStatus.BAD_REQUEST),
     BIRTHDAY_INVALID(1005,"Your age must be least {min}",HttpStatus.BAD_REQUEST),
     ID_USER_INVALID(1006,"Id user is invalid",HttpStatus.BAD_REQUEST),
-    PERMISSION_NOT_FOUND(1007,"Permission not found",HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_FOUND(1007,"Product not found",HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
     UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
     private int code;
