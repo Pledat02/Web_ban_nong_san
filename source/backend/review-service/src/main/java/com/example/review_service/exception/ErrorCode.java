@@ -22,7 +22,7 @@ public enum ErrorCode {
     BIRTHDAY_INVALID(1005,"Your age must be least {min}",HttpStatus.BAD_REQUEST),
     ID_USER_INVALID(1006,"Id user is invalid",HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_FOUND(1007,"Product not found",HttpStatus.NOT_FOUND),
-    CATEGORY_NOT_FOUND(1010,"Category not found",HttpStatus.NOT_FOUND),
+    REVIEW_NOT_FOUND(1010,"Review not found",HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
     UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
     private int code;
