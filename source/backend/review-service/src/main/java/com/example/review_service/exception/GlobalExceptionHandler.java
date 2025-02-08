@@ -1,6 +1,6 @@
 package com.example.review_service.exception;
 
-import com.example.product_service.dto.response.ApiResponse;
+import com.example.review_service.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

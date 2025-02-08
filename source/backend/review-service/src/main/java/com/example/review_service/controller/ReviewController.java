@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@RequestMapping("/")
 public class ReviewController {
     ReviewService reviewService;
     // Get all reviews
@@ -53,12 +54,9 @@ public class ReviewController {
     }
     // Update review
     @PutMapping("/{id}")
-    public ApiResponse<ReviewResponse> updateReview(@PathVariable long id, @RequestBody ReviewRequest request){
-        ReviewResponse review = reviewService.getReviewById(id);
-        if(review == null) throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
+    public ApiResponse<Void> updateReview(@PathVariable long id, @RequestBody ReviewRequest request){
         reviewService.updateReview(id, request);
-        return ApiResponse.<ReviewResponse>builder()
-               .data(review)
+        return ApiResponse.<Void>builder()
                .build();
     }
     // Delete review

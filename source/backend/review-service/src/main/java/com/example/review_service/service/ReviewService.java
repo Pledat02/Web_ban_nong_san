@@ -6,27 +6,39 @@ import com.example.review_service.entity.Review;
 import com.example.review_service.exception.AppException;
 import com.example.review_service.exception.ErrorCode;
 import com.example.review_service.mapper.ReviewMapper;
+import com.example.review_service.repository.ProfileClientHttp;
 import com.example.review_service.repository.ReviewRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReviewService {
     ReviewRepository reviewRepository;
     ReviewMapper reviewMapper;
+    ProfileClientHttp profileClientHttp;
     // TODO: Implement review CRUD operations and business logic here.
     public ReviewResponse getReviewById(long id) {
-        return reviewMapper.toReviewResponse(reviewRepository.findById(id).orElse(null));
+        ReviewResponse review = reviewMapper.toReviewResponse(
+                reviewRepository.findById(id).orElse(null));
+        review.setProfileResponse(profileClientHttp.getProfile(review.getId_user()));
+        return (review);
     }
     public List<ReviewResponse> getReviews(){
-        return reviewRepository.findAll().stream()
+        List<Review> reviews =  reviewRepository.findAll() ;
+        return reviews.stream()
                 .map(reviewMapper::toReviewResponse)
+                .peek(reviewResponse -> {
+                    reviewResponse.setProfileResponse(
+                            profileClientHttp.getProfile(reviewResponse.getId_user()));
+                })
                 .toList();
     }
     public ReviewResponse createReview(ReviewRequest request) {

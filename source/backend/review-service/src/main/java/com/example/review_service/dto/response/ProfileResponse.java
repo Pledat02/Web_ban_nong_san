@@ -1,5 +1,6 @@
 package com.example.review_service.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -7,11 +8,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReviewResponse {
-    long id_review;
-    String id_user;
-    String content;
-    int rating;
-    ProfileResponse profileResponse;
+public class ProfileResponse {
+    String firstName;
+    String lastName;
+    String thumbnail;
 }
