@@ -1,6 +1,7 @@
 package com.example.Identity_Service.mapper;
 
 import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.request.UserUpdateRequest;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-03T16:59:56+0700",
+    date = "2025-02-05T17:26:09+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.5 (Eclipse Adoptium)"
 )
 @Component
@@ -39,7 +40,7 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public void updateUser(User user, UserCreationRequest rq) {
+    public void updateUser(User user, UserUpdateRequest rq) {
         if ( rq == null ) {
             return;
         }
@@ -78,6 +79,10 @@ public class UserMapperImpl implements UserMapper {
         userResponse.email( user.getEmail() );
         userResponse.password( user.getPassword() );
         userResponse.birthday( user.getBirthday() );
+        Set<Role> set = user.getRoles();
+        if ( set != null ) {
+            userResponse.roles( new LinkedHashSet<Role>( set ) );
+        }
 
         return userResponse.build();
     }

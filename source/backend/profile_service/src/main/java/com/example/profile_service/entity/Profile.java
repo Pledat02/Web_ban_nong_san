@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity(name = "Profile")
 public class Profile {
     @Id
-    String userId;
+    String id_user;
     String firstName;
     String lastName;
     String address;
