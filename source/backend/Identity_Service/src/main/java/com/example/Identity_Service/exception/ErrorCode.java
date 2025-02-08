@@ -12,7 +12,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(1000,"User not found",HttpStatus.NOT_FOUND),
     USER_INVALID_CREDENTIALS(1002,"Invalid username or password",HttpStatus.BAD_REQUEST),
     USER_ALREADY_EXISTS(1003,"User already exists",HttpStatus.BAD_REQUEST),
-    USER_NOT_AUTHORIZED(1004,"User is not authorized",HttpStatus.FORBIDDEN),
+    USER_NOT_AUTHORIZED(1008,"User is not authorized",HttpStatus.FORBIDDEN),
     USER_NOT_AUTHENTICATED(1004,"User is not authorized",HttpStatus.UNAUTHORIZED),
     USER_ALREADY_ACTIVE(1005,"User is already active",HttpStatus.BAD_REQUEST),
     USER_EXISTED(1001,"User is existed",HttpStatus.BAD_REQUEST),

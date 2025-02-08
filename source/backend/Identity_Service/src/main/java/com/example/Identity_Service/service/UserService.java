@@ -1,11 +1,19 @@
 package com.example.Identity_Service.service;
 
+import com.example.Identity_Service.constant.PredefinedRole;
+import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.request.UserUpdateRequest;
+import com.example.Identity_Service.dto.response.ProfileResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
+import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
+import com.example.Identity_Service.mapper.ProfileClientMapper;
 import com.example.Identity_Service.mapper.UserMapper;
+import com.example.Identity_Service.repository.ProfileClientHttp;
+import com.example.Identity_Service.repository.RoleRepository;
 import com.example.Identity_Service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,17 +36,26 @@ public class UserService {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserService.class);
     UserRepository userRepository;
      UserMapper userMapper;
+     ProfileClientMapper profileClientMapper;
+     ProfileClientHttp profileClientHttp;
      PasswordEncoder passwordEncoder;
-    public User createUser(UserCreationRequest userrq) {
+     RoleRepository roleRepository;
+    public UserResponse createUser(UserCreationRequest userrq) {
         if(userRepository.existsByUsername(userrq.getUsername())){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         userrq.setPassword(passwordEncoder.encode(userrq.getPassword()));
-//        HashSet<Role> roles = new HashSet<Role>();
-//        roles.add(new Role("User","user role", new HashSet<>()));
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+
         User user = userMapper.ToUser(userrq);
-//        user.setRoles(roles);
-        return userRepository.save(user);
+        user.setRoles(roles);
+        User userResponse =  userRepository.save(user);
+        //save to profile service
+        CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(userrq);
+        profileRq.setId_user(userResponse.getId_user());
+        profileClientHttp.createProfile(profileRq);
+        return userMapper.toUserResponse(userResponse);
     }
 //    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUserById(String id) {
@@ -62,7 +80,7 @@ public class UserService {
                 new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
-    public UserResponse updateUser(String id, UserCreationRequest user) {
+    public UserResponse updateUser(String id, UserUpdateRequest user) {
 
 
         User existingUser = userRepository.findById(id).orElse(null);

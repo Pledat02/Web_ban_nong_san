@@ -1,4 +1,4 @@
-package com.example.profile_service.dto.request;
+package com.example.Identity_Service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpdationProfileRequest {
+public class ProfileResponse {
+
     String id_user;
     String firstName;
     String lastName;

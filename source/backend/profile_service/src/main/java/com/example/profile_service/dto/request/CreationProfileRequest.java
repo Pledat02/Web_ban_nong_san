@@ -1,5 +1,6 @@
 package com.example.profile_service.dto.request;
 
+import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,7 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreationProfileRequest {
-    String userId;
+    @Id
+    String id_user;
     String firstName;
     String lastName;
     String address;
