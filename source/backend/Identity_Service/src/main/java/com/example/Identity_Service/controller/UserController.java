@@ -25,7 +25,7 @@ import java.util.List;
 public class UserController {
     UserService userService;
 
-    @PostMapping
+    @PostMapping("/registration")
     public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request){
         ApiResponse<UserResponse> respone = new ApiResponse<>();
         respone.setData(userService.createUser(request));

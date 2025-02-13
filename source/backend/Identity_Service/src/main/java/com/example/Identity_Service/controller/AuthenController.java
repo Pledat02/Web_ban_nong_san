@@ -2,12 +2,11 @@ package com.example.Identity_Service.controller;
 
 import com.example.Identity_Service.dto.request.AuthenicationRequest;
 import com.example.Identity_Service.dto.request.TokenRequest;
-import com.example.Identity_Service.dto.response.ApiResponse;
-import com.example.Identity_Service.dto.response.AuthenicationResponse;
-import com.example.Identity_Service.dto.response.TokenResponse;
-import com.example.Identity_Service.dto.response.ValidTokenResponse;
+import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.response.*;
 import com.example.Identity_Service.service.AuthenicationService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +31,7 @@ public class AuthenController {
                 .build();
 
     }
+
     @PostMapping("/introspect")
     ApiResponse<ValidTokenResponse> authenticate(@RequestBody TokenRequest requestBody) throws ParseException, JOSEException {
         ValidTokenResponse result = authenService.introspect(requestBody);

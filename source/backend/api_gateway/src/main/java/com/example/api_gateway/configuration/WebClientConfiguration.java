@@ -15,10 +15,9 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    AuthenticationClient identityClient(WebClient webClient){
+    AuthenticationClient authenticationClient(WebClient webClient){
         HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory
                 .builderFor(WebClientAdapter.create(webClient)).build();
-
         return httpServiceProxyFactory.createClient(AuthenticationClient.class);
     }
 }

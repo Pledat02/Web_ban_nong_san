@@ -3,6 +3,7 @@ package com.example.Identity_Service.configuration;
 import com.example.Identity_Service.dto.request.TokenRequest;
 import com.example.Identity_Service.service.AuthenicationService;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -23,30 +24,17 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Autowired
     private AuthenicationService authenticationService;
 
-    private NimbusJwtDecoder nimbusJwtDecoder = null;
-
     @Override
     public Jwt decode(String token) throws JwtException {
-
         try {
-            var response = authenticationService.introspect(TokenRequest.builder()
-                    .token(token)
-                    .build());
-
-            if (!response.isValid())
-                throw new JwtException("Token invalid");
-        } catch (JOSEException | ParseException e) {
-            throw new JwtException(e.getMessage());
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return new Jwt(token,
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
+                    signedJWT.getHeader().toJSONObject(),
+                    signedJWT.getJWTClaimsSet().getClaims());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
-
-        if (Objects.isNull(nimbusJwtDecoder)) {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
-        }
-
-        return nimbusJwtDecoder.decode(token);
     }
 }
