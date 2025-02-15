@@ -31,12 +31,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public AuthenticationFilter(@Lazy AuthService authService) {
         this.authService = authService;
     }
-    @Value("$app.api-prefix")
-    @NonFinal
-    private String prefix;
 
     @NonFinal
-    private String[] publicEnpoints = {prefix+"/identity/auth/.*,",prefix+"/identity/users/registration"};
+    private String[] publicEnpoints = {"/identity/auth/.*,","/identity/users/registration"
+            ,"/profiles/internal"};
+
 
     @Override
     public int getOrder() {
@@ -45,6 +44,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        if(isPublicEndpoint(exchange.getRequest())){
+            return chain.filter(exchange);
+        }
         String token = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
          return getUnAuthentication(exchange.getResponse(),"Invalid or expired JWT token");
@@ -52,11 +54,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             token = token.replace("Bearer ", "");
            return authService.introspect(token).flatMap( intro -> {
                 if (intro.getData().isValid()) {
-                    if(isPublicEndpoint(exchange.getRequest())){
-                        return chain.filter(exchange);
-                    }else{
-                        return getUnAuthorization(exchange.getResponse(),"Not authorized");
-                    }
+                    return chain.filter(exchange);
                 } else {
                     return getUnAuthentication(exchange.getResponse(),"Invalid or expired JWT token");
                 }
@@ -66,12 +64,16 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
     private boolean isPublicEndpoint(ServerHttpRequest request) {
         String path = request.getURI().getPath();
+        log.info(path);
         for (String endpoint : publicEnpoints) {
-            if (path.startsWith(endpoint)) {
+            if (path.endsWith(endpoint)) {
                 return true;
             }
         }
         return false;
+    }
+    private boolean isAuthorized(ServerHttpRequest request ){
+        return true;
     }
     private Mono<Void> getUnAuthentication(ServerHttpResponse response , String message){
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
