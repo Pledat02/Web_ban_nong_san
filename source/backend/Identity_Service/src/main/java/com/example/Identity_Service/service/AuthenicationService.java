@@ -2,6 +2,7 @@ package com.example.Identity_Service.service;
 
 import com.example.Identity_Service.dto.request.AuthenicationRequest;
 import com.example.Identity_Service.dto.request.TokenRequest;
+import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
 import com.example.Identity_Service.repository.UserRepository;
@@ -75,6 +76,7 @@ public class AuthenicationService {
                 .valid(isValid)
                 .build();
     }
+
     private SignedJWT verifyToken (String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(signer_key.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
