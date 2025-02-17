@@ -9,7 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="api_gateway" />
       </profile>
-      <profile name="Annotation profile for profile_service" enabled="true">
+      <profile name="Annotation profile for notification-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,6 +20,7 @@
         </processorPath>
         <module name="profile_service" />
         <module name="product-service" />
+        <module name="notification-service" />
         <module name="review-service" />
         <module name="Identity_Service" />
       </profile>
@@ -29,6 +30,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Identity_Service" options="-parameters" />
       <module name="api_gateway" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
       <module name="review-service" options="-parameters" />
