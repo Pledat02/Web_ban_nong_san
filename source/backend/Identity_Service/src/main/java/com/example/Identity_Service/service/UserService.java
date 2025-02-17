@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +41,7 @@ public class UserService {
      ProfileClientHttp profileClientHttp;
      PasswordEncoder passwordEncoder;
      RoleRepository roleRepository;
+     KafkaTemplate<String,String> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest userrq) {
         if(userRepository.existsByUsername(userrq.getUsername())){
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -55,6 +57,8 @@ public class UserService {
         CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(userrq);
         profileRq.setId_user(userResponse.getId_user());
         profileClientHttp.createProfile(profileRq);
+        // send kafka
+        kafkaTemplate.send("user-created", "User created: " + userResponse.getUsername());
         return userMapper.toUserResponse(userResponse);
     }
 //    @PostAuthorize("returnObject.username == authentication.name")
