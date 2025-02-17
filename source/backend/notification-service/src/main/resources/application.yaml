@@ -1,0 +1,21 @@
+app:
+  mail:
+    brevo:
+      url: "https://api.brevo.com/v3/smtp/email"
+      name-sender: "Nong San Viet Nam"
+      email-sender: "phamledatctbp@gmail.com"
+server:
+  port: 8085
+  servlet:
+    context-path: /notification
+spring:
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+  application:
+    name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/notification-service?authSource=admin
