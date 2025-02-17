@@ -7,3 +7,4 @@
 /dataSources/
 /dataSources.local.xml
 source/backend/notification-service/src/main/resources/application.yaml
+*.yaml
