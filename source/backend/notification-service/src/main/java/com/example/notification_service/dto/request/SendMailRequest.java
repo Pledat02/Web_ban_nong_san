@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Builder
 @AllArgsConstructor
 @Data

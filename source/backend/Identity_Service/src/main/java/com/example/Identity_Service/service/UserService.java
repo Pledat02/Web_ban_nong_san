@@ -4,12 +4,12 @@ import com.example.Identity_Service.constant.PredefinedRole;
 import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
-import com.example.Identity_Service.dto.response.ProfileResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
+import com.example.event.dto.NotificationRequest;
 import com.example.Identity_Service.mapper.ProfileClientMapper;
 import com.example.Identity_Service.mapper.UserMapper;
 import com.example.Identity_Service.repository.ProfileClientHttp;
@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
@@ -41,7 +42,7 @@ public class UserService {
      ProfileClientHttp profileClientHttp;
      PasswordEncoder passwordEncoder;
      RoleRepository roleRepository;
-     KafkaTemplate<String,String> kafkaTemplate;
+     KafkaTemplate<String,Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest userrq) {
         if(userRepository.existsByUsername(userrq.getUsername())){
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -58,7 +59,16 @@ public class UserService {
         profileRq.setId_user(userResponse.getId_user());
         profileClientHttp.createProfile(profileRq);
         // send kafka
-        kafkaTemplate.send("user-created", "User created: " + userResponse.getUsername());
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .nameReceptor(userResponse.getUsername())
+                .emailReceptor(userResponse.getEmail())
+                .subject("Thông báo tạo tài khoản thành công")
+                .textContent("Chúc mừng bạn đã tạo tài khoản thành công. \n"
+                        + "Tên tài khoản: " + userResponse.getUsername() + "\n"
+                        + "Ngày tạo: " + LocalDate.now() + ".")
+                .build();
+        kafkaTemplate.send("user-created", notificationRequest);
+
         return userMapper.toUserResponse(userResponse);
     }
 //    @PostAuthorize("returnObject.username == authentication.name")
