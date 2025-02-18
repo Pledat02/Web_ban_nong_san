@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Identity_Service/Identity_Service.iml" filepath="$PROJECT_DIR$/Identity_Service/Identity_Service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/backend.iml" filepath="$PROJECT_DIR$/.idea/backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/profile_service/profile_service.iml" filepath="$PROJECT_DIR$/profile_service/profile_service.iml" />
     </modules>
   </component>
 </project>
