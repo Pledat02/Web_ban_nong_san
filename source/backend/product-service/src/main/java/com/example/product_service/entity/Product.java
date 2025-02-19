@@ -20,7 +20,6 @@ public class Product {
     Double price;
     String description;
     @ManyToOne
-    @JoinColumn(name = "id_category")
     Category category;
     String image;
     boolean isOrganic;
