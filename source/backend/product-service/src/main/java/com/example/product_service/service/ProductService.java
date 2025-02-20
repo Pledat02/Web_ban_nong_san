@@ -1,6 +1,7 @@
 package com.example.product_service.service;
 
 import com.example.product_service.dto.request.ProductRequest;
+import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.entity.Category;
 import com.example.product_service.entity.OptionType;
@@ -13,6 +14,7 @@ import com.example.product_service.repository.OptionRepository;
 import com.example.product_service.repository.ProductRepository;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,11 +79,40 @@ public class ProductService {
     public void deleteProduct(Long productId) {
         productRepository.deleteById(productId);
     }
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toProductResponse).toList();
+    public PageResponse<ProductResponse> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<ProductResponse> productResponses = productPage.getContent()
+                .stream()
+                .map(productMapper::toProductResponse)
+                .toList();
+
+        return PageResponse.<ProductResponse>builder()
+                .currentPage(page)
+                .totalPages(productPage.getTotalPages())
+                .totalElements(productPage.getTotalElements())
+                .elements(productResponses)
+                .build();
     }
-    public List<ProductResponse> getProductsByCategory(long categoryId) {
-        return productRepository.findByCategoryId(categoryId).stream().map(productMapper::toProductResponse).toList();
+
+
+    public PageResponse<ProductResponse> getProductsByCategory(long categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
+
+        List<ProductResponse> productResponses = productPage.getContent()
+                .stream()
+                .map(productMapper::toProductResponse)
+                .toList();
+
+        return PageResponse.<ProductResponse>builder()
+                .currentPage(page)
+                .totalPages(productPage.getTotalPages())
+                .totalElements(productPage.getTotalElements())
+                .elements(productResponses)
+                .build();
     }
+
 
 }

@@ -2,6 +2,7 @@ package com.example.product_service.controller;
 
 import com.example.product_service.dto.request.ProductRequest;
 import com.example.product_service.dto.response.ApiResponse;
+import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
@@ -25,9 +26,12 @@ public class ProductController {
 
      // Get all products
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAllProducts(){
-        return ApiResponse.<List<ProductResponse>>builder()
-                .data(productService.getAllProducts())
+    public ApiResponse<PageResponse<ProductResponse>> getAllProducts(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ){
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(productService.getAllProducts(page, size))
                 .build();
     }
     // Get product by id
@@ -41,11 +45,12 @@ public class ProductController {
     }
     // Get products by category id
     @GetMapping("/category/{categoryId}")
-    public ApiResponse<List<ProductResponse>>
-    getProductsByCategoryId(@PathVariable Long categoryId) {
-        List<ProductResponse> products = productService.getProductsByCategory(categoryId);
-        if(products.isEmpty()) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
-        return ApiResponse.<List<ProductResponse>>builder()
+    public ApiResponse<PageResponse<ProductResponse>>
+    getProductsByCategoryId(@PathVariable Long categoryId,
+                            @RequestParam(required = false, defaultValue = "1") Integer page,
+                            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        PageResponse<ProductResponse> products = productService.getProductsByCategory(categoryId,page,size);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
                .data(products)
                .build();
     }
