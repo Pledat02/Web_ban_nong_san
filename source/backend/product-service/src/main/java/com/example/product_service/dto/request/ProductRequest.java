@@ -15,7 +15,7 @@ public class ProductRequest {
     String name;
     Double price;
     String description;
-    CategoryRequest category;
+    long id_category;
     String image;
     boolean isOrganic;
     String origin;
@@ -23,5 +23,5 @@ public class ProductRequest {
     String brand;
     String howToUse;
     String howToPreserve;
-    List<OptionTypeRequest> options;
+    List<Long> id_options;
 }

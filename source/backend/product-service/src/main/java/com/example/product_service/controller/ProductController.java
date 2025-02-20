@@ -6,15 +6,18 @@ import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
@@ -47,20 +50,41 @@ public class ProductController {
                .build();
     }
     // create product
-    @PostMapping
-    public ApiResponse<ProductResponse> createProduct(ProductRequest request) {
-        return ApiResponse.<ProductResponse>builder()
-               .data(productService.createProduct(request))
-               .build();
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ProductResponse> createProduct(
+            @RequestPart("request") @Valid ProductRequest request,
+            @RequestPart("file") MultipartFile file) throws AppException {
+
+        try {
+            String imagePath = FileUtils.saveImage(file);
+            request.setImage(imagePath);
+
+            ProductResponse response = productService.createProduct(request);
+
+            return ApiResponse.<ProductResponse>builder()
+                    .data(response)
+                    .build();
+        } catch (AppException e) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
     }
+
     // update product
-    @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@PathVariable Long id, ProductRequest request) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestPart("request") @Valid ProductRequest request,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        if (file != null) {
+            request.setImage(FileUtils.saveImage(file));
+        }
         ProductResponse product = productService.updateProduct(id, request);
-        if(product == null) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        if (product == null) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+
         return ApiResponse.<ProductResponse>builder()
-               .data(product)
-               .build();
+                .data(product)
+                .build();
     }
     // delete product
     @DeleteMapping("/{id}")
