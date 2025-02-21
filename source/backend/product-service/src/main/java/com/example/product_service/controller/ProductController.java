@@ -98,6 +98,17 @@ public class ProductController {
         return ApiResponse.<Void>builder()
                .build();
     }
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<ProductResponse>> searchProducts(
+            @RequestParam String keyword,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        PageResponse<ProductResponse> products =
+                productService.searchProducts(keyword, page, size);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(products)
+                .build() ;
+    }
 
 
 }

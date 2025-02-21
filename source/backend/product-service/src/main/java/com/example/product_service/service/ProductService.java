@@ -113,6 +113,22 @@ public class ProductService {
                 .elements(productResponses)
                 .build();
     }
+    public PageResponse<ProductResponse> searchProducts(String product,int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Product> productPage = productRepository.searchProducts(product, pageable);
+
+        List<ProductResponse> productResponses = productPage.getContent()
+               .stream()
+               .map(productMapper::toProductResponse)
+               .toList();
+
+        return PageResponse.<ProductResponse>builder()
+               .currentPage(page)
+               .totalPages(productPage.getTotalPages())
+               .totalElements(productPage.getTotalElements())
+               .elements(productResponses)
+               .build();
+    }
 
 
 }
