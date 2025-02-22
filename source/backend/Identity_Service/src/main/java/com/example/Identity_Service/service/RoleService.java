@@ -1,6 +1,7 @@
 package com.example.Identity_Service.service;
 
 import com.example.Identity_Service.dto.request.RoleRequest;
+import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.RoleResponse;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.exception.AppException;
@@ -11,6 +12,9 @@ import com.example.Identity_Service.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -52,5 +56,34 @@ public class RoleService {
     }
     public List<RoleResponse> getAllRole(){
         return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
+    }
+    public PageResponse<RoleResponse> getReviews(int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Role> rolePage = roleRepository.findAll(pageable);
+        List<RoleResponse> roles = rolePage.getContent()
+                .stream()
+                .map(roleMapper::toRoleResponse)
+                .toList();
+        return PageResponse.<RoleResponse>builder()
+                .currentPage(page)
+                .totalPages(rolePage.getTotalPages())
+                .totalElements(rolePage.getTotalElements())
+                .elements(roles)
+                .build();
+    }
+    public PageResponse<RoleResponse> searchReviews(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Role> reviewPage = roleRepository.searchRoles(keyword, pageable);
+
+        List<RoleResponse> roles= reviewPage.getContent()
+                .stream().map(roleMapper::toRoleResponse)
+                .toList();
+
+        return PageResponse.<RoleResponse>builder()
+                .currentPage(page)
+                .totalPages(reviewPage.getTotalPages())
+                .totalElements(reviewPage.getTotalElements())
+                .elements(roles)
+                .build();
     }
 }

@@ -2,6 +2,7 @@ package com.example.Identity_Service.controller;
 
 import com.example.Identity_Service.dto.response.ApiResponse;
 import com.example.Identity_Service.dto.request.RoleRequest;
+import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.RoleResponse;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
@@ -23,10 +24,23 @@ public class RoleController {
     RoleService roleService;
 
     // Get all Roles
-    @GetMapping
-    public ApiResponse<List<RoleResponse>> getAllRoles(){
-        return ApiResponse.<List<RoleResponse>>builder()
-                .data(roleService.getAllRole())
+    public ApiResponse<PageResponse<RoleResponse>> getAllReviews(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ){
+        return ApiResponse.<PageResponse<RoleResponse>>builder()
+                .data(roleService.getReviews(page,size))
+                .build();
+    }
+    //search
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<RoleResponse>> searchReviews(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size)
+    {
+        return ApiResponse.<PageResponse<RoleResponse>>builder()
+                .data(roleService.searchReviews(keyword, page, size))
                 .build();
     }
     // Get Role by id
