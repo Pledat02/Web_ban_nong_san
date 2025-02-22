@@ -1,6 +1,7 @@
 package com.example.review_service.service;
 
 import com.example.review_service.dto.request.ReviewRequest;
+import com.example.review_service.dto.response.PageResponse;
 import com.example.review_service.dto.response.ReviewResponse;
 import com.example.review_service.entity.Review;
 import com.example.review_service.exception.AppException;
@@ -12,6 +13,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,16 +35,41 @@ public class ReviewService {
         review.setProfileResponse(profileClientHttp.getProfile(review.getId_user()));
         return (review);
     }
-    public List<ReviewResponse> getReviews(){
-        List<Review> reviews =  reviewRepository.findAll() ;
-        return reviews.stream()
+    public PageResponse<ReviewResponse> getReviews(int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Review> profilePage = reviewRepository.findAll(pageable);
+        List<ReviewResponse> reviews = profilePage.getContent()
+                .stream()
                 .map(reviewMapper::toReviewResponse)
                 .peek(reviewResponse -> {
                     reviewResponse.setProfileResponse(
                             profileClientHttp.getProfile(reviewResponse.getId_user()));
                 })
                 .toList();
+        return PageResponse.<ReviewResponse>builder()
+                .currentPage(page)
+                .totalPages(profilePage.getTotalPages())
+                .totalElements(profilePage.getTotalElements())
+                .elements(reviews)
+                .build();
     }
+    public PageResponse<ReviewResponse> searchReviews(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Review> reviewPage = reviewRepository.searchReviews(keyword, pageable);
+
+        List<ReviewResponse> productResponses = reviewPage.getContent()
+                .stream()
+                .map(reviewMapper::toReviewResponse)
+                .toList();
+
+        return PageResponse.<ReviewResponse>builder()
+                .currentPage(page)
+                .totalPages(reviewPage.getTotalPages())
+                .totalElements(reviewPage.getTotalElements())
+                .elements(productResponses)
+                .build();
+    }
+
     public ReviewResponse createReview(ReviewRequest request) {
         return reviewMapper.toReviewResponse(reviewRepository.save(reviewMapper.toReview(request)));
     }
