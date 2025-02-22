@@ -4,6 +4,7 @@ import com.example.Identity_Service.constant.PredefinedRole;
 import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
+import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
@@ -19,6 +20,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
@@ -113,6 +117,22 @@ public class UserService {
                 .stream()
                 .map(userMapper::toUserResponse)
                 .toList();
+    }
+    public PageResponse<UserResponse> searchProducts(String keyword,int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<User> userPage = userRepository.searchUsers(keyword, pageable);
+
+        List<UserResponse> userResponses = userPage.getContent()
+                .stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+
+        return PageResponse.<UserResponse>builder()
+                .currentPage(page)
+                .totalPages(userPage.getTotalPages())
+                .totalElements(userPage.getTotalElements())
+                .elements(userResponses)
+                .build();
     }
 
 }
