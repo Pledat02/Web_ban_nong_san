@@ -24,6 +24,7 @@ public class RoleController {
     RoleService roleService;
 
     // Get all Roles
+    @GetMapping
     public ApiResponse<PageResponse<RoleResponse>> getAllReviews(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size

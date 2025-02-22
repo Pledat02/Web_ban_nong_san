@@ -73,16 +73,16 @@ public class RoleService {
     }
     public PageResponse<RoleResponse> searchReviews(String keyword, int page, int size){
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Role> reviewPage = roleRepository.searchRoles(keyword, pageable);
+        Page<Role> rolePage = roleRepository.searchRoles(keyword, pageable);
 
-        List<RoleResponse> roles= reviewPage.getContent()
+        List<RoleResponse> roles= rolePage.getContent()
                 .stream().map(roleMapper::toRoleResponse)
                 .toList();
 
         return PageResponse.<RoleResponse>builder()
                 .currentPage(page)
-                .totalPages(reviewPage.getTotalPages())
-                .totalElements(reviewPage.getTotalElements())
+                .totalPages(rolePage.getTotalPages())
+                .totalElements(rolePage.getTotalElements())
                 .elements(roles)
                 .build();
     }

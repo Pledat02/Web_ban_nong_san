@@ -2,6 +2,7 @@ package com.example.Identity_Service.controller;
 
 import com.example.Identity_Service.dto.response.ApiResponse;
 import com.example.Identity_Service.dto.request.PermissionRequest;
+import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.PermissionResponse;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
@@ -24,10 +25,23 @@ public class PermissionController {
 
     // Get all permissions
     @GetMapping
-    public ApiResponse<List<PermissionResponse>> getAllPermissions(){
-        return ApiResponse.<List<PermissionResponse>>builder()
-                .data(permissionService.getAllPermission())
-                .build();
+    public ApiResponse<PageResponse<PermissionResponse>> getAllPermissions(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ){
+        return ApiResponse.<PageResponse<PermissionResponse>>builder()
+               .data(permissionService.getAllPermissions(page, size))
+               .build();
+    }
+    // search
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<PermissionResponse>> searchPermissions(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size){
+        return ApiResponse.<PageResponse<PermissionResponse>>builder()
+                .data(permissionService.searchPermissions(q, page, size))
+               .build();
     }
     // Get permission by id
     @GetMapping("/{id}")

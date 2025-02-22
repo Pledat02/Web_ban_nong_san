@@ -1,8 +1,11 @@
 package com.example.Identity_Service.service;
 
 import com.example.Identity_Service.dto.request.PermissionRequest;
+import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.PermissionResponse;
+import com.example.Identity_Service.dto.response.RoleResponse;
 import com.example.Identity_Service.entity.Permission;
+import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.mapper.PermissonMapper;
@@ -10,6 +13,9 @@ import com.example.Identity_Service.repository.PermissionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,7 +48,33 @@ public class PermissionService {
         permissionRepository.delete(permission);
         return true;
     }
-    public List<PermissionResponse> getAllPermission(){
-        return permissionRepository.findAll().stream().map(permissionMapper::toPermissionResponse).toList();
+    public PageResponse<PermissionResponse> getAllPermissions(int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Permission> permissionsPage = permissionRepository.findAll(pageable);
+        List<PermissionResponse> permissionResponses = permissionsPage.getContent()
+                .stream()
+                .map(permissionMapper::toPermissionResponse)
+                .toList();
+        return PageResponse.<PermissionResponse>builder()
+                .currentPage(page)
+                .totalPages(permissionsPage.getTotalPages())
+                .totalElements(permissionsPage.getTotalElements())
+                .elements(permissionResponses)
+                .build();
+    }
+    public PageResponse<PermissionResponse> searchPermissions(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Permission> permissionsPage = permissionRepository.searchPermission(keyword, pageable);
+
+        List<PermissionResponse> permissionResponses = permissionsPage.getContent()
+                .stream()
+                .map(permissionMapper::toPermissionResponse)
+                .toList();
+        return PageResponse.<PermissionResponse>builder()
+                .currentPage(page)
+                .totalPages(permissionsPage.getTotalPages())
+                .totalElements(permissionsPage.getTotalElements())
+                .elements(permissionResponses)
+                .build();
     }
 }
