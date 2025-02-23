@@ -2,6 +2,7 @@ package com.example.review_service.controller;
 
 import com.example.review_service.dto.request.ReviewRequest;
 import com.example.review_service.dto.response.ApiResponse;
+import com.example.review_service.dto.response.PageResponse;
 import com.example.review_service.dto.response.ReviewResponse;
 import com.example.review_service.exception.AppException;
 import com.example.review_service.exception.ErrorCode;
@@ -21,10 +22,24 @@ public class ReviewController {
     ReviewService reviewService;
     // Get all reviews
     @GetMapping
-    public ApiResponse<List<ReviewResponse>> getAllReviews(){
-        return ApiResponse.<List<ReviewResponse>>builder()
-                .data(reviewService.getReviews())
+    public ApiResponse<PageResponse<ReviewResponse>> getAllReviews(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ){
+        return ApiResponse.<PageResponse<ReviewResponse>>builder()
+                .data(reviewService.getReviews(page,size))
                 .build();
+    }
+    //search
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<ReviewResponse>> searchReviews(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size)
+    {
+                return ApiResponse.<PageResponse<ReviewResponse>>builder()
+                       .data(reviewService.searchReviews(keyword, page, size))
+                       .build();
     }
     // Get review by id
     @GetMapping("/{id}")

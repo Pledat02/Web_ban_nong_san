@@ -2,13 +2,19 @@ package com.example.product_service.service;
 
 import com.example.product_service.dto.request.CategoryRequest;
 import com.example.product_service.dto.response.CategoryResponse;
+import com.example.product_service.dto.response.PageResponse;
+import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.entity.Category;
+import com.example.product_service.entity.Product;
 import com.example.product_service.mapper.CategoryMapper;
 import com.example.product_service.repository.CategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +27,7 @@ public class CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
 
-    // Method to fetch all categories
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(categoryMapper::toCategoryResponse).toList();
-    }
+
     // Method to fetch a category by id
     public CategoryResponse getCategoryById(Long categoryId) {
         return categoryMapper.toCategoryResponse(categoryRepository.findById(categoryId).orElse(null));
@@ -44,5 +46,37 @@ public class CategoryService {
     // Method to delete a category
     public void deleteCategory(Long categoryId) {
         categoryRepository.deleteById(categoryId);
+    }
+    public PageResponse<CategoryResponse> searchCategories(String keyword, int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Category> categoryPage = categoryRepository.searchCategories(keyword, pageable);
+
+        List<CategoryResponse> categoryResponses = categoryPage.getContent()
+                .stream()
+                .map(categoryMapper::toCategoryResponse)
+                .toList();
+
+        return PageResponse.<CategoryResponse>builder()
+                .currentPage(page)
+                .totalPages(categoryPage.getTotalPages())
+                .totalElements(categoryPage.getTotalElements())
+                .elements(categoryResponses)
+                .build();
+    }
+    public PageResponse<CategoryResponse> getAllCategories(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        List<CategoryResponse> categoryResponses = categoryPage.getContent()
+                .stream()
+                .map(categoryMapper::toCategoryResponse)
+                .toList();
+
+        return PageResponse.<CategoryResponse>builder()
+                .currentPage(page)
+                .totalPages(categoryPage.getTotalPages())
+                .totalElements(categoryPage.getTotalElements())
+                .elements(categoryResponses)
+                .build();
     }
 }

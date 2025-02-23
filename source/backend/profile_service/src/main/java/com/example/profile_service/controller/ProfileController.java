@@ -2,6 +2,8 @@ package com.example.profile_service.controller;
 
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
+import com.example.profile_service.dto.response.ApiResponse;
+import com.example.profile_service.dto.response.PageResponse;
 import com.example.profile_service.dto.response.ProfileResponse;
 import com.example.profile_service.service.ProfileService;
 import lombok.AccessLevel;
@@ -32,10 +34,7 @@ public class ProfileController {
     ProfileResponse getProfile(@PathVariable String id){
         return profileService.getProfileById(id);
     }
-    @GetMapping
-    public List<ProfileResponse> getAllProfiles() {
-        return profileService.getProfiles();
-    }
+
     @PutMapping("/{id}")
     public void updateProfile(@PathVariable String id, @RequestBody UpdationProfileRequest request){
         profileService.updateProfile(id, request);
@@ -43,5 +42,25 @@ public class ProfileController {
     @DeleteMapping("/{id}")
     public void deleteProfile(@PathVariable String id){
         profileService.deleteProfile(id);
+    }
+    @GetMapping
+    public ApiResponse<PageResponse<ProfileResponse>> getAllProfiles(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ){
+        return ApiResponse.<PageResponse<ProfileResponse>> builder()
+                .data(profileService.getAllProfiles(page, size))
+               .build();
+
+    }
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<ProfileResponse>> searchProfiles(
+            @RequestParam String keyword,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ){
+        return ApiResponse.<PageResponse<ProfileResponse>> builder()
+               .data(profileService.searchProfiles(keyword, page, size))
+               .build();
     }
 }
