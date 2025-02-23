@@ -5,6 +5,8 @@ import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.PageResponse;
 import com.example.profile_service.dto.response.ProfileResponse;
 import com.example.profile_service.entity.Profile;
+import com.example.profile_service.exception.AppException;
+import com.example.profile_service.exception.ErrorCode;
 import com.example.profile_service.mapper.ProfileMapper;
 import com.example.profile_service.repository.ProfileRepository;
 import lombok.AccessLevel;
@@ -33,7 +35,7 @@ public class ProfileService {
     }
 
     public ProfileResponse getProfileById(String userId) {
-        return profileMapper.toProfileResponse(profileRepository.findById(userId).orElseThrow(() -> new RuntimeException("Profile not found")));
+        return profileMapper.toProfileResponse(profileRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND)));
     }
 
     public void updateProfile(String userId, UpdationProfileRequest request) {

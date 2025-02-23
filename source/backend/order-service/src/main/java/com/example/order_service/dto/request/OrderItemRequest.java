@@ -1,5 +1,7 @@
 package com.example.order_service.dto.request;
 
+import com.example.order_service.entity.Order;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,6 +10,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileRequest {
-    String id_user;
+public class OrderItemRequest {
+    long id_order_item;
+    long id_product;
+    int quantity;
+    Double current_price;
+
 }

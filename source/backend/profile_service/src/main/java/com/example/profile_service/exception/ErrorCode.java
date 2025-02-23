@@ -23,6 +23,7 @@ public enum ErrorCode {
     ID_USER_INVALID(1006,"Id user is invalid",HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_FOUND(1007,"Permission not found",HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
+    PROFILE_NOT_FOUND(1008,"Profile not found",HttpStatus.NOT_FOUND),
     UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
     private int code;
     private String message;
