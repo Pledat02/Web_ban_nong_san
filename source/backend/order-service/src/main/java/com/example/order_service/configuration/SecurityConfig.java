@@ -32,6 +32,7 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(rq -> rq
                 .requestMatchers(HttpMethod.POST).permitAll()
+                .requestMatchers(HttpMethod.PUT).permitAll()
                 .anyRequest().authenticated()
         );
 

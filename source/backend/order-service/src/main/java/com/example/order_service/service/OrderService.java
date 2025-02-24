@@ -1,6 +1,7 @@
 package com.example.order_service.service;
 
 import com.example.order_service.dto.request.OrderRequest;
+import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
 import com.example.order_service.entity.Order;
@@ -119,5 +120,12 @@ public class OrderService {
                .totalElements(orderPage.getTotalElements())
                .elements(orderResponses)
                .build();
+    }
+    public OrderResponse updateStatus(String id_order, String status){
+        Order order = orderRepository.findById(id_order)
+               .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        order.setStatus(status);
+        order = orderRepository.save(order);
+        return orderMapper.toOrderResponse(order);
     }
 }

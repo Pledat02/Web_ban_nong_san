@@ -1,6 +1,7 @@
 package com.example.order_service.controller;
 
 import com.example.order_service.dto.request.OrderRequest;
+import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.ApiResponse;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
@@ -57,11 +58,11 @@ public class OrderController {
                 .build();
     }
     // Update order
-    @PutMapping("/{id}")
-    public ApiResponse<OrderResponse> updateOrder(
+    @PutMapping("/{id}/status")
+    public ApiResponse<OrderResponse> updateOrderStatus(
                                                   @PathVariable String id,
-                                                  @RequestBody OrderRequest orderRequest){
-        OrderResponse order = orderService.updateOrder(id, orderRequest);
+                                                  @RequestBody OrderStatusRequest request){
+        OrderResponse order = orderService.updateStatus(id, request.getStatus());
         if(order == null) throw new AppException(ErrorCode.ORDER_NOT_FOUND);
         return ApiResponse.<OrderResponse>builder()
                .data(order)
