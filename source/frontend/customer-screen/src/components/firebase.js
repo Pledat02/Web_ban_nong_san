@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "",
+    apiKey: "AIzaSyACpdFgRUUbqXOU-VO1LTgZOsPk9nuXgRQ",
     authDomain: "agricultural-e-commerce.firebaseapp.com",
     projectId: "agricultural-e-commerce",
     storageBucket: "agricultural-e-commerce.firebasestorage.app",

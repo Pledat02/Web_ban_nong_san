@@ -11,9 +11,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Data
 public class AuthenicationRequest {
-    @NotNull(message = "Tên người dùng không được để trống")
-    @Size(min = 4, message = "USERNAME_INVALID")
-    String username;
+    @NotNull(message = "email người dùng không được để trống")
+    String email;
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
 

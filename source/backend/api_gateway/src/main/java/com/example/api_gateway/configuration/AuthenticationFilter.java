@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -33,8 +34,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     @NonFinal
-    private String[] publicEnpoints = {"/identity/auth/.*,","/identity/users/registration"
-            ,"/profiles/internal"};
+    private String[] publicEnpoints = {
+            "/identity/auth/log-in",
+            "/identity/users/registration",
+            "/profiles/internal"};
 
 
     @Override
@@ -64,14 +67,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
     private boolean isPublicEndpoint(ServerHttpRequest request) {
         String path = request.getURI().getPath();
-        log.info(path);
-        for (String endpoint : publicEnpoints) {
-            if (path.endsWith(endpoint)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(publicEnpoints)
+                .anyMatch(path::endsWith);
     }
+
     private boolean isAuthorized(ServerHttpRequest request ){
         return true;
     }

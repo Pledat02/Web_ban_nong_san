@@ -50,7 +50,7 @@ public class AuthenicationService {
     @Value("${jwt.signerKey}")
     protected String signer_key;
     public AuthenicationResponse authenticate(AuthenicationRequest request) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_FOUND)) ;
 
         if(user == null){

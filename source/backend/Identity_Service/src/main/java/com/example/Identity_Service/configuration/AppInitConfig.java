@@ -41,14 +41,15 @@ public class AppInitConfig {
             }
 
             // Create admin user if not exists
-            if (userRepository.findByUsername("admin").isEmpty()) {
+            if (userRepository.findByEmail("admin@example.com").isEmpty()) {
                 User user = User.builder()
-                        .username("admin")
+                        .username("admin1")
+                        .email("admin@example.com")
                         .password(passwordEncoder.encode("admin123")) // Set a secure default password
                         .roles(new HashSet<>(Set.of(adminRole)))
                         .build();
                 userRepository.save(user);
-                log.warn("Admin user created with username 'admin' and default password 'admin123'.");
+
             }
         };
     }
