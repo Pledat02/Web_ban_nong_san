@@ -14,6 +14,7 @@ public class ProductResponse {
     long id_product;
     String name;
     Double price;
+    Double oldPrice;
     String description;
     int average_rating;
     List<ReviewResponse> reviews;
@@ -25,5 +26,4 @@ public class ProductResponse {
     String brand;
     String howToUse;
     String howToPreserve;
-    List<OptionTypeResponse> options;
 }

@@ -24,7 +24,7 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    private final String[] PUBLIC_ENDPOINTS = {"/,**/categories"};
+    private final String[] PUBLIC_ENDPOINTS = {"/,**/categories,/images/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,7 +32,8 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(rq -> rq
                 .requestMatchers(HttpMethod.POST).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                .anyRequest().permitAll()
         );
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +18,7 @@ public class Product {
     String name;
     Double price;
     String description;
+    Double oldPrice;
     @ManyToOne
     Category category;
     String image;
@@ -28,7 +28,5 @@ public class Product {
     String brand;
     String howToUse;
     String howToPreserve;
-    @ManyToMany()
-    List<OptionType> options;
 
 }

@@ -1,10 +1,8 @@
 package com.example.product_service.dto.request;
 
-import com.example.product_service.entity.OptionType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +11,7 @@ import java.util.List;
 public class ProductRequest {
     long id_product;
     String name;
+    Double oldPrice;
     Double price;
     String description;
     long id_category;
@@ -23,5 +22,4 @@ public class ProductRequest {
     String brand;
     String howToUse;
     String howToPreserve;
-    List<Long> id_options;
 }
