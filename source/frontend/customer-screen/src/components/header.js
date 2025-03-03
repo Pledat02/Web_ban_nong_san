@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaShoppingBag, FaBars, FaTimes } from "react-icons/fa";
+import DropdownAccount from "../list/dropdown-account";
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -29,7 +30,7 @@ const Header = () => {
             <div className="bg-green-600 text-white flex justify-between items-center px-8 py-2 text-sm">
                 <div>Chuyên cung cấp thực phẩm sạch | Halona Fruits</div>
                 <div className="hidden md:flex space-x-4">
-                    <a href="#" className="hover:underline">Tài khoản</a>
+                    <DropdownAccount/>
                     <a href="#" className="hover:underline">Thanh toán</a>
                     <a href="#" className="hover:underline">Cửa hàng</a>
                 </div>
@@ -48,7 +49,7 @@ const Header = () => {
                     {/* Logo */}
                     <div className="flex items-center space-x-2">
                         <img
-                            src="https://nongsan4.vnwordpress.net/" // Đổi thành đường dẫn logo của bạn
+                            src="https://nongsan4.vnwordpress.net/wp-content/uploads/2019/07/halonalogo.png" // Đổi thành đường dẫn logo của bạn
                             alt="Halona Fruits"
                             className="h-12"
                         />

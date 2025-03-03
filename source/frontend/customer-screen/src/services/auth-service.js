@@ -1,7 +1,6 @@
-// src/services/apiService.js
 import axios from "axios";
 
-class ApiService {
+class AuthService {
     constructor() {
         this.api = axios.create({
             baseURL: "http://localhost:8888/api/v1",
@@ -18,26 +17,27 @@ class ApiService {
             return response.data;
         } catch (error) {
             console.error("Error fetching posts:", error);
-            throw error;
+            return null;
         }
     }
 
-      async  login(email, password) {
+    async login(email, password) {
         try {
-            const response = await this.api.post("/identity/auth/log-in",
-                { email, password });
-            if(response.data.data.authenticated === true){
-                localStorage.setItem("token", response.data.token);
-                return true;
-            }else{
-                return false;
-            }
-
+            const response = await this.api.post("/identity/auth/log-in", { email, password });
+            return response.data?.data;
         } catch (error) {
             console.error("Error during login:", error);
-            throw error;
+            return false; // Trả về false nếu có lỗi
         }
+    }
+    checkExpiredToken(){
+        const token = localStorage.getItem('token');
+        if(token){
+            const expired = new Date(token.exp * 1000) < new Date();
+            return expired;
+        }
+        return true;
     }
 }
 
-export default new ApiService(); // Export singleton instance
+export default new AuthService();

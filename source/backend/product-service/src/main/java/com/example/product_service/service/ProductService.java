@@ -29,8 +29,8 @@ public class ProductService {
      String urlImagePath ="http://localhost:8082/products/images/";
 
     public ProductResponse getProductById(Long productId) {
-        ProductResponse response = new ProductResponse();
-        productMapper.toProductResponse(productRepository.findById(productId).orElseThrow(()
+        ProductResponse response = productMapper.toProductResponse
+                (productRepository.findById(productId).orElseThrow(()
                 -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
         response.setImage(urlImagePath+response.getImage());
         return response;

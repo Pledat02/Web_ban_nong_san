@@ -135,7 +135,9 @@ public class AuthenicationService {
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())
                 )
                 .issueTime(new Date())
+                .claim("email", user.getEmail())
                 .issuer("admin")
+                .claim("picture", user.getAvatar())
                 .jwtID(UUID.randomUUID().toString())
                .claim("scope", getScopeClaim(user.getRoles()))
                 .build();

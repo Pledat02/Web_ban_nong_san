@@ -1,11 +1,15 @@
 import React from "react";
-
-const FoodCard = ({ image, discount, name, oldPrice, newPrice }) => {
+import { useNavigate } from "react-router-dom";
+const ProductCard = ({id_product, image, name, oldPrice, price }) => {
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate(`/product-detail/${id_product}`);
+    };
     return (
         <div className="relative border border-yellow-300 rounded-3xl p-4 shadow-md text-center bg-white overflow-hidden">
             {/* Badge giảm giá */}
-            <div className="absolute top-2 left-2 bg-pink-500 text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full z-10">
-                -{discount}%
+            <div className="absolute top-2 left-2 bg-[#16A34A] text-white text-xs sm:text-sm font-bold px-2 py-1 rounded-full z-10">
+                -{100-Math.round(price*100/oldPrice)}%
             </div>
 
             {/* Ảnh sản phẩm */}
@@ -13,7 +17,8 @@ const FoodCard = ({ image, discount, name, oldPrice, newPrice }) => {
                 <img
                     src={image}
                     alt={name}
-                    className="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-md transition-transform duration-300 hover:scale-110"
+                    className="cursor-pointer w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover rounded-md transition-transform duration-300 hover:scale-110"
+                    onClick={handleClick}
                 />
             </div>
 
@@ -23,7 +28,7 @@ const FoodCard = ({ image, discount, name, oldPrice, newPrice }) => {
             {/* Giá cũ và giá mới */}
             <div className="mt-2">
                 <span className="text-xs sm:text-sm text-gray-400 line-through mr-2">{oldPrice}đ</span>
-                <span className="text-sm sm:text-base text-red-500 font-bold">{newPrice}đ</span>
+                <span className="text-sm sm:text-base text-orange-500 font-bold">{price}đ</span>
             </div>
 
             {/* Nút mua ngay */}
@@ -34,4 +39,4 @@ const FoodCard = ({ image, discount, name, oldPrice, newPrice }) => {
     );
 };
 
-export default FoodCard;
+export default ProductCard;

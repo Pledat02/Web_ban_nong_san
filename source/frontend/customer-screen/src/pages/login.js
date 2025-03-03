@@ -1,40 +1,71 @@
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { auth, googleProvider, facebookProvider } from "../components/firebase";
 import { signInWithPopup } from "firebase/auth";
-import ApiService from "../services/api";
-
+import AuthService from "../services/auth-service";
+import jwtDecode from "jwt-decode";
+import { useUser } from "../context/UserContext";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    const navigate = useNavigate();
+    const { login } = useUser();
     // Normal Login
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const isAuthenticated = await ApiService.login(email, password);
-            if (isAuthenticated) {
-                alert("Login thành công!");
+            const response = await AuthService.login(email, password);
+            console.log(response);
+
+            if (response.authenticated) {
+                const decoded = jwtDecode(response.token);
+                const user = {
+                    username: decoded.sub,
+                    email: decoded.email,
+                    avatar: decoded.picture,
+                    token: response.token
+                };
+                login(user);
+                navigate("/home");
             }
         } catch (error) {
             alert(error.message);
         }
     };
 
+
     // Google Login
     const handleGoogleLogin = async () => {
         try {
-            await signInWithPopup(auth, googleProvider);
-            alert("Google login successful!");
+            const result = await signInWithPopup(auth, googleProvider);
+            const userGG = result.user;
+            const user = {
+                username: userGG.displayName,
+                email: userGG.email,
+                avatar: userGG.photoURL,
+                token: userGG.accessToken
+            };
+            login(user);
+            navigate("/home");
         } catch (error) {
             alert(error.message);
         }
     };
 
+
     // Facebook Login
     const handleFacebookLogin = async () => {
         try {
-            await signInWithPopup(auth, facebookProvider);
-            alert("Facebook login successful!");
+            const result = await signInWithPopup(auth, facebookProvider);
+            const userFB = result.user;
+            const user = {
+                username: userFB.displayName,
+                email: userFB.email,
+                avatar: userFB.photoURL,
+                token: userFB.accessToken
+            };
+            login(user);
+            navigate("/home");
         } catch (error) {
             alert(error.message);
         }
