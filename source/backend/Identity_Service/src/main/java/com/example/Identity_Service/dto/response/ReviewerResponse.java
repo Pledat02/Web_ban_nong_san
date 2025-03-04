@@ -1,16 +1,14 @@
-package com.example.review_service.dto.response;
+package com.example.Identity_Service.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
+public class ReviewerResponse {
     String id_user;
     String username;
     String avatar;

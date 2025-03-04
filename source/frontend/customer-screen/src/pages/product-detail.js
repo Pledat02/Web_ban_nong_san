@@ -107,17 +107,22 @@ const ProductDetail = () => {
                 </div>
             </div>
             <div className="flex flex-col lg:flex-row gap-8 mx-14 my-8">
-                <div className="w-full lg:w-2/3 flex">
-                    <div className="w-full bg-white p-4 rounded-lg shadow-md flex flex-col min-h-full">
-                        <InformationTable product={product}/>
-                    </div>
-                </div>
-                <div className="w-full lg:w-1/3 flex">
-                    <div className="w-full bg-white p-4 rounded-lg shadow-md flex flex-col min-h-full">
+                {/* Cột 1 - Bảng Đánh Giá */}
+                <div className="w-full lg:w-2/3 flex flex-col">
+                    <div className="w-full bg-white p-4 rounded-lg shadow-md flex flex-col flex-1">
                         <ReviewTable product={product}/>
                     </div>
                 </div>
+
+                {/* Cột 2 - Thông Tin Sản Phẩm */}
+                <div className="w-full lg:w-1/3 flex flex-col">
+                    <div className="w-full bg-white p-4 rounded-lg shadow-md flex flex-col min-h-0">
+                        <InformationTable product={product}/>
+                    </div>
+                </div>
+
             </div>
+
 
             {/*sản phẩm liên quan*/}
             <ProductCategoryList title="Sản phẩm tương tự" categoryId={product.category.id_category}/>

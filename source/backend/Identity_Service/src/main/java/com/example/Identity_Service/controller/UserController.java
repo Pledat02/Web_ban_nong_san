@@ -4,7 +4,7 @@ package com.example.Identity_Service.controller;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
 import com.example.Identity_Service.dto.response.ApiResponse;
-import com.example.Identity_Service.dto.response.ReviewerUserResponse;
+import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.service.UserService;
@@ -41,10 +41,10 @@ public class UserController {
                 .build();
     }
     @GetMapping("/reviewer/{id_user}")
-    public ApiResponse<ReviewerUserResponse> getReviewer(@PathVariable String id_user) {
-        ReviewerUserResponse user =  userService.getReviewer(id_user);
+    public ApiResponse<ReviewerResponse> getReviewer(@PathVariable String id_user) {
+        ReviewerResponse user =  userService.getReviewer(id_user);
         if(user == null) throw new RuntimeException("Reviewer not found");
-        return ApiResponse.<ReviewerUserResponse>builder()
+        return ApiResponse.<ReviewerResponse>builder()
                .data(user)
                .build();
     }

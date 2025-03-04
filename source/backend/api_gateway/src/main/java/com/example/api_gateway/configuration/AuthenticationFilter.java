@@ -39,6 +39,7 @@
         private static final List<String> PUBLIC_ENDPOINTS = List.of(
                 "/api/v1/identity/auth/**",
                 "/api/v1/products/**",
+                "/api/v1/reviews/product/**",
                 "/identity/users/registration",
                 "/profiles/internal"
         );

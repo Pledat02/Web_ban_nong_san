@@ -3,7 +3,7 @@ import axios from "axios";
 class AuthService {
     constructor() {
         this.api = axios.create({
-            baseURL: "http://localhost:8888/api/v1",
+            baseURL: "http://localhost:8888/api/v1/identity/auth",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -23,7 +23,7 @@ class AuthService {
 
     async login(email, password) {
         try {
-            const response = await this.api.post("/identity/auth/log-in", { email, password });
+            const response = await this.api.post("/log-in", { email, password });
             return response.data?.data;
         } catch (error) {
             console.error("Error during login:", error);
