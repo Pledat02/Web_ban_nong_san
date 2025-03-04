@@ -74,6 +74,7 @@ public class ReviewController {
         return ApiResponse.<Void>builder()
                .build();
     }
+
     // Delete review
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteReview(@PathVariable long id){

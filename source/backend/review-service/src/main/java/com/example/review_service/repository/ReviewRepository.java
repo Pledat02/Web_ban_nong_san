@@ -14,8 +14,7 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     @Query("select r from Review r where r.id_product =?1")
     Optional<Review> findReviewById_product(Long productId);
     @Query("SELECT r FROM Review r WHERE " +
-            "LOWER(r.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(r.rating) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            "LOWER(r.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
     )
     Page<Review> searchReviews(String keyword, Pageable pageable);
 }

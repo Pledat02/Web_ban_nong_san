@@ -12,5 +12,6 @@ public class ReviewRequest {
     long id_review;
     String content;
     int rating;
+    long id_product;
     String id_user;
 }

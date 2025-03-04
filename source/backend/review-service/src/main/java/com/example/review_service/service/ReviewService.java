@@ -78,6 +78,7 @@ public class ReviewService {
         reviewMapper.updateReview(id, request);
         reviewRepository.save(review);
     }
+
     public void deleteReview(long id){
         reviewRepository.deleteById(id);
     }
