@@ -137,6 +137,7 @@ public class AuthenicationService {
                 .issueTime(new Date())
                 .claim("email", user.getEmail())
                 .issuer("admin")
+                .claim("id_user", user.getId_user())
                 .claim("picture", user.getAvatar())
                 .jwtID(UUID.randomUUID().toString())
                .claim("scope", getScopeClaim(user.getRoles()))

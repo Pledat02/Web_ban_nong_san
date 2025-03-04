@@ -23,10 +23,4 @@ public class ProfileInternalController {
                 .data(profileService.saveProfile(profile))
                 .build();
     }
-   @GetMapping("/${id}")
-    public ApiResponse<ProfileResponse> getProfile(@RequestParam String id){
-        return ApiResponse.<ProfileResponse>builder()
-                .data(profileService.getProfileById(id))
-                .build();
-    }
 }

@@ -20,6 +20,7 @@ const Login = () => {
             if (response.authenticated) {
                 const decoded = jwtDecode(response.token);
                 const user = {
+                    id_user: decoded.id_user,
                     username: decoded.sub,
                     email: decoded.email,
                     avatar: decoded.picture,

@@ -23,15 +23,20 @@ class ReviewService {
     }
 
     // 🟢 Gửi một review mới
-    async createReview(reviewData) {
+    async createReview(reviewData, token) {
         try {
-            const response = await this.api.post("/", reviewData);
-            return response.data;
+            const response = await this.api.post("/", reviewData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data.data;
         } catch (error) {
             console.error("Error creating review:", error);
             throw error;
         }
     }
+
 
     // 🟢 Xóa review theo ID
     async deleteReview(reviewId) {
