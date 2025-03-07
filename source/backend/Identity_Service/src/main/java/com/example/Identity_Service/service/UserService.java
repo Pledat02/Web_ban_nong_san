@@ -5,6 +5,7 @@ import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
 import com.example.Identity_Service.dto.response.PageResponse;
+import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
@@ -49,8 +50,12 @@ public class UserService {
      KafkaTemplate<String,Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest userrq) {
         if(userRepository.existsByUsername(userrq.getUsername())){
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
+        if(userRepository.findByEmail(userrq.getEmail()).isPresent()){
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
         userrq.setPassword(passwordEncoder.encode(userrq.getPassword()));
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
@@ -75,12 +80,19 @@ public class UserService {
 
         return userMapper.toUserResponse(userResponse);
     }
-//    @PostAuthorize("returnObject.username == authentication.name")
+    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
-
+    public ReviewerResponse getReviewer(String id){
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return ReviewerResponse.builder()
+                .id_user(user.getId_user())
+                .username(user.getUsername())
+                .avatar(user.getAvatar())
+                .build();
+    }
 
     public boolean deleteUser(String id) {
         try {

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-17T15:21:51+0700",
+    date = "2025-03-02T08:20:01+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.5 (Eclipse Adoptium)"
 )
 @Component
@@ -30,7 +30,6 @@ public class UserMapperImpl implements UserMapper {
         user1.username( user.getUsername() );
         user1.email( user.getEmail() );
         user1.password( user.getPassword() );
-        user1.birthday( user.getBirthday() );
         Set<Role> set = user.getRoles();
         if ( set != null ) {
             user1.roles( new LinkedHashSet<Role>( set ) );
@@ -48,7 +47,6 @@ public class UserMapperImpl implements UserMapper {
         user.setUsername( rq.getUsername() );
         user.setEmail( rq.getEmail() );
         user.setPassword( rq.getPassword() );
-        user.setBirthday( rq.getBirthday() );
         if ( user.getRoles() != null ) {
             Set<Role> set = rq.getRoles();
             if ( set != null ) {
@@ -78,7 +76,6 @@ public class UserMapperImpl implements UserMapper {
         userResponse.username( user.getUsername() );
         userResponse.email( user.getEmail() );
         userResponse.password( user.getPassword() );
-        userResponse.birthday( user.getBirthday() );
         Set<Role> set = user.getRoles();
         if ( set != null ) {
             userResponse.roles( new LinkedHashSet<Role>( set ) );

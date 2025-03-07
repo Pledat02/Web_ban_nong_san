@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -19,16 +19,17 @@ public class Product {
     String name;
     Double price;
     String description;
+    Double oldPrice;
     @ManyToOne
     Category category;
     String image;
-    boolean isOrganic;
+    Boolean organic;
     String origin;
     String packaging;
     String brand;
     String howToUse;
     String howToPreserve;
-    @ManyToMany()
-    List<OptionType> options;
+
+
 
 }

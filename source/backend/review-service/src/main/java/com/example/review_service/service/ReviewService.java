@@ -32,7 +32,8 @@ public class ReviewService {
     public ReviewResponse getReviewById(long id) {
         ReviewResponse review = reviewMapper.toReviewResponse(
                 reviewRepository.findById(id).orElse(null));
-        review.setProfileResponse(profileClientHttp.getProfile(review.getId_user()));
+        log.info(profileClientHttp.getProfile(review.getId_user()).toString());
+        review.setReviewerResponse(profileClientHttp.getProfile(review.getId_user()).getData());
         return (review);
     }
     public PageResponse<ReviewResponse> getReviews(int page, int size){
@@ -42,8 +43,8 @@ public class ReviewService {
                 .stream()
                 .map(reviewMapper::toReviewResponse)
                 .peek(reviewResponse -> {
-                    reviewResponse.setProfileResponse(
-                            profileClientHttp.getProfile(reviewResponse.getId_user()));
+                    reviewResponse.setReviewerResponse(
+                            profileClientHttp.getProfile(reviewResponse.getId_user()).getData());
                 })
                 .toList();
         return PageResponse.<ReviewResponse>builder()
@@ -71,18 +72,30 @@ public class ReviewService {
     }
 
     public ReviewResponse createReview(ReviewRequest request) {
-        return reviewMapper.toReviewResponse(reviewRepository.save(reviewMapper.toReview(request)));
+        ReviewResponse reviewResponse = reviewMapper.toReviewResponse(reviewRepository
+                .save(reviewMapper.toReview(request)));
+        reviewResponse.setReviewerResponse(
+                profileClientHttp.getProfile(reviewResponse.getId_user()).getData());
+        return reviewResponse;
     }
     public void updateReview(long id,ReviewRequest request) {
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+        Review review = reviewRepository.findById(id).orElseThrow(() ->
+                new AppException(ErrorCode.REVIEW_NOT_FOUND));
         reviewMapper.updateReview(id, request);
         reviewRepository.save(review);
     }
+
     public void deleteReview(long id){
         reviewRepository.deleteById(id);
     }
+
     public List<ReviewResponse> getReviewsByProductId(long productId){
-        return reviewRepository.findReviewById_product(productId).stream()
-                .map(reviewMapper::toReviewResponse).toList();
+        return reviewRepository.findReviewByIdProductOrderByCreateDateDesc(productId).stream()
+                .map(reviewMapper::toReviewResponse)
+                .peek(reviewResponse -> {
+                    reviewResponse.setReviewerResponse(
+                            profileClientHttp.getProfile(reviewResponse.getId_user()).getData());
+                })
+                .toList();
     }
 }
