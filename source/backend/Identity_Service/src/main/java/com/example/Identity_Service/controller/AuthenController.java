@@ -28,6 +28,14 @@ public class AuthenController {
                 .build();
 
     }
+    @PostMapping("/firebase")
+    ApiResponse<AuthenicationResponse> loginFirebaseAuth
+            (@RequestBody UserCreationRequest request){
+        AuthenicationResponse result = authenService.loginFirebaseAuth(request);
+        return ApiResponse.<AuthenicationResponse>builder()
+               .data(result)
+               .build();
+    }
 
     @PostMapping("/introspect")
     ApiResponse<ValidTokenResponse> authenticate(@RequestBody TokenRequest requestBody) throws ParseException, JOSEException {

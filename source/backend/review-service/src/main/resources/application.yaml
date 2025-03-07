@@ -1,7 +1,7 @@
 server:
   port: 8083
   servlet:
-    context-path: /review
+    context-path: /reviews
 spring:
   cloud:
     config:

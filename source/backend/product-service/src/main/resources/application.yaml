@@ -3,6 +3,9 @@ server:
   servlet:
     context-path: /products
 spring:
+  web:
+    resources:
+      static-locations: classpath:/static/
   datasource:
     url: "jdbc:mysql://localhost:3306/product_service"
     username: "root"

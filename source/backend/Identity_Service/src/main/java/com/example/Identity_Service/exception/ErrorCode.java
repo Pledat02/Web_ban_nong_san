@@ -16,6 +16,8 @@ public enum ErrorCode {
     USER_NOT_AUTHENTICATED(1004,"User is not authorized",HttpStatus.UNAUTHORIZED),
     USER_ALREADY_ACTIVE(1005,"User is already active",HttpStatus.BAD_REQUEST),
     USER_EXISTED(1001,"User is existed",HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTED(1111,"Username is existed",HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1112,"email is existed",HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(1002,"Username is invalid",HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(1003,"Email is invalid",HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1004,"Your password must be least {min} character",HttpStatus.BAD_REQUEST),

@@ -18,10 +18,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id_user;
+    @Column(nullable = false, unique = true)
     String username;
+    @Column(nullable = false, unique = true)
     String email;
+    @Column(nullable = false)
     String password;
-    LocalDate birthday;
+    String avatar;
     @ManyToMany
     Set<Role> roles;
 

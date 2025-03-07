@@ -1,5 +1,6 @@
 package com.example.product_service.controller;
 
+import com.example.product_service.dto.request.FilterRequest;
 import com.example.product_service.dto.request.ProductRequest;
 import com.example.product_service.dto.response.ApiResponse;
 import com.example.product_service.dto.response.PageResponse;
@@ -108,6 +109,18 @@ public class ProductController {
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .data(products)
                 .build() ;
+    }
+    // Get products by filter
+    @GetMapping("/filter")
+    public ApiResponse<PageResponse<ProductResponse>> filterProducts(
+            FilterRequest filter,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        PageResponse<ProductResponse> products =
+                productService.getProductsByFilter(filter,page, size);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(products)
+                .build();
     }
 
 

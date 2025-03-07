@@ -1,13 +1,16 @@
 package com.example.review_service.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
-@Data
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -20,5 +23,8 @@ public class Review {
     String content;
     int rating;
     String id_user;
-    String id_product;
+    long id_product;
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime create_date;
 }

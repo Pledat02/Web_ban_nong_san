@@ -24,14 +24,14 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    private final String[] PUBLIC_ENDPOINTS = {"/,**/categories"};
+    private final String[] PUBLIC_ENDPOINTS = {"/,**/categories,/images/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
-
+        httpSecurity.cors(AbstractHttpConfigurer::disable);
         httpSecurity.authorizeHttpRequests(rq -> rq
-                .requestMatchers(HttpMethod.POST).permitAll()
+                .requestMatchers(HttpMethod.GET).permitAll()
                 .anyRequest().authenticated()
         );
 

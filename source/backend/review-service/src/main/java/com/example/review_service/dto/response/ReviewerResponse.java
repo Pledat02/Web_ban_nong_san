@@ -10,8 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
-    String firstName;
-    String lastName;
-    String thumbnail;
+public class ReviewerResponse {
+    String id_user;
+    String username;
+    String avatar;
 }
