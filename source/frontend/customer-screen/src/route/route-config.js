@@ -6,6 +6,7 @@ import MainLayout from "../components/main-layout";
 import ProductDetail from "../pages/product-detail";
 import Register from "../pages/register";
 import SearchPage from "../pages/search-product";
+import Cart from "../pages/cart";
 const AppRoutes = () => {
     return (
         <Routes>
@@ -15,6 +16,7 @@ const AppRoutes = () => {
                 <Route path="home"  element={<Home/>} />
                 <Route path="product-detail/:id" element={<ProductDetail/>} />
                 <Route path="login" element={<Login />} />
+                <Route path="cart" element={<Cart/>} />
                 <Route path="register" element={<Register/>} />
                 <Route path="search" element={<SearchPage/>} />
             </Route>

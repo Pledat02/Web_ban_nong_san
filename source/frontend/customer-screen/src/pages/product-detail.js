@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import ProductService from "../services/product-service";
 import ReviewTable from "../components/review-table";
 import ProductCategoryList from "../list/product-category-list";
+import {CartActionTypes, useCart} from "../context/cart-context";
 
 const ProductDetail = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [selectedType, setSelectedType] = useState("1KG");
+    const { dispatch } = useCart();
+    const navigate = useNavigate();
+    const addToCart = () => {
+        dispatch({ type: CartActionTypes.ADD_TO_CART, payload: {product } });
+    };
     useEffect(() => {
         const fetchProductDetail = async () => {
             try {
@@ -98,9 +104,9 @@ const ProductDetail = () => {
 
                         {/* Số lượng và nút mua hàng */}
                         <div className="mt-6 flex items-center">
-                            <button className="px-4 py-2 bg-yellow-500 text-white font-bold rounded mr-4">Mua ngay
+                            <button onClick={addToCart.then(navigate("/cart"))} className="px-4 py-2 bg-yellow-500 text-white font-bold rounded mr-4">Mua ngay
                             </button>
-                            <button className="px-4 py-2 bg-orange-500 text-white font-bold rounded">Thêm vào giỏ hàng
+                            <button onClick={addToCart} className="px-4 py-2 bg-orange-500 text-white font-bold rounded">Thêm vào giỏ hàng
                             </button>
                         </div>
                     </div>

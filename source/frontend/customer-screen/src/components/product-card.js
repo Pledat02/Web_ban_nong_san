@@ -1,10 +1,24 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-const ProductCard = ({id_product, image, name, oldPrice, price }) => {
+import {CartActionTypes, useCart} from "../context/cart-context";
+const ProductCard = ({id_product,name,price,oldPrice,image}) => {
     const navigate = useNavigate();
+    const { dispatch } = useCart();
     const handleClick = () => {
         navigate(`/product-detail/${id_product}`);
     };
+    const addToCart = () => {
+        dispatch({
+            type: CartActionTypes.ADD_TO_CART,
+            payload: {
+                id: id_product,
+                name: name,
+                price: price,
+                quantity: 1,
+            },
+        });
+    };
+
     return (
         <div className="relative border border-yellow-300 rounded-3xl p-4 shadow-md text-center bg-white overflow-hidden">
             {/* Badge giảm giá */}
