@@ -28,9 +28,9 @@ public class UserController {
 
     @PostMapping("/registration")
     public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request){
-        ApiResponse<UserResponse> respone = new ApiResponse<>();
-        respone.setData(userService.createUser(request));
-        return respone;
+        return ApiResponse.<UserResponse>builder()
+                .data(userService.createUser(request))
+                .build();
     }
     @GetMapping("/{id}")
     public  ApiResponse<UserResponse> getUserById(@PathVariable String id){

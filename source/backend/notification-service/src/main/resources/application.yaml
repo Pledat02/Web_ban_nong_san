@@ -2,7 +2,7 @@ app:
   mail:
     brevo:
       url: "https://api.brevo.com/v3/smtp/email"
-      api-key: 
+      api-key: ""
       name-sender: "Nong San Viet Nam"
       email-sender: "phamledatctbp@gmail.com"
 server:

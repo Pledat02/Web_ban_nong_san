@@ -14,7 +14,7 @@ spring:
     password: "root"
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
   kafka:
     bootstrap-servers: localhost:9094
     producer:

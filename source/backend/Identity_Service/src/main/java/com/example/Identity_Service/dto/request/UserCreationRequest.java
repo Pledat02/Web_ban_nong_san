@@ -29,5 +29,4 @@ public class UserCreationRequest {
     String password;
     Set<Role> roles;
 //    @DobValidator(min=3, message = "BIRTHDAY_INVALID")
-    LocalDate birthday;
 }

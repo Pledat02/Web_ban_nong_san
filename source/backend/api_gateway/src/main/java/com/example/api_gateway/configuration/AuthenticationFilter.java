@@ -40,9 +40,14 @@
                 "/api/v1/identity/auth/**",
                 "/api/v1/products/**",
                 "/api/v1/reviews/product/**",
-                "/identity/users/registration",
-                "/profiles/internal"
+                "/api/v1/identity/users/registration",
+                "/api/v1/profiles/internal"
         );
+        @NonFinal
+        private static final List<String> GET_PUBLIC_ENDPOINTS = List.of(
+                "/api/v1/products/**"
+        );
+
 
         @Override
         public int getOrder() {
@@ -71,9 +76,16 @@
         }
         private boolean isPublicEndpoint(ServerHttpRequest request) {
             String path = request.getURI().getPath();
-            log.info("path: "+path);
+            String method = String.valueOf(request.getMethod());
+
+            if ("GET".equalsIgnoreCase(method) &&
+                    GET_PUBLIC_ENDPOINTS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path))) {
+                return true;
+            }
+
             return PUBLIC_ENDPOINTS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
         }
+
 
         private boolean isAuthorized(ServerHttpRequest request ){
             return true;

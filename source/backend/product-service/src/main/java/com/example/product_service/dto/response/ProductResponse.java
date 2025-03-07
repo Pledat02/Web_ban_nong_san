@@ -1,5 +1,7 @@
 package com.example.product_service.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,7 +22,8 @@ public class ProductResponse {
     List<ReviewResponse> reviews;
     CategoryResponse category;
     String image;
-    boolean isOrganic;
+    @Column(name = "organic")
+    boolean organic;
     String origin;
     String packaging;
     String brand;

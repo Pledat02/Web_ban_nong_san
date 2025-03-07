@@ -11,13 +11,13 @@ class AuthService {
         });
     }
 
-    async getPosts() {
-        try {
-            const response = await this.api.get("/posts");
-            return response.data;
-        } catch (error) {
-            console.error("Error fetching posts:", error);
-            return null;
+    async loginFirebase(user){
+        try{
+            const response = await this.api.post("/firebase", user);
+            return response.data?.data;
+        }
+        catch(error){
+            console.error("Error during login with firebase:", error);
         }
     }
 

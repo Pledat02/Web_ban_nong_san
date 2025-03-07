@@ -1,5 +1,6 @@
 package com.example.product_service.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,10 +17,12 @@ public class ProductRequest {
     String description;
     long id_category;
     String image;
-    boolean isOrganic;
+    Boolean organic;
     String origin;
     String packaging;
     String brand;
     String howToUse;
     String howToPreserve;
+
+
 }

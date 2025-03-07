@@ -72,11 +72,15 @@ public class ReviewService {
     }
 
     public ReviewResponse createReview(ReviewRequest request) {
-        return reviewMapper.toReviewResponse(reviewRepository
+        ReviewResponse reviewResponse = reviewMapper.toReviewResponse(reviewRepository
                 .save(reviewMapper.toReview(request)));
+        reviewResponse.setReviewerResponse(
+                profileClientHttp.getProfile(reviewResponse.getId_user()).getData());
+        return reviewResponse;
     }
     public void updateReview(long id,ReviewRequest request) {
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+        Review review = reviewRepository.findById(id).orElseThrow(() ->
+                new AppException(ErrorCode.REVIEW_NOT_FOUND));
         reviewMapper.updateReview(id, request);
         reviewRepository.save(review);
     }

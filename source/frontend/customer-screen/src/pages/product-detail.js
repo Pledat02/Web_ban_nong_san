@@ -143,7 +143,7 @@ const InformationTable = ({product}) => {
                 </tr>
                 <tr>
                     <td className="border p-2 font-semibold">Thương hiệu</td><td className="border p-2">{product.brand}</td></tr>
-                <tr><td className="border p-2 font-semibold">Hữu cơ</td><td className="border p-2">{product.isOrganic ? "Có" : "Không"}</td></tr>
+                <tr><td className="border p-2 font-semibold">Hữu cơ</td><td className="border p-2">{product.organic ? "Có" : "Không"}</td></tr>
                 <tr><td className="border p-2 font-semibold">Xuất xứ</td><td className="border p-2">{product.origin}</td></tr>
                 <tr><td className="border p-2 font-semibold">Đóng gói</td><td className="border p-2">{product.packaging}</td></tr>
                 <tr><td className="border p-2 font-semibold">Cách sử dụng</td><td className="border p-2">{product.howToUse}</td></tr>

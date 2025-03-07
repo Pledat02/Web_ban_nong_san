@@ -23,11 +23,13 @@ public class Product {
     @ManyToOne
     Category category;
     String image;
-    boolean isOrganic;
+    Boolean organic;
     String origin;
     String packaging;
     String brand;
     String howToUse;
     String howToPreserve;
+
+
 
 }

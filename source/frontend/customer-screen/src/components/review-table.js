@@ -39,7 +39,7 @@ const ReviewTable = ({ product }) => {
             const response = await ReviewService.createReview(newReview, user.token);
 
             if (response) {
-                setReviews([...reviews, response]); // Cập nhật danh sách đánh giá
+                setReviews([ response,...reviews]);
                 setRating(0);
                 setContent("");
             }
@@ -83,7 +83,7 @@ const ReviewTable = ({ product }) => {
                                         <span key={i} className="text-yellow-500">⭐</span>
                                     ))}
                                 </div>
-                                <p className="text-gray-600">{review.comment}</p>
+                                <p className="text-gray-600">{review.content}</p>
                             </div>
                         </div>
                     ))

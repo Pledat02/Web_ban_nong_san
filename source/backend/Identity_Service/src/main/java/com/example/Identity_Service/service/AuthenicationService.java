@@ -5,6 +5,8 @@ import com.example.Identity_Service.dto.request.TokenRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
+import com.example.Identity_Service.dto.response.UserResponse;
+import com.example.Identity_Service.mapper.UserMapper;
 import com.example.Identity_Service.repository.UserRepository;
 import com.example.Identity_Service.dto.response.ValidTokenResponse;
 import com.example.Identity_Service.entity.InvalidToken;
@@ -32,10 +34,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
 public class AuthenicationService {
 
     private UserRepository userRepository;
+    UserMapper userMapper;
     private InvalidTokenRepository invalidTokenRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -94,6 +94,23 @@ public class AuthenicationService {
         }
        return signedJWT;
 
+    }
+    public AuthenicationResponse loginFirebaseAuth(UserCreationRequest request){
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        request.setRoles(new HashSet<>());
+        if(user.isPresent()){
+           return AuthenicationResponse.builder()
+                   .authenticated(true)
+                   .token(generateToken(user.get()))
+                   .build();
+        }else{
+            return AuthenicationResponse.builder()
+                    .authenticated(true)
+                    .token(generateToken(
+                            userRepository.save(
+                                    userMapper.ToUser(request))))
+                    .build();
+        }
     }
     public void logout(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();

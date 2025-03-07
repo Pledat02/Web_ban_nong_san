@@ -50,8 +50,12 @@ public class UserService {
      KafkaTemplate<String,Object> kafkaTemplate;
     public UserResponse createUser(UserCreationRequest userrq) {
         if(userRepository.existsByUsername(userrq.getUsername())){
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
+        if(userRepository.findByEmail(userrq.getEmail()).isPresent()){
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
         userrq.setPassword(passwordEncoder.encode(userrq.getPassword()));
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
