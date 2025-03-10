@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProfileSidebar } from '../components/profile-sidebar';
 import { ProfileForm } from '../components/profile-form';
+import {useUser} from "../context/UserContext";
 
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
             [e.target.name]: e.target.value
         });
     };
-
+    const{user} =useUser();
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Form submitted:', formData);
@@ -35,14 +36,7 @@ function App() {
                 <div className="bg-white rounded-2xl shadow">
                     <div className="grid grid-cols-1 md:grid-cols-4">
                         <ProfileSidebar
-                            name={`${formData.firstName} ${formData.lastName}`}
-                            role="Product Designer"
-                            imageUrl="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            stats={{
-                                applications: 28,
-                                interviews: 16,
-                                activeJobs: 4,
-                            }}
+                            user={user}
                         />
 
                         <div className="col-span-3 p-8">
