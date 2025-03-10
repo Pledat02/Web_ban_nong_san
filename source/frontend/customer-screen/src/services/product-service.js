@@ -64,6 +64,38 @@ class ProductService {
             throw error;
         }
     }
+    getMaxPrice(weightTypes,price){
+        let maxValue = 0;
+        weightTypes.forEach((weightType) => {
+            let value =0;
+            if(weightType.unit === 'g'){
+                value = price * weightType.weight /1000 ;
+            }else {
+                //kg
+                value = price * weightType.weight;
+            }
+            if (value > maxValue) {
+                maxValue = value;
+            }
+        });
+        return maxValue;
+    }
+    getMinPrice(weightTypes,price){
+        let minValue = 9999999999;
+        weightTypes.forEach((weightType) => {
+            let value = 0;
+            if(weightType.unit === 'g'){
+                value = price * weightType.weight /1000 ;
+            }else {
+                //kg
+                value = price * weightType.weight;
+            }
+            if (value < minValue) {
+                minValue = value;
+            }
+        });
+        return minValue;
+    }
 }
 
 export default new ProductService();

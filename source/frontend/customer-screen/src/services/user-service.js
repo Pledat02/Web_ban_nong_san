@@ -1,4 +1,5 @@
 import axios from "axios";
+import {toast} from "react-toastify";
 
 class UserService {
     constructor() {
@@ -15,12 +16,29 @@ class UserService {
     async register(userData) {
         try {
             const response = await this.api.post("/registration", userData);
-            return response.data.data;
+            console.log(response)
+            if (response.status === 200) {
+                toast.success("Đăng ký thành công!", { position: "top-right" });
+                return true;
+            }
+
+            toast.error(response.data?.message || "Có lỗi xảy ra!", { position: "top-right" });
+            return false;
+
         } catch (error) {
-            console.error("Error registering user:", error);
-            throw error;
+            console.error("Lỗi khi đăng ký:", error.message);
+
+            if (error.response) {
+                const errorMessage = error.response.data?.message || "Lỗi từ server!";
+                toast.error(errorMessage, { position: "top-right" });
+            } else {
+                toast.error("Lỗi kết nối đến server!", { position: "top-right" });
+            }
+
+            return false;
         }
     }
+
 
     // 🟢 Lấy thông tin người dùng theo ID
     async getUserById(userId, token) {

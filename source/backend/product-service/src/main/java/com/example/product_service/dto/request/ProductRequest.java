@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,12 +19,13 @@ public class ProductRequest {
     String description;
     long id_category;
     String image;
+    int stock;
     Boolean organic;
     String origin;
     String packaging;
     String brand;
     String howToUse;
     String howToPreserve;
-
+    List<WeightTypeRequest> weightTypes;
 
 }

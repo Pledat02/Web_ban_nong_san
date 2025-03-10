@@ -1,17 +1,39 @@
 package com.example.product_service.mapper;
 
 import com.example.product_service.dto.request.ProductRequest;
+import com.example.product_service.dto.request.WeightTypeResponse;
+import com.example.product_service.dto.response.CategoryResponse;
 import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.entity.Product;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import com.example.product_service.entity.WeightType;
+import org.mapstruct.*;
+import org.springframework.stereotype.Component;
 
-@Mapper  (componentModel = "spring")
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-    Product toProduct(ProductRequest productRequest);
-    @Mapping(target = "id_product", ignore = true)
-    void updateProduct(@MappingTarget Product product, ProductRequest request);
+    @Mapping(target = "category", source = "category")
+    @Mapping(target = "weightTypes", source = "weightTypes")
     ProductResponse toProductResponse(Product product);
+
+    @Mapping(target = "weightTypes", ignore = true)
+    Product toProduct(ProductRequest productRequest);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateProduct(@MappingTarget Product product, ProductRequest request);
+
+
+    default List<WeightTypeResponse> toWeightTypeResponses(List<WeightType> weightTypes) {
+        if (weightTypes == null) return null;
+        return weightTypes.stream()
+                .map(weightType -> WeightTypeResponse.builder()
+                        .id_weight_type(weightType.getId_weight_type())
+                        .weight(weightType.getWeight())
+                        .unit(weightType.getUnit())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -20,6 +23,7 @@ public class Product {
     Double price;
     String description;
     Double oldPrice;
+    int stock;
     @ManyToOne
     Category category;
     String image;
@@ -29,7 +33,8 @@ public class Product {
     String brand;
     String howToUse;
     String howToPreserve;
-
+    @ManyToMany
+    List<WeightType> weightTypes = new ArrayList<>();
 
 
 }

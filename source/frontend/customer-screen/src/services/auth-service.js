@@ -1,4 +1,5 @@
 import axios from "axios";
+import {toast} from "react-toastify";
 
 class AuthService {
     constructor() {
@@ -17,17 +18,25 @@ class AuthService {
             return response.data?.data;
         }
         catch(error){
-            console.error("Error during login with firebase:", error);
+            toast.error(error.message, { position: "top-right" });
         }
     }
 
     async login(email, password) {
         try {
             const response = await this.api.post("/log-in", { email, password });
+           if(response.status !== 200){
+               toast.error(response.data.message, { position: "top-right" });
+               return false;
+           }
             return response.data?.data;
         } catch (error) {
-            console.error("Error during login:", error);
-            return false; // Trả về false nếu có lỗi
+            if (error.response) {
+                toast.error(error.response.data?.message || "Invalid credentials", { position: "top-right" });
+            } else {
+                toast.error("An error occurred. Please try again later.", { position: "top-right" });
+            }
+            return false;
         }
     }
     checkExpiredToken(){

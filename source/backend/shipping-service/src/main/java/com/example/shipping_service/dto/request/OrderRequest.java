@@ -48,7 +48,6 @@ public class OrderRequest {
     @NotBlank(message = "Phường/Xã hoặc Đường/Phố phải có giá trị")
     private String ward;
 
-    @NotBlank(message = "Thôn/Ấp của người nhận hàng không được để trống, nếu không có vui lòng điền 'Khác'")
     private String hamlet;
 
     @NotBlank(message = "Số điện thoại người nhận hàng không được để trống")

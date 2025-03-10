@@ -1,22 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import {CartActionTypes, useCart} from "../context/cart-context";
-const ProductCard = ({id_product,name,price,oldPrice,image}) => {
+import ProductService from "../services/product-service";
+const ProductCard = ({id_product,name,weightTypes,price,oldPrice,image}) => {
     const navigate = useNavigate();
     const { dispatch } = useCart();
     const handleClick = () => {
         navigate(`/product-detail/${id_product}`);
-    };
-    const addToCart = () => {
-        dispatch({
-            type: CartActionTypes.ADD_TO_CART,
-            payload: {
-                id: id_product,
-                name: name,
-                price: price,
-                quantity: 1,
-            },
-        });
     };
 
     return (
@@ -40,14 +30,31 @@ const ProductCard = ({id_product,name,price,oldPrice,image}) => {
             <h3 className="text-base sm:text-lg font-semibold text-gray-700 mt-3">{name}</h3>
 
             {/* Giá cũ và giá mới */}
+            {/* Giá cũ và giá mới */}
             <div className="mt-2">
-                <span className="text-xs sm:text-sm text-gray-400 line-through mr-2">{oldPrice}đ</span>
-                <span className="text-sm sm:text-base text-orange-500 font-bold">{price}đ</span>
+                {/* Old Price */}
+                <div className="text-xs sm:text-sm text-gray-400 line-through">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                        ProductService.getMinPrice(weightTypes, oldPrice)
+                    )} - {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                    ProductService.getMaxPrice(weightTypes, oldPrice)
+                )}
+                </div>
+                {/* New Price */}
+                <div className="text-sm sm:text-base text-orange-500 font-bold">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                        ProductService.getMinPrice(weightTypes, price)
+                    )} - {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                    ProductService.getMaxPrice(weightTypes, price)
+                )}
+                </div>
             </div>
 
+
+
             {/* Nút mua ngay */}
-            <button className="mt-3 bg-green-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                Mua ngay
+            <button  onClick={handleClick} className="mt-3 bg-green-600 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                Lựa chọn các tùy chọn
             </button>
         </div>
     );

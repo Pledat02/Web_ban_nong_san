@@ -24,7 +24,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(1007,"Product not found",HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND(1010,"Category not found",HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
-    OPTION_TYPE_NOT_FOUND(1007,"OptionType not found",HttpStatus.NOT_FOUND),
+    WEIGHT_TYPE_NOT_FOUND(1007,"WeightType not found",HttpStatus.NOT_FOUND),
     UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
     private int code;
     private String message;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReviewService from "../services/review-service";
 import { useUser } from "../context/UserContext";
+import {toast} from "react-toastify";
 
 const ReviewTable = ({ product }) => {
     const [reviews, setReviews] = useState([]);
@@ -8,23 +9,25 @@ const ReviewTable = ({ product }) => {
     const [content, setContent] = useState("");
     const { user } = useUser();
 
+
     useEffect(() => {
         if (product?.id_product) {
             ReviewService.getReviewsByProductId(product.id_product)
-                .then(data => setReviews(data))
-                .catch(err => console.error("Lỗi khi tải đánh giá:", err));
+                .then(data => setReviews(data || []))
+                .catch(error => toast.error("Lỗi khi tải đánh giá", { position: "top-right" }));
         }
     }, [product]);
+
 
     // 🔹 Xử lý gửi đánh giá mới
     const handleSubmitReview = async () => {
         if (!user) {
-            alert("Bạn cần đăng nhập để gửi đánh giá!");
+            toast.warn("Bạn cần đăng nhập để gửi đánh giá!", { position: "top-right" });
             return;
         }
 
         if (rating === 0 || content.trim() === "") {
-            alert("Vui lòng chọn số sao và nhập đánh giá!");
+            toast.warn("Vui lòng chọn số sao và nhập đánh giá!", { position: "top-right" });
             return;
         }
 
@@ -37,14 +40,14 @@ const ReviewTable = ({ product }) => {
 
         try {
             const response = await ReviewService.createReview(newReview, user.token);
-
             if (response) {
-                setReviews([ response,...reviews]);
+                setReviews([response, ...reviews]);
                 setRating(0);
                 setContent("");
+                toast.success("Gửi đánh giá thành công!", { position: "top-right" });
             }
         } catch (error) {
-            console.error("Lỗi khi gửi đánh giá:", error);
+            toast.error(error.message || "Lỗi khi gửi đánh giá", { position: "top-right" });
         }
     };
 
@@ -53,7 +56,7 @@ const ReviewTable = ({ product }) => {
             <h3 className="text-2xl font-bold text-gray-800">Đánh giá sản phẩm</h3>
 
             {/* Danh sách đánh giá */}
-            <div className="mt-4 max-h-60 overflow-y-auto">
+            <div className="mt-4 max-h-[200px] overflow-y-auto">
                 {reviews.length > 0 ? (
                     reviews.map((review, index) => (
                         <div key={index} className="flex flex-col gap-2 py-2">
@@ -114,7 +117,7 @@ const ReviewTable = ({ product }) => {
                 />
                 <button
                     onClick={handleSubmitReview}
-                    className="mt-2 px-4 py-2 bg-green-500 text-white font-bold rounded"
+                    className="mt-2 px-4 py-2 cursor-pointer bg-green-500 text-white font-bold rounded"
                 >
                     Gửi đánh giá
                 </button>

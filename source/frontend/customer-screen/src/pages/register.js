@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import UserService from "../services/user-service";
+import {toast} from "react-toastify";
 
 const Register = () => {
     const [email, setEmail] = useState("");
@@ -19,11 +20,11 @@ const Register = () => {
                 email,
                 password,
             };
-            const userCredential = await UserService.register(newUser);
-           // alert(userCredential)
-            navigate("/login");
+            if( await UserService.register(newUser))
+                navigate("/login");
+            // else  toast.error("Lỗi trong khi đăng ký");
         } catch (error) {
-            alert(error.message);
+           toast.error(error)
         }
     };
 

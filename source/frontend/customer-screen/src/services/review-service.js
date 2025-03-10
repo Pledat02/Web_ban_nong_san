@@ -1,4 +1,5 @@
 import axios from "axios";
+import {toast} from "react-toastify";
 
 class ReviewService {
     constructor() {
@@ -15,10 +16,16 @@ class ReviewService {
     async getReviewsByProductId(productId) {
         try {
             const response = await this.api.get(`/product/${productId}`);
-            return response.data.data;
+            if(response.status === 200){
+                return response.data.data;
+
+            }else {
+                toast.error(response.data.message, { position: "top-right" });
+            }
+
         } catch (error) {
-            console.error("Error fetching reviews:", error);
-            throw error;
+            // console.error("Error fetching reviews:", error);
+            // throw error;
         }
     }
 

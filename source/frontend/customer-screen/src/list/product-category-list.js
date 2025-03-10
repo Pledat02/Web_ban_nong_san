@@ -24,9 +24,9 @@ const ProductCategoryList = ({ title, description, categoryId }) => {
     }, [page]);
 
     return (
-        <div>
+        <div className="w-full">
             {/* Tiêu đề */}
-            <div className="bg-cream py-6 text-center">
+            <div className="bg-crea  py-6 w-full text-center">
                 <div className="flex items-center justify-center gap-4">
                     <div className="w-1/4 h-[2px] bg-gray-300"></div>
                     <h2 className="text-2xl font-bold text-brown-700">{title}</h2>
@@ -40,7 +40,7 @@ const ProductCategoryList = ({ title, description, categoryId }) => {
             {/* Danh sách sản phẩm */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:mx-[8rem] px-4">
                 {products.length > 0 ? (
-                    products.map((item, index) => <ProductCard key={index} product=item />)
+                    products.map((item, index) => <ProductCard key={index} {...item} />)
                 ) : (
                     <p className="text-center text-gray-500 col-span-4">Không có sản phẩm nào.</p>
                 )}

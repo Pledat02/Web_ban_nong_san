@@ -7,6 +7,7 @@ import ProductDetail from "../pages/product-detail";
 import Register from "../pages/register";
 import SearchPage from "../pages/search-product";
 import Cart from "../pages/cart";
+import MyProfile from "../pages/my-profile";
 const AppRoutes = () => {
     return (
         <Routes>
@@ -18,6 +19,7 @@ const AppRoutes = () => {
                 <Route path="login" element={<Login />} />
                 <Route path="cart" element={<Cart/>} />
                 <Route path="register" element={<Register/>} />
+                <Route path="profile" element={<MyProfile/>} />
                 <Route path="search" element={<SearchPage/>} />
             </Route>
             {/* Route không cần Header/Footer */}

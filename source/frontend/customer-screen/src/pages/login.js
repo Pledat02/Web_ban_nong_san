@@ -9,6 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import {toast} from "react-toastify";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -31,9 +32,11 @@ const Login = () => {
                 };
                 login(user);
                 navigate("/home");
+            } else{
+                toast.error("Mật khẩu không đúng", { position: "top-right" });
             }
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message, { position: "top-right" });
         }
     };
 
@@ -61,7 +64,7 @@ const Login = () => {
             login(storedUser);
             navigate("/home");
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message, { position: "top-right" });
         }
     };
 
@@ -89,7 +92,7 @@ const Login = () => {
             login(storedUser);
             navigate("/home");
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message, { position: "top-right" });
         }
     };
 
