@@ -36,7 +36,6 @@ public class OrderRequest {
     @NotBlank(message = "Tên người nhận hàng không được để trống")
     private String name;
 
-    @NotBlank(message = "Địa chỉ người nhận hàng không được để trống")
     private String address;
 
     @NotBlank(message = "Tỉnh/Thành phố của người nhận hàng không được để trống")

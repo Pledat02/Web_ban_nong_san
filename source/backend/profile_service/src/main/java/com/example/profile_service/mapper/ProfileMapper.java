@@ -8,10 +8,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = AddressMapper.class)
 public interface ProfileMapper {
     Profile toProfile(CreationProfileRequest profileRequest);
     @Mapping(target = "id_user", ignore = true)
-    void updateProfile(@MappingTarget Profile user, UpdationProfileRequest rq);
+    void updateProfile(@MappingTarget Profile profile, UpdationProfileRequest request);
+
     ProfileResponse toProfileResponse(Profile user);
 }

@@ -4,7 +4,6 @@ import com.example.event.dto.ChangeEmailRequest;
 import com.example.event.dto.ChangePhoneRequest;
 import com.example.notification_service.configuration.TwilioConfig;
 import com.example.notification_service.dto.request.*;
-import com.example.notification_service.dto.response.SendMailResponse;
 import com.example.notification_service.repository.SendEmailClient;
 import com.twilio.Twilio;
 import com.twilio.rest.verify.v2.service.Verification;
@@ -18,8 +17,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import org.springframework.kafka.support.SendResult;
 
 @Service
 @RequiredArgsConstructor
@@ -58,21 +58,33 @@ public class OtpService {
         }
     }
 
-    public boolean verifyEmailOtp(OtpVerificationRequest request,String userId) {
+    public String verifyEmailOtp(OtpVerificationRequest request, String userId) {
         String storedOtp = otpStorage.get(request.getEmail());
 
         if (storedOtp != null && storedOtp.equals(request.getOtp())) {
-            kafkaTemplate.send("change-email",
-                    ChangeEmailRequest.builder()
-                           .userId(userId)
-                           .email(request.getEmail())
-                           .build());
-            // Xóa OTP sau khi đã thay đổi email
-            otpStorage.remove(request.getEmail());
-            return true;
+            ChangeEmailRequest changeEmailRequest = ChangeEmailRequest.builder()
+                    .userId(userId)
+                    .email(request.getEmail())
+                    .build();
+
+            CompletableFuture<SendResult<String, Object>> future =
+                    kafkaTemplate.send("change-email", changeEmailRequest);
+
+            String resultMessage = future.handle((result, ex) -> {
+                if (ex == null) {
+                    otpStorage.remove(request.getEmail()); // Xóa OTP sau khi gửi Kafka thành công
+                    return "Xác thực OTP thành công. Yêu cầu thay đổi email đã được gửi.";
+                } else {
+                    return ex.getMessage();
+                }
+            }).join(); // Chờ kết quả
+
+            return resultMessage;
         }
-        return false;
+
+        return "OTP không hợp lệ hoặc đã hết hạn.";
     }
+
     public void sendPhoneOtp(OtpRequest request) {
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
 
@@ -85,25 +97,46 @@ public class OtpService {
         System.out.println("OTP sent: " + verification.getSid());
     }
 
-    public String verifyPhoneOtp(OtpVerificationRequest otpVerificationRequest,String userId) {
+    public String verifyPhoneOtp(OtpVerificationRequest otpVerificationRequest, String userId) {
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
 
+        // Kiểm tra OTP qua Twilio
         VerificationCheck verificationCheck = VerificationCheck.creator(
-                        twilioConfig.getServiceSid()) // Dùng Service SID của bạn
+                        twilioConfig.getServiceSid())
                 .setTo(otpVerificationRequest.getPhone())
                 .setCode(otpVerificationRequest.getOtp())
                 .create();
 
         System.out.println("Verification status: " + verificationCheck.getStatus());
-        // send kafka
-        ChangePhoneRequest changePhoneRequest =
-                ChangePhoneRequest.builder()
-                        .phone(otpVerificationRequest.getPhone())
-                        .userId(userId)
-                        .build();
-        kafkaTemplate.send("change-phone", changePhoneRequest);
-        return verificationCheck.getStatus();
+
+        if (!"approved".equals(verificationCheck.getStatus())) {
+            return "OTP không hợp lệ hoặc đã hết hạn.";
+        }
+
+        // Gửi Kafka
+        ChangePhoneRequest changePhoneRequest = ChangePhoneRequest.builder()
+                .phone(otpVerificationRequest.getPhone())
+                .userId(userId)
+                .build();
+
+        try {
+            CompletableFuture<SendResult<String, Object>> future
+                    = kafkaTemplate.send("change-phone", changePhoneRequest);
+            return future.handle((result, ex) -> {
+                if (ex == null) {
+                    return "Xác thực OTP thành công. Yêu cầu thay đổi số điện thoại đã được gửi.";
+                } else {
+                    return ex.getMessage();
+                }
+            }).join();
+
+
+        } catch (Exception e) {
+            System.err.println("Lỗi khi gửi Kafka: " + e.getMessage());
+            return "Xác thực OTP thành công nhưng không thể gửi Kafka.";
+        }
     }
+
     private String generateOtp() {
         Random random = new Random();
         StringBuilder otp = new StringBuilder();

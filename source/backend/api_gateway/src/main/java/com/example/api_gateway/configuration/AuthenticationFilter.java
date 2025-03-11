@@ -41,6 +41,7 @@
                 "/api/v1/products/**",
                 "/api/v1/reviews/product/**",
                 "/api/v1/identity/users/registration",
+                "/api/v1/notifications/**",
                 "/api/v1/profiles/internal"
         );
         @NonFinal

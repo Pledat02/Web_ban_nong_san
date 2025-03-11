@@ -12,12 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,62 +20,85 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProfileController {
     ProfileService profileService;
 
+    //  Tạo hồ sơ (create profile)
     @PostMapping
-    public ProfileResponse createProfile(@RequestBody CreationProfileRequest profile){
-        return profileService.saveProfile(profile);
-    }
-    @GetMapping("/{id}")
-    ProfileResponse getProfile(@PathVariable String id){
-        return profileService.getProfileById(id);
+    public ApiResponse<ProfileResponse> createProfile(@RequestBody CreationProfileRequest profile) {
+        return ApiResponse.<ProfileResponse>builder()
+                .data(profileService.saveProfile(profile))
+                .build();
     }
 
+    //  Lấy hồ sơ theo ID
+    @GetMapping("/{id}")
+    public ApiResponse<ProfileResponse> getProfile(@PathVariable String id) {
+        return ApiResponse.<ProfileResponse>builder()
+                .data(profileService.getProfileById(id))
+                .build();
+    }
+
+    // Cập nhật hồ sơ (update profile)
     @PutMapping("/{id}")
-    public void updateProfile(@PathVariable String id, @RequestBody UpdationProfileRequest request){
+    public ApiResponse<Void> updateProfile(@PathVariable String id, @RequestBody UpdationProfileRequest request) {
         profileService.updateProfile(id, request);
+        return ApiResponse.<Void>builder().build();
     }
+
+    // Xóa hồ sơ (delete profile)
     @DeleteMapping("/{id}")
-    public void deleteProfile(@PathVariable String id){
+    public ApiResponse<Void> deleteProfile(@PathVariable String id) {
         profileService.deleteProfile(id);
+        return ApiResponse.<Void>builder().build();
     }
+
+    // Lấy tất cả hồ sơ với phân trang
     @GetMapping
     public ApiResponse<PageResponse<ProfileResponse>> getAllProfiles(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
-        return ApiResponse.<PageResponse<ProfileResponse>> builder()
+    ) {
+        return ApiResponse.<PageResponse<ProfileResponse>>builder()
                 .data(profileService.getAllProfiles(page, size))
-               .build();
-
+                .build();
     }
+
+    // Tìm kiếm hồ sơ (search profiles)
     @GetMapping("/search")
     public ApiResponse<PageResponse<ProfileResponse>> searchProfiles(
             @RequestParam String keyword,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
-        return ApiResponse.<PageResponse<ProfileResponse>> builder()
-               .data(profileService.searchProfiles(keyword, page, size))
-               .build();
+    ) {
+        return ApiResponse.<PageResponse<ProfileResponse>>builder()
+                .data(profileService.searchProfiles(keyword, page, size))
+                .build();
     }
-    // change email
+
+    // Lấy thông tin hồ sơ của người dùng hiện tại
+    @GetMapping("/my-profile")
+    public ApiResponse<ProfileResponse> getMyProfile() {
+        return ApiResponse.<ProfileResponse>builder()
+                .data(profileService.getMyProfile())
+                .build();
+    }
+
+
+    // 🔹 Xử lý sự kiện thay đổi email từ Kafka
     @KafkaListener(topics = "change-email", groupId = "notification-group")
     public void changeEmail(ChangeEmailRequest request) {
         try {
-            log.info("Nhận yêu cầu thay đổi email cho userId: {}", request.getUserId());
             profileService.updateEmail(request.getUserId(), request.getEmail());
-            log.info("Cập nhật email thành công: {}", request.getEmail());
         } catch (Exception e) {
             log.error("Lỗi khi cập nhật email cho userId {}: {}", request.getUserId(), e.getMessage(), e);
         }
     }
-    // change phone
+
+    // 🔹 Xử lý sự kiện thay đổi số điện thoại từ Kafka
     @KafkaListener(topics = "change-phone", groupId = "notification-group")
-    public void changePhone(ChangePhoneRequest changePhoneRequest){
-        profileService.updatePhone(changePhoneRequest.getUserId()
-                , changePhoneRequest.getPhone());
+    public void changePhone(ChangePhoneRequest request) {
+        profileService.updatePhone(request.getUserId(), request.getPhone());
     }
 }

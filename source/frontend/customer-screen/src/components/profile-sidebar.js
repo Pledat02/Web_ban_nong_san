@@ -41,10 +41,6 @@ export function ProfileSidebar({ user }) {
                 <h2 className="mt-4 text-xl font-semibold text-gray-900">{user?.username}</h2>
                 <p className="text-gray-500">{user?.email}</p>
 
-                {/* Thông báo */}
-                <div className="mt-6 p-3 text-sm text-red-600 bg-red-100 rounded">
-                    Vui lòng nhập mật khẩu cũ để xác nhận mọi thay đổi.
-                </div>
 
                 {/* Form */}
                 <div className="w-full mt-4 space-y-4">
@@ -67,24 +63,6 @@ export function ProfileSidebar({ user }) {
                         </button>
                     </div>
 
-                    {/* Email */}
-                    <div className="relative flex flex-col text-gray-600">
-                        <span>Email</span>
-                        <input
-                            type="text"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="border rounded p-2 pr-10"
-                            disabled={!editMode.email}
-                        />
-                        <button
-                            onClick={() => toggleEdit("email")}
-                            className="absolute right-3 top-9 text-gray-500 hover:text-blue-600"
-                        >
-                            <Pencil size={18} />
-                        </button>
-                    </div>
 
                     {/* Đổi mật khẩu */}
                     <div className="text-lg font-semibold text-gray-700">Đổi mật khẩu</div>

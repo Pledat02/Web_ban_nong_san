@@ -24,7 +24,6 @@ export function AddressForm({ data, onChange }) {
                 {renderInput('province', 'Province/State')}
                 {renderInput('district', 'District')}
                 {renderInput('ward', 'Ward')}
-                {renderInput('street', 'Street Address')}
                 {renderInput('postalCode', 'Postal Code')}
                 {renderInput('hamlet', 'Hamlet')}
             </div>

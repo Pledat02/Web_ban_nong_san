@@ -1,6 +1,6 @@
 package com.example.shipping_service.configuration;
 
-import com.example.order_service.exception.ErrorCode;
+import com.example.shipping_service.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

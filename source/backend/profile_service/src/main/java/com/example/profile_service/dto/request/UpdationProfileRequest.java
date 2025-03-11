@@ -12,8 +12,7 @@ public class UpdationProfileRequest {
     String id_user;
     String firstName;
     String lastName;
-    String address;
+    AddressRequest address;
     String email;
     String phone;
-    String thumbnail;
 }
