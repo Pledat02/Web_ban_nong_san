@@ -53,6 +53,18 @@ public class ProfileService {
         profileRepository.findAll().forEach(profile -> profiles.add(profileMapper.toProfileResponse(profile)));
         return profiles;
     }
+    // change phone
+    public void updatePhone(String userId, String phone) {
+        Profile profile = profileRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        profile.setPhone(phone);
+        profileRepository.save(profile);
+    }
+    //change email
+    public void updateEmail(String userId, String email) {
+        Profile profile = profileRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        profile.setEmail(email);
+        profileRepository.save(profile);
+    }
     public PageResponse<ProfileResponse> searchProfiles(String keyword, int page, int size){
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Profile> productPage = profileRepository.searchUsers(keyword, pageable);

@@ -80,6 +80,12 @@ public class UserService {
 
         return userMapper.toUserResponse(userResponse);
     }
+    public void updateEmail(String id_user, String newEmail){
+        User user = userRepository.findById(id_user).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_FOUND)) ;
+        user.setEmail(newEmail);
+    }
+
     @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));

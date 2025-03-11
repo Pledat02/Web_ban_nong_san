@@ -7,6 +7,7 @@ import com.example.notification_service.service.OtpService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +23,24 @@ public class OtpController {
         otpService.sendPhoneOtp(request);
         return ApiResponse.<Void>builder().build();
     }
-    @PostMapping("/verify-phone-otp")
-    public ApiResponse<Boolean> verifyPhoneOtp(@RequestBody OtpVerificationRequest request){
-        otpService.verifyPhoneOtp(request);
-        return ApiResponse.<Boolean>builder().build();
+    @PostMapping("/{userId}/verify-phone-otp")
+    public ApiResponse<String> verifyPhoneOtp(@PathVariable String userId, @RequestBody OtpVerificationRequest request){
+        return ApiResponse.<String>builder()
+                .data(otpService.verifyPhoneOtp(request,userId))
+                .build();
+    }
+    // send email otp
+    @PostMapping("/send-email-otp")
+    public ApiResponse<Void> sendEmailOtp(@RequestBody OtpRequest email ){
+        otpService.sendOtpMail(email);
+        return ApiResponse.<Void>builder().build();
+    }
+    // verify email otp
+    @PostMapping("/{userId}/verify-email-otp")
+    public ApiResponse<Boolean> verifyEmailOtp(@PathVariable String userId, @RequestBody OtpVerificationRequest request){
+        return ApiResponse.<Boolean>builder()
+               .data(otpService.verifyEmailOtp( request,userId))
+               .build();
     }
 
 }

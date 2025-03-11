@@ -1,5 +1,7 @@
 package com.example.profile_service.controller;
 
+import com.example.event.dto.ChangeEmailRequest;
+import com.example.event.dto.ChangePhoneRequest;
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.ApiResponse;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,5 +65,22 @@ public class ProfileController {
         return ApiResponse.<PageResponse<ProfileResponse>> builder()
                .data(profileService.searchProfiles(keyword, page, size))
                .build();
+    }
+    // change email
+    @KafkaListener(topics = "change-email", groupId = "notification-group")
+    public void changeEmail(ChangeEmailRequest request) {
+        try {
+            log.info("Nhận yêu cầu thay đổi email cho userId: {}", request.getUserId());
+            profileService.updateEmail(request.getUserId(), request.getEmail());
+            log.info("Cập nhật email thành công: {}", request.getEmail());
+        } catch (Exception e) {
+            log.error("Lỗi khi cập nhật email cho userId {}: {}", request.getUserId(), e.getMessage(), e);
+        }
+    }
+    // change phone
+    @KafkaListener(topics = "change-phone", groupId = "notification-group")
+    public void changePhone(ChangePhoneRequest changePhoneRequest){
+        profileService.updatePhone(changePhoneRequest.getUserId()
+                , changePhoneRequest.getPhone());
     }
 }

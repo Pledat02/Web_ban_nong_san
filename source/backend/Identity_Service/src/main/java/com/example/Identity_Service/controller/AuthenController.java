@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -26,8 +27,8 @@ public class AuthenController {
         return ApiResponse.<AuthenicationResponse>builder()
                 .data(result)
                 .build();
-
     }
+
     @PostMapping("/firebase")
     ApiResponse<AuthenicationResponse> loginFirebaseAuth
             (@RequestBody UserCreationRequest request){

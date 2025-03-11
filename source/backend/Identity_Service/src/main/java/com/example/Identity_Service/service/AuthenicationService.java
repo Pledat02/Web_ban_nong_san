@@ -1,8 +1,6 @@
 package com.example.Identity_Service.service;
 
-import com.example.Identity_Service.dto.request.AuthenicationRequest;
-import com.example.Identity_Service.dto.request.TokenRequest;
-import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.request.*;
 import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
@@ -63,6 +61,21 @@ public class AuthenicationService {
                 .authenticated(authenticated)
                 .build();
     }
+    public void changePassword(ChangePasswordRequest request){
+        User user = userRepository.findById(request.getId_user()).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_FOUND)) ;
+
+        if(user == null){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        if(!passwordEncoder.matches(request.getOldPassword(),user.getPassword())){
+            throw new AppException(ErrorCode.PASSWORD_WRONG);
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
     public ValidTokenResponse introspect(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
         boolean isValid  = false;

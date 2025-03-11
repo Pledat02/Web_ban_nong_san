@@ -8,11 +8,13 @@ import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.service.UserService;
+import com.example.event.dto.ChangeEmailRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
+
+    @KafkaListener(topics = "change-email", groupId = "notification-group")
+    public void changeEmail(ChangeEmailRequest request){
+        userService.updateEmail(request.getUserId(), request.getEmail());
+    }
 
     @PostMapping("/registration")
     public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request){
@@ -40,6 +47,8 @@ public class UserController {
                 .data(user)
                 .build();
     }
+
+
     @GetMapping("/reviewer/{id_user}")
     public ApiResponse<ReviewerResponse> getReviewer(@PathVariable String id_user) {
         ReviewerResponse user =  userService.getReviewer(id_user);

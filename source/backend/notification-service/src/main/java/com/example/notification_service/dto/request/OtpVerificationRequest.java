@@ -6,5 +6,6 @@ import lombok.Data;
 public class OtpVerificationRequest {
     private String phone;
     private String otp;
+    private String email;
 }
 
