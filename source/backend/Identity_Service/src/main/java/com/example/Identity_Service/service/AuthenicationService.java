@@ -157,18 +157,19 @@ public class AuthenicationService {
 
     }
     private String generateToken(User user) {
+        UserResponse response = userMapper.toUserResponse(user);
         // header jwt
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
+                .subject(response.getUsername())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())
                 )
                 .issueTime(new Date())
-                .claim("email", user.getEmail())
+                .claim("email", response.getEmail())
                 .issuer("admin")
-                .claim("id_user", user.getId_user())
-                .claim("picture", user.getAvatar())
+                .claim("id_user", response.getId_user())
+                .claim("picture", response.getAvatar())
                 .jwtID(UUID.randomUUID().toString())
                .claim("scope", getScopeClaim(user.getRoles()))
                 .build();

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-03-02T08:20:01+0700",
+    date = "2025-03-12T12:37:02+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.5 (Eclipse Adoptium)"
 )
 @Component
@@ -30,6 +30,7 @@ public class UserMapperImpl implements UserMapper {
         user1.username( user.getUsername() );
         user1.email( user.getEmail() );
         user1.password( user.getPassword() );
+        user1.avatar( user.getAvatar() );
         Set<Role> set = user.getRoles();
         if ( set != null ) {
             user1.roles( new LinkedHashSet<Role>( set ) );
@@ -47,6 +48,7 @@ public class UserMapperImpl implements UserMapper {
         user.setUsername( rq.getUsername() );
         user.setEmail( rq.getEmail() );
         user.setPassword( rq.getPassword() );
+        user.setAvatar( rq.getAvatar() );
         if ( user.getRoles() != null ) {
             Set<Role> set = rq.getRoles();
             if ( set != null ) {
@@ -73,9 +75,10 @@ public class UserMapperImpl implements UserMapper {
 
         UserResponse.UserResponseBuilder userResponse = UserResponse.builder();
 
+        userResponse.avatar( getAvatarUrl( user.getAvatar() ) );
+        userResponse.id_user( user.getId_user() );
         userResponse.username( user.getUsername() );
         userResponse.email( user.getEmail() );
-        userResponse.password( user.getPassword() );
         Set<Role> set = user.getRoles();
         if ( set != null ) {
             userResponse.roles( new LinkedHashSet<Role>( set ) );

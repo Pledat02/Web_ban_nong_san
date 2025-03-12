@@ -1,4 +1,4 @@
-package com.example.product_service.controller;
+package com.example.Identity_Service;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtils {
-    private static final String UPLOAD_DIR = "C:/agriculture/uploads/image-product/";
+    private static final String UPLOAD_DIR = "C:/agriculture/uploads/avatar/";
 
     public static String saveImage(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -26,7 +26,7 @@ public class FileUtils {
             Path filePath = uploadPath.resolve(fileName);
             Files.write(filePath, file.getBytes());
 
-            return "/" + fileName;
+            return "/avatar/" + fileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }

@@ -24,7 +24,7 @@ public class UserUpdateRequest {
     @Size(min = 4, message = "USERNAME_INVALID")
     String username;
     String email;
-
+    String avatar;
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
     Set<Role> roles;

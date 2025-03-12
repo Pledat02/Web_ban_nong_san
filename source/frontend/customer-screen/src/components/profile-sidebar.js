@@ -1,20 +1,49 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Camera, Pencil } from "lucide-react";
+import UserService from "../services/user-service";
+import { toast } from "react-toastify";
 
-export function ProfileSidebar({ user }) {
+export function ProfileSidebar() {
+    const [editMode, setEditMode] = useState({ username: false, email: false });
+    const [avatar, setAvatar] = useState("default-avatar.png");
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        username: user?.username || "",
-        email: user?.email || "",
+        username: "",
+        email: "",
         newPassword: "",
         confirmPassword: "",
         oldPassword: "",
     });
-
-    const [editMode, setEditMode] = useState({ username: false, email: false });
-
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        async function fetchUserInfo() {
+            try {
+                const userInfo = await UserService.getMyInfo();
+                setUser(userInfo);
+                setAvatar(userInfo?.avatar || "default-avatar.png");
+                setFormData({
+                    username: userInfo?.username || "",
+                    email: userInfo?.email || "",
+                    newPassword: "",
+                    confirmPassword: "",
+                    oldPassword: "",
+                });
+            } catch (error) {
+                console.error("Lỗi khi lấy thông tin người dùng:", error);
+            }
+        }
+
+        fetchUserInfo();
+    }, []);
+
 
     const toggleEdit = (field) => {
         setEditMode({ ...editMode, [field]: !editMode[field] });
@@ -22,25 +51,58 @@ export function ProfileSidebar({ user }) {
 
     const isUpdateDisabled = !formData.oldPassword.trim(); // Chặn cập nhật nếu chưa nhập mật khẩu cũ
 
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Ảnh phải nhỏ hơn 5MB!");
+            return;
+        }
+
+        if (!["image/png", "image/jpeg"].includes(file.type)) {
+            toast.error("Chỉ chấp nhận ảnh PNG hoặc JPEG!");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await UserService.uploadAvatar(user.id_user, file);
+            setAvatar(response.avatar); // Cập nhật avatar hiển thị
+            toast.success("Cập nhật ảnh đại diện thành công!");
+        } catch (error) {
+            console.error("Upload failed:", error);
+            toast.error("Lỗi khi upload ảnh!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="p-8 border-b md:border-r md:border-b-0 border-gray-200">
             <div className="flex flex-col items-center">
                 {/* Avatar */}
                 <div className="relative">
                     <img
-                        src={user?.avatar}
+                        src={avatar}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover"
                     />
-                    <button className="absolute bottom-0 right-0 bg-green-600 p-2 rounded-full text-white hover:bg-blue-700 transition-colors">
+                    <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 bg-green-600 p-2 rounded-full text-white hover:bg-blue-700 transition-colors cursor-pointer">
                         <Camera size={20} />
-                    </button>
+                    </label>
+                    <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/png, image/jpeg"
+                        className="hidden"
+                        onChange={handleFileChange}
+                    />
                 </div>
 
                 {/* Username & Email */}
                 <h2 className="mt-4 text-xl font-semibold text-gray-900">{user?.username}</h2>
                 <p className="text-gray-500">{user?.email}</p>
-
 
                 {/* Form */}
                 <div className="w-full mt-4 space-y-4">
@@ -62,7 +124,6 @@ export function ProfileSidebar({ user }) {
                             <Pencil size={18} />
                         </button>
                     </div>
-
 
                     {/* Đổi mật khẩu */}
                     <div className="text-lg font-semibold text-gray-700">Đổi mật khẩu</div>

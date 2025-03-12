@@ -14,8 +14,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UserResponse {
+    String id_user;
     String username;
     String email;
-    String password;
+    String avatar;
     Set<Role> roles;
 }

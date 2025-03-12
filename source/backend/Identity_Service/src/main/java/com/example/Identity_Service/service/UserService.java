@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
+
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class UserService {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UserService.class);
@@ -99,7 +100,12 @@ public class UserService {
                 .avatar(user.getAvatar())
                 .build();
     }
-
+    //save image
+    public UserResponse saveImage(String url,String userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setAvatar(url);
+       return  userMapper.toUserResponse(userRepository.save(user));
+    }
     public boolean deleteUser(String id) {
         try {
             userRepository.deleteById(id);
@@ -111,6 +117,10 @@ public class UserService {
     }
     public UserResponse getMyInfor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new AppException(ErrorCode.USER_NOT_AUTHENTICATED);
+        }
+
         String username = authentication.getName();
         User user = userRepository.findByUsername(username).orElseThrow(() ->
                 new AppException(ErrorCode.USER_NOT_FOUND));

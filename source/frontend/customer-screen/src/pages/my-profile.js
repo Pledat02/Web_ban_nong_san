@@ -3,9 +3,9 @@ import { ProfileSidebar } from "../components/profile-sidebar";
 import { ProfileForm } from "../components/profile-form";
 import { useUser } from "../context/UserContext";
 import ProfileService from "../services/profile-service";
+import {toast} from "react-toastify";
 
 const MyProfile = () => {
-    const { user } = useUser();
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -21,7 +21,12 @@ const MyProfile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
+                if(localStorage.getItem("user")==null){
+                    toast.info("Người dùng chưa đăng nhập")
+                    return;
+                }
                 const profileData = await ProfileService.getMyProfile();
+
                 if (profileData) {
                     setFormData({
                         firstName: profileData.firstName || "",
@@ -38,7 +43,7 @@ const MyProfile = () => {
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin cá nhân:", error);
             }
-        };
+            }
 
         fetchProfile();
     }, []);
@@ -68,7 +73,7 @@ const MyProfile = () => {
             <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
                 <div className="bg-white rounded-2xl shadow">
                     <div className="grid grid-cols-1 md:grid-cols-4">
-                        <ProfileSidebar user={user} />
+                        <ProfileSidebar />
 
                         <div className="col-span-3 p-8">
                             <ProfileForm

@@ -47,6 +47,15 @@ class AuthService {
         }
         return true;
     }
+    async logout() {
+        localStorage.removeItem('user');
+        try {
+            await this.api.post("/logout");
+        } catch (error) {
+            console.error("Error logging out:", error);
+            throw error;
+        }
+    }
 }
 
 export default new AuthService();

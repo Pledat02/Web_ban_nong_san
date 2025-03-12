@@ -8,32 +8,31 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    INVALID_KEY(0,"Invalid key", HttpStatus.INTERNAL_SERVER_ERROR),
-    USER_NOT_FOUND(1000,"User not found",HttpStatus.NOT_FOUND),
-    USER_INVALID_CREDENTIALS(1002,"Invalid username or password",HttpStatus.BAD_REQUEST),
-    USER_ALREADY_EXISTS(1003,"User already exists",HttpStatus.BAD_REQUEST),
-    USER_NOT_AUTHORIZED(1008,"User is not authorized",HttpStatus.FORBIDDEN),
-    USER_NOT_AUTHENTICATED(1004,"User is not authorized",HttpStatus.UNAUTHORIZED),
-    USER_ALREADY_ACTIVE(1005,"User is already active",HttpStatus.BAD_REQUEST),
-    USER_EXISTED(1001,"User is existed",HttpStatus.BAD_REQUEST),
-    USERNAME_EXISTED(1111,"Username is existed",HttpStatus.BAD_REQUEST),
-    EMAIL_EXISTED(1112,"email is existed",HttpStatus.BAD_REQUEST),
-    USERNAME_INVALID(1002,"Username is invalid",HttpStatus.BAD_REQUEST),
-    EMAIL_INVALID(1003,"Email is invalid",HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID(1004,"Your password must be least {min} character",HttpStatus.BAD_REQUEST),
-    BIRTHDAY_INVALID(1005,"Your age must be least {min}",HttpStatus.BAD_REQUEST),
-    ID_USER_INVALID(1006,"Id user is invalid",HttpStatus.BAD_REQUEST),
-    PERMISSION_NOT_FOUND(1007,"Permission not found",HttpStatus.NOT_FOUND),
-    ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
-    PASSWORD_WRONG(1009,"Password is not correct",HttpStatus.BAD_REQUEST),
-    UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
-    private int code;
-    private String message;
-    private HttpStatusCode statusCode;
+    INVALID_KEY(0, "Khóa không hợp lệ", HttpStatus.INTERNAL_SERVER_ERROR),
+    USER_NOT_FOUND(1000, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
+    USER_INVALID_CREDENTIALS(1002, "Tên đăng nhập hoặc mật khẩu không hợp lệ", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_EXISTS(1003, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    USER_NOT_AUTHORIZED(1008, "Người dùng không có quyền", HttpStatus.FORBIDDEN),
+    USER_NOT_AUTHENTICATED(1004, "Người dùng chưa được xác thực", HttpStatus.UNAUTHORIZED),
+    USER_ALREADY_ACTIVE(1005, "Người dùng đã được kích hoạt", HttpStatus.BAD_REQUEST),
+    USER_EXISTED(1001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTED(1111, "Tên người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1112, "Email đã tồn tại", HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(1002, "Tên người dùng không hợp lệ", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(1003, "Email không hợp lệ", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(1004, "Mật khẩu phải có ít nhất {min} ký tự", HttpStatus.BAD_REQUEST),
+    BIRTHDAY_INVALID(1005, "Tuổi phải ít nhất {min}", HttpStatus.BAD_REQUEST),
+    ID_USER_INVALID(1006, "ID người dùng không hợp lệ", HttpStatus.BAD_REQUEST),
+    PERMISSION_NOT_FOUND(1007, "Quyền không tồn tại", HttpStatus.NOT_FOUND),
+    ROLE_NOT_FOUND(1007, "Vai trò không tồn tại", HttpStatus.NOT_FOUND),
+    PASSWORD_WRONG(1009, "Mật khẩu không chính xác", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(2000, "File vượt quá kích thước cho phép (5MB)", HttpStatus.BAD_REQUEST),
+    FILE_SAVE_ERROR(2001, "Không thể lưu file", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_FILE(2002, "File không được để trống", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(2003, "Chỉ chấp nhận định dạng PNG, JPG", HttpStatus.BAD_REQUEST),
+    UNCATEGORIZED_EXCEPTION(9999, "Lỗi chưa xác định", HttpStatus.INTERNAL_SERVER_ERROR);
 
-//     ErrorCode(int code, String message, HttpStatusCode statuscode ) {
-//        this.code = code;
-//        this.message = message;
-//        this.statusCode = statuscode;
-//    }
+    private final int code;
+    private final String message;
+    private final HttpStatusCode statusCode;
 }

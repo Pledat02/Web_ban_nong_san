@@ -1,12 +1,15 @@
 package com.example.Identity_Service.controller;
 
 
+import com.example.Identity_Service.FileUtils;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
 import com.example.Identity_Service.dto.response.ApiResponse;
 import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.User;
+import com.example.Identity_Service.exception.AppException;
+import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.service.UserService;
 import com.example.event.dto.ChangeEmailRequest;
 import jakarta.validation.Valid;
@@ -14,9 +17,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -58,8 +63,8 @@ public class UserController {
                .build();
     }
 
-    @GetMapping("myinfo")
-    public  ApiResponse<UserResponse> getUserById(){
+    @GetMapping("my-info")
+    public  ApiResponse<UserResponse> getMe(){
         UserResponse user =  userService.getMyInfor();
         if(user == null) throw new RuntimeException("User not found");
         return ApiResponse.<UserResponse>builder()
@@ -70,7 +75,39 @@ public class UserController {
     public void deleteUser(@PathVariable String id){
         userService.deleteUser(id);
     }
+    @PostMapping(value = "/upload-avatar",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserResponse> uploadAvatar(
+            @RequestParam("userId") String userId,  // Nhận userId từ request
+            @RequestPart("file") MultipartFile file) throws AppException {
 
+        try {
+            if (file.isEmpty()) {
+                throw new AppException(ErrorCode.INVALID_FILE);
+            }
+
+            if (file.getSize() > 5 * 1024 * 1024) { // Giới hạn 5MB
+                throw new AppException(ErrorCode.FILE_TOO_LARGE);
+            }
+
+            if (!List.of("image/png", "image/jpeg").contains(file.getContentType())) {
+                throw new AppException(ErrorCode.INVALID_FILE_TYPE);
+            }
+
+            // Lưu ảnh
+            String imagePath = FileUtils.saveImage(file);
+            if (imagePath == null || imagePath.isEmpty()) {
+                throw new AppException(ErrorCode.FILE_SAVE_ERROR);
+            }
+
+            UserResponse response = userService.saveImage(imagePath,userId);
+
+            return ApiResponse.<UserResponse>builder()
+                    .data(response)
+                    .build();
+        } catch (AppException e) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+    }
     @PutMapping("/{id}")
     public UserResponse updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request){
         return userService.updateUser(id, request);
