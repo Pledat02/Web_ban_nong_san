@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ProfileSidebar } from "../components/profile-sidebar";
 import { ProfileForm } from "../components/profile-form";
-import { useUser } from "../context/UserContext";
 import ProfileService from "../services/profile-service";
 import {toast} from "react-toastify";
 
@@ -55,16 +54,6 @@ const MyProfile = () => {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            console.log("Form submitted:", formData);
-            // Gửi dữ liệu cập nhật lên server
-            await ProfileService.updateProfile(formData);
-        } catch (error) {
-            console.error("Update failed:", error);
-        }
-    };
 
 
 
@@ -79,7 +68,6 @@ const MyProfile = () => {
                             <ProfileForm
                                 formData={formData}
                                 onChange={handleChange}
-                                onSubmit={handleSubmit}
                             />
                         </div>
                     </div>

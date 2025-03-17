@@ -1,6 +1,7 @@
 package com.example.Identity_Service.service;
 
 import com.example.Identity_Service.constant.PredefinedRole;
+import com.example.Identity_Service.dto.request.ChangePasswordRequest;
 import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
@@ -28,7 +29,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -115,27 +118,39 @@ public class UserService {
             return false;
         }
     }
+    public void changePassword(String idUser,ChangePasswordRequest request){
+        User user = userRepository.findById(idUser).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_FOUND)) ;
+
+        if(user == null){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        if(!passwordEncoder.matches(request.getOldPassword(),user.getPassword())){
+            throw new AppException(ErrorCode.PASSWORD_WRONG);
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
     public UserResponse getMyInfor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             throw new AppException(ErrorCode.USER_NOT_AUTHENTICATED);
         }
 
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        User user = userRepository.findById(jwt.getClaim("id_user")).orElseThrow(() ->
                 new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
-    public UserResponse updateUser(String id, UserUpdateRequest user) {
+    public UserResponse updateUsername(String id,String username) {
 
 
         User existingUser = userRepository.findById(id).orElse(null);
         if (existingUser == null) {
-            Logger.getLogger(UserService.class.getName()).severe("User not found with id: " + id);
             return null;
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userMapper.updateUser(existingUser,user);
+        existingUser.setUsername(username);
         User userResponse = userRepository.save(existingUser);
         return userMapper.toUserResponse(userResponse);
     }

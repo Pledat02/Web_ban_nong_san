@@ -2,19 +2,34 @@ import React, { useState } from "react";
 import { AddressForm } from "./address-form";
 import { CheckCircleIcon, PencilIcon } from "@heroicons/react/24/solid";
 import NotificationService from "../services/notification-service";
-import {useUser} from "../context/UserContext";
+import ProfileService from "../services/profile-service"; // Giữ nguyên tất cả import
+import { useUser } from "../context/UserContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export function ProfileForm({ formData, onChange, onSubmit }) {
-    const [editing, setEditing] = useState({ phone: false, email: false });
+export function ProfileForm({ formData, onChange }) {
+    const [editing, setEditing] = useState({ firstName: false, lastName: false, phone: false, email: false });
     const [otpRequested, setOtpRequested] = useState({ phone: false, email: false });
     const [otpVerified, setOtpVerified] = useState({ phone: false, email: false });
-    const {user} = useUser();
+    const { user } = useUser();
 
-    // Xử lý bật chế độ chỉnh sửa
+    // Bật chế độ chỉnh sửa
     const handleEdit = (type) => {
         setEditing((prev) => ({ ...prev, [type]: true }));
-        setOtpRequested((prev) => ({ ...prev, [type]: false }));
-        setOtpVerified((prev) => ({ ...prev, [type]: false }));
+    };
+
+    // Cập nhật khi nhấn Enter
+    const handleKeyDown = async (e, type) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            try {
+                await ProfileService.updateProfile({ [type]: formData[type] });
+                toast.success("Cập nhật thành công!");
+                setEditing((prev) => ({ ...prev, [type]: false }));
+            } catch (error) {
+                toast.error("Cập nhật thất bại, vui lòng thử lại!");
+            }
+        }
     };
 
     // Gửi OTP
@@ -49,78 +64,96 @@ export function ProfileForm({ formData, onChange, onSubmit }) {
     };
 
     return (
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form className="space-y-8">
             <div className="space-y-6">
-                <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
+                <h3 className="text-lg font-medium text-gray-900">Thông tin cá nhân</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Họ */}
                     <div>
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                            First Name
-                        </label>
-                        <input
-                            type="text"
-                            name="firstName"
-                            id="firstName"
-                            value={formData.firstName}
-                            onChange={onChange}
-                            className="mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm"
-                        />
+                        <label className="block text-sm font-medium text-gray-700">Họ</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                name="firstName"
+                                value={formData.firstName}
+                                onChange={onChange}
+                                disabled={!editing.firstName}
+                                onKeyDown={(e) => handleKeyDown(e, "firstName")}
+                                className={`mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm pr-10 ${
+                                    editing.firstName ? "border-green-500" : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                            />
+                            {!editing.firstName && (
+                                <button type="button" onClick={() => handleEdit("firstName")} className="absolute inset-y-0 right-3 flex items-center">
+                                    <PencilIcon className="w-5 h-5 text-gray-500" />
+                                </button>
+                            )}
+                        </div>
                     </div>
+
+                    {/* Tên */}
                     <div>
-                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                            Last Name
-                        </label>
-                        <input
-                            type="text"
-                            name="lastName"
-                            id="lastName"
-                            value={formData.lastName}
-                            onChange={onChange}
-                            className="mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm"
-                        />
+                        <label className="block text-sm font-medium text-gray-700">Tên</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                name="lastName"
+                                value={formData.lastName}
+                                onChange={onChange}
+                                disabled={!editing.lastName}
+                                onKeyDown={(e) => handleKeyDown(e, "lastName")}
+                                className={`mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm pr-10 ${
+                                    editing.lastName ? "border-green-500" : "bg-gray-100 cursor-not-allowed"
+                                }`}
+                            />
+                            {!editing.lastName && (
+                                <button type="button" onClick={() => handleEdit("lastName")} className="absolute inset-y-0 right-3 flex items-center">
+                                    <PencilIcon className="w-5 h-5 text-gray-500" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Số điện thoại */}
             <div className="mt-4">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                    Phone Number
-                </label>
-                <div className="flex gap-3 items-center">
+                <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                <div className="relative">
                     <input
                         type="tel"
                         name="phone"
-                        id="phone"
                         value={formData.phone}
                         onChange={onChange}
                         disabled={!editing.phone}
-                        className={`mt-1 flex-1 rounded-lg border px-3 py-2 shadow-sm ${
-                            editing.phone ? "border-blue-500" : "bg-gray-100 cursor-not-allowed"
+                        className={`mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm pr-24 ${
+                            editing.phone ? "border-green-500" : "bg-gray-100 cursor-not-allowed"
                         }`}
                     />
                     {!editing.phone ? (
-                        <button type="button" onClick={() => handleEdit("phone")}>
+                        <button
+                            type="button"
+                            onClick={() => handleEdit("phone")}
+                            className="absolute inset-y-0 right-4 flex items-center"
+                        >
                             <PencilIcon className="w-5 h-5 text-gray-500" />
                         </button>
                     ) : (
                         <button
                             type="button"
-                            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                            className="absolute inset-y-0 right-0 bg-gray-600 text-white px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors"
                             onClick={() => handleSendOtp("phone")}
                         >
                             Gửi OTP
                         </button>
                     )}
                 </div>
-
-                {/* Nhập mã OTP */}
+                {/* Ô nhập OTP */}
                 {otpRequested.phone && (
                     <div className="mt-2 flex items-center space-x-2">
                         <input
                             type="text"
                             name="phoneOtp"
-                            id="phoneOtp"
                             value={formData.phoneOtp}
                             onChange={(e) => {
                                 onChange(e);
@@ -136,43 +169,42 @@ export function ProfileForm({ formData, onChange, onSubmit }) {
 
             {/* Email */}
             <div className="mt-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email
-                </label>
-                <div className="flex gap-3 items-center">
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <div className="relative">
                     <input
                         type="email"
                         name="email"
-                        id="email"
                         value={formData.email}
                         onChange={onChange}
                         disabled={!editing.email}
-                        className={`mt-1 flex-1 rounded-lg border px-3 py-2 shadow-sm ${
-                            editing.email ? "border-blue-500" : "bg-gray-100 cursor-not-allowed"
+                        className={`mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm pr-24 ${
+                            editing.email ? "border-green-500" : "bg-gray-100 cursor-not-allowed"
                         }`}
                     />
                     {!editing.email ? (
-                        <button type="button" onClick={() => handleEdit("email")}>
+                        <button
+                            type="button"
+                            onClick={() => handleEdit("email")}
+                            className="absolute inset-y-0 right-4 flex items-center"
+                        >
                             <PencilIcon className="w-5 h-5 text-gray-500" />
                         </button>
                     ) : (
                         <button
                             type="button"
-                            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                            className="absolute inset-y-0 right-0 bg-gray-600 text-white px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors"
                             onClick={() => handleSendOtp("email")}
                         >
                             Gửi OTP
                         </button>
                     )}
                 </div>
-
-                {/* Nhập mã OTP */}
+                {/* Ô nhập OTP */}
                 {otpRequested.email && (
                     <div className="mt-2 flex items-center space-x-2">
                         <input
                             type="text"
                             name="emailOtp"
-                            id="emailOtp"
                             value={formData.emailOtp}
                             onChange={(e) => {
                                 onChange(e);
@@ -186,17 +218,8 @@ export function ProfileForm({ formData, onChange, onSubmit }) {
                 )}
             </div>
 
-            {/* Địa chỉ */}
+            {/* Địa chỉ   */}
             <AddressForm data={formData} onChange={onChange} />
-
-            <div className="flex justify-end pt-4">
-                <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                    Cập nhật
-                </button>
-            </div>
         </form>
     );
 }

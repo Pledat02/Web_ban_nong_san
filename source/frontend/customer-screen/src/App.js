@@ -31,6 +31,7 @@ const App = () => {
         <UserProvider>
             <CartProvider>
                 <Router>
+                    <TokenCheck />
                     <AppRoutes />
                     <ToastContainer />
                 </Router>

@@ -23,7 +23,7 @@ const DropdownAccount = () => {
                                 <p className="text-sm text-gray-800 truncate max-w-[140px]">{user.email}</p>
                             </div>
                         </div>
-                        <DropdownItem icon={User} title="Hồ sơ"/>
+                        <DropdownItem icon={User} title="Hồ sơ" onClick={()=>navigate("/pro  file")}/>
                         <DropdownItem icon={Settings} title="Cài đặt"/>
                         <DropdownItem icon={LogOut} title="Đăng xuất" onClick={logout}/>
                     </div>

@@ -32,7 +32,7 @@ const Login = () => {
                 };
                 login(user);
                 navigate("/home");
-            } else{
+            } else if (response.authenticated===false) {
                 toast.error("Mật khẩu không đúng", { position: "top-right" });
             }
         } catch (error) {
@@ -44,11 +44,15 @@ const Login = () => {
     const handleGoogleLogin = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const userGG = result.user;
+            console.log(result)
+            const userGG = result._tokenResponse;
             const user = {
                 username: userGG.displayName,
                 email: userGG.email,
-                password: uuidv4().replace(/-/g, "").substring(0, 16),
+                phone: result.user.phoneNumber,
+                password:userGG.uid,
+                firstname:userGG.firstname,
+                lastname: userGG.lastname,
                 avatar: userGG.photoURL,
             };
             const response = await AuthService.loginFirebase(user);
@@ -72,12 +76,16 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         try {
             const result = await signInWithPopup(auth, facebookProvider);
-            const userFB = result.user;
+            console.log(result)
+            const userFB = result._tokenResponse;
             const user = {
                 username: userFB.displayName,
                 email: userFB.email,
+                phone: result.user.phoneNumber,
+                password:userFB.uid,
+                firstname:userFB.firstname,
+                lastname: userFB.lastname,
                 avatar: userFB.photoURL,
-                password: uuidv4().replace(/-/g, "").substring(0, 16),
             };
             const response = await AuthService.loginFirebase(user);
             const decoded = jwtDecode(response.token);

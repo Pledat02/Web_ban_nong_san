@@ -9,12 +9,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileResponse {
-
     String id_user;
     String firstName;
     String lastName;
-    String address;
+    //    String address;
     String email;
     String phone;
-    String thumbnail;
 }

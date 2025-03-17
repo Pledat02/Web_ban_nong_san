@@ -1,12 +1,17 @@
 package com.example.shipping_service.exception;
 
 import com.example.shipping_service.dto.response.ApiResponse;
+import com.example.shipping_service.dto.response.ShippingResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -67,4 +72,25 @@ public class GlobalExceptionHandler {
             String minvalue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
         return message.replace("{"+MIN_ATTRIBUTE+"}",minvalue);
     }
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ShippingResponse> handleHttpClientError(HttpClientErrorException e) {
+
+        String errorMessage = "Lỗi không xác định từ GHTK";
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonResponse = objectMapper.readTree(e.getResponseBodyAsString());
+            if (jsonResponse.has("message")) {
+                errorMessage = jsonResponse.get("message").asText();
+            }
+        } catch (Exception ex) {
+        }
+
+        ShippingResponse response = ShippingResponse.builder()
+                .success(false)
+                .message(errorMessage)
+                .build();
+
+        return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
+
 }

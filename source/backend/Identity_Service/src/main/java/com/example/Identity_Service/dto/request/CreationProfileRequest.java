@@ -14,8 +14,7 @@ public class CreationProfileRequest {
     String id_user;
     String firstName;
     String lastName;
-    String address;
+//    String address;
     String email;
     String phone;
-    String thumbnail;
 }

@@ -32,10 +32,11 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
         </processorPath>
+        <module name="payment-service" />
+        <module name="review-service" />
         <module name="profile_service" />
         <module name="product-service" />
         <module name="order-service" />
-        <module name="review-service" />
         <module name="notification-service" />
         <module name="shipping-service" />
       </profile>
@@ -47,6 +48,7 @@
       <module name="api_gateway" options="-parameters" />
       <module name="notification-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
       <module name="review-service" options="-parameters" />

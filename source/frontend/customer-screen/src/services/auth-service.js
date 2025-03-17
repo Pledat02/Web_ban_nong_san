@@ -32,9 +32,9 @@ class AuthService {
             return response.data?.data;
         } catch (error) {
             if (error.response) {
-                toast.error(error.response.data?.message || "Invalid credentials", { position: "top-right" });
+                toast.error(error.response.data?.message, { position: "top-right" });
             } else {
-                toast.error("An error occurred. Please try again later.", { position: "top-right" });
+                toast.error("Lỗi server. Vui lòng thử lại sau.", { position: "top-right" });
             }
             return false;
         }

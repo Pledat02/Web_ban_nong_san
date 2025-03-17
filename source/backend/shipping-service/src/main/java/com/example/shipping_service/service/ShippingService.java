@@ -3,63 +3,96 @@ package com.example.shipping_service.service;
 import com.example.shipping_service.dto.request.ShippingFeeRequest;
 import com.example.shipping_service.dto.request.ShippingRequest;
 import com.example.shipping_service.dto.response.ApiResponse;
+import com.example.shipping_service.dto.response.CancelShippingResponse;
 import com.example.shipping_service.dto.response.OrderStatusResponse;
 import com.example.shipping_service.dto.response.ShippingResponse;
 import com.example.shipping_service.entity.ShippingInfo;
 import com.example.shipping_service.mapper.ShippingMapper;
 import com.example.shipping_service.repository.ShippingRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShippingService {
-    ShippingRepository shippingRepository;
-    RestTemplate restTemplate = new RestTemplate();
+    private static final Logger log = LoggerFactory.getLogger(ShippingService.class);
+    final ShippingRepository shippingRepository;
+    final RestTemplate restTemplate = new RestTemplate();
 
-    String GHTK_API_URL = "https://services-staging.ghtklab.com/services/shipment";
-    String GHTK_TOKEN = "YOUR_API_KEY";
+    @Value("${GHTK_API_URL}")
+    String GHTK_API_URL;
+    @Value("${GHTK_TOKEN}")
+    String GHTK_TOKEN;
+    @Value("${GHTK_PARTNER_CODE}")
+    String GHTK_PARTNER_CODE;
 
-    public ShippingResponse createShipping(ShippingRequest request) {
+    public ShippingResponse createShipping(ShippingRequest request) throws JsonProcessingException {
+        String url = GHTK_API_URL + "/order";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Token", GHTK_TOKEN);
-        String url="/order";
+        headers.set("X-Client-Source", GHTK_PARTNER_CODE);
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<ShippingRequest> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
 
-        if (response.getStatusCode() == HttpStatus.OK) {
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             Map<String, Object> responseBody = response.getBody();
-            // Lấy dữ liệu từ response
-            Boolean success = (Boolean) responseBody.get("success");
+            boolean success = Optional.ofNullable((Boolean) responseBody.get("success")).orElse(false);
             String message = (String) responseBody.get("message");
-            Map<String, Object> data = (Map<String, Object>) responseBody.get("data");
+            String warningMessage = (String) responseBody.getOrDefault("warning_message", "");
 
-            // Kiểm tra nếu data không null
-            String code = data != null ? (String) data.get("code") : null;
-            String token = data != null ? (String) data.get("token") : null;
-            return shippingRepository.save(ShippingResponse.builder()
-                    .success(success)
-                    .message(message)
-                    .data(new ShippingResponse.ShippingData(code, token))
-                    .build()
-            );
+            // Lấy thông tin order nếu có
+            Map<String, Object> orderDataMap = (Map<String, Object>) responseBody.get("order");
+            ShippingResponse.OrderData orderData = null;
+
+            if (orderDataMap != null) {
+                orderData = new  ShippingResponse.OrderData(
+                        (String) orderDataMap.get("partner_id"),
+                        (String) orderDataMap.get("label"),
+                        ((Number) orderDataMap.get("area")).intValue(),
+                        ((Number) orderDataMap.get("fee")).intValue(),
+                        ((Number) orderDataMap.get("insurance_fee")).intValue(),
+                        (String) orderDataMap.get("estimated_pick_time"),
+                        (String) orderDataMap.get("estimated_deliver_time"),
+                        ((Number) orderDataMap.get("status_id")).intValue(),
+                        ((Number) orderDataMap.get("tracking_id")).longValue(),
+                        (String) orderDataMap.get("sorting_code"),
+                        (String) orderDataMap.get("date_to_delay_pick"),
+                        ((Number) orderDataMap.get("pick_work_shift")).intValue(),
+                        (String) orderDataMap.get("date_to_delay_deliver"),
+                        ((Number) orderDataMap.get("deliver_work_shift")).intValue(),
+                        ((Number) orderDataMap.get("pkg_draft_id")).intValue(),
+                        ((Number) orderDataMap.get("is_xfast")).intValue()
+                );
+            }
+
+
+            return new ShippingResponse(success, message, orderData, warningMessage);
         } else {
-            throw new RuntimeException("Failed to create shipping order with GHTK");
+            throw new RuntimeException("Unexpected response from GHTK");
         }
     }
+
+
     public Double getShippingFee(ShippingFeeRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Token", GHTK_TOKEN);
+        headers.set("X-Client-Source", GHTK_PARTNER_CODE);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         String url = GHTK_API_URL + "/fee";
@@ -78,6 +111,7 @@ public class ShippingService {
         String url = GHTK_API_URL + trackingOrder;
 
         HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Client-Source", GHTK_PARTNER_CODE);
         headers.set("Token", GHTK_TOKEN);
 //        headers.set("X-Client-Source", PARTNER_CODE);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -122,10 +156,10 @@ public class ShippingService {
         if (value == null) return null;
         return Double.parseDouble(value.toString());
     }
-    public ShippingResponse cancelShipping(String trackingOrder){
+    public CancelShippingResponse cancelShipping(String trackingOrder){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Token", GHTK_TOKEN);
-//        headers.set("X-Client-Source", partnerCode);
+        headers.set("X-Client-Source", GHTK_PARTNER_CODE);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Gửi request đến API GHTK
@@ -141,10 +175,10 @@ public class ShippingService {
         // Xử lý phản hồi
         if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, Object> responseBody = response.getBody();
-            return ShippingResponse.builder()
+            return CancelShippingResponse.builder()
                     .success((Boolean) responseBody.get("success"))
                     .message((String) responseBody.get("message"))
-                    .data((String) responseBody.get("log_id"))
+                    .log_id((String) responseBody.get("log_id"))
                     .build();
         } else {
             throw new RuntimeException("Failed to cancel order with GHTK");

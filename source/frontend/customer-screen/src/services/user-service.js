@@ -65,10 +65,19 @@ class UserService {
     }
 
     // 🟢 Cập nhật thông tin người dùng
-    async updateUser(userId, updatedData) {
+    async updateUsername(userId, updatedData) {
         try {
-            const response = await this.api.put(`/${userId}`, updatedData);
-            return response.data.data;
+            const response = await this.api.put(`username/${userId}`, updatedData);
+            return response.status === 200?true:false;
+        } catch (error) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", error);
+            throw error;
+        }
+    }
+    async changePassword(userId, request) {
+        try {
+            await this.api.put(`username/${userId}`, request);
+            toast.success("Thay đổi mật khẩu thành công!");
         } catch (error) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", error);
             throw error;

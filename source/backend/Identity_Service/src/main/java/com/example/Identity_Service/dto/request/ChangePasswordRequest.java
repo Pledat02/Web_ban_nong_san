@@ -9,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Data
 public class ChangePasswordRequest {
-    String id_user;
     String oldPassword;
     String newPassword;
     String confirmPassword;

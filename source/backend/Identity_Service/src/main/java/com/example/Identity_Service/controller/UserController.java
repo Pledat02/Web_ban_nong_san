@@ -2,8 +2,10 @@ package com.example.Identity_Service.controller;
 
 
 import com.example.Identity_Service.FileUtils;
+import com.example.Identity_Service.dto.request.ChangePasswordRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
 import com.example.Identity_Service.dto.request.UserUpdateRequest;
+import com.example.Identity_Service.dto.request.UsernameRequest;
 import com.example.Identity_Service.dto.response.ApiResponse;
 import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
@@ -43,6 +45,16 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.createUser(request))
                 .build();
+    }
+    //change password
+    @PutMapping("/change-password/{idUser}")
+    public ApiResponse<Void> changePassword(
+            @PathVariable String idUser,
+            @Valid @RequestBody ChangePasswordRequest request){
+        userService.changePassword(idUser,request);
+        return ApiResponse.<Void>builder()
+               .message("Password changed successfully")
+               .build();
     }
     @GetMapping("/{id}")
     public  ApiResponse<UserResponse> getUserById(@PathVariable String id){
@@ -108,9 +120,11 @@ public class UserController {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
-    @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request){
-        return userService.updateUser(id, request);
+    @PutMapping("username/{id}")
+    public ApiResponse<UserResponse> updateUsername(@PathVariable String id, @RequestBody UsernameRequest request){
+        return ApiResponse.<UserResponse> builder()
+                .data(userService.updateUsername(id, request.getUsername()))
+               .build();
     }
 
     @GetMapping
