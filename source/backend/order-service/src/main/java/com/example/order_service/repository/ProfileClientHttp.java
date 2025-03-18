@@ -2,6 +2,7 @@ package com.example.order_service.repository;
 
 import com.example.order_service.configuration.AuthenRequestInterceptor;
 import com.example.order_service.dto.request.ProfileRequest;
+import com.example.order_service.dto.response.ApiResponse;
 import com.example.order_service.dto.response.ProfileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -14,5 +15,5 @@ import org.springframework.web.bind.annotation.RequestBody;
         configuration = AuthenRequestInterceptor.class)
 public interface ProfileClientHttp {
     @GetMapping("/profiles/{userId}")
-    ProfileResponse getProfile(@PathVariable String userId);
+    ApiResponse<ProfileResponse> getProfile(@PathVariable String userId);
 }

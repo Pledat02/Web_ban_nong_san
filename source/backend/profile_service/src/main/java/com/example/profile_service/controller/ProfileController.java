@@ -2,6 +2,7 @@ package com.example.profile_service.controller;
 
 import com.example.event.dto.ChangeEmailRequest;
 import com.example.event.dto.ChangePhoneRequest;
+import com.example.profile_service.dto.request.AddressRequest;
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.ApiResponse;
@@ -25,13 +26,17 @@ public class ProfileController {
     ProfileService profileService;
 
     //  Tạo hồ sơ (create profile)
-    @PostMapping
-    public ApiResponse<ProfileResponse> createProfile(@RequestBody CreationProfileRequest profile) {
-        return ApiResponse.<ProfileResponse>builder()
-                .data(profileService.saveProfile(profile))
+    @PostMapping("address/{idUser}")
+    public ApiResponse<Void> createProfile(@RequestBody AddressRequest addressRequest, @PathVariable String idUser) {
+        log.debug("Received AddressRequest: {}", addressRequest);
+        log.debug("User ID: {}", idUser);
+
+        profileService.saveAddress(addressRequest, idUser);
+
+        return ApiResponse.<Void>builder()
+                .message("Cập nhật thông tin địa chỉ thành công")
                 .build();
     }
-
     //  Lấy hồ sơ theo ID
     @GetMapping("/{id}")
     public ApiResponse<ProfileResponse> getProfile(@PathVariable String id) {

@@ -11,9 +11,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderItemRequest {
-    long id_order_item;
-    long id_product;
+    String id_order_item;
+    long product_code;
     int quantity;
-    Double current_price;
+    Double price;
+    String name;
+    double weight;
 
 }

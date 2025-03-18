@@ -1,5 +1,6 @@
 package com.example.order_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,18 +15,20 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id_order_item;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id_order_item;
+    String name;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name = "id_order",nullable = false)
     Order order;
     @Column(nullable = false)
-    long id_product;
+    long product_code;
     @Column(nullable = false)
     int quantity;
     // same value as a product price
     @Column(nullable = false)
-    double current_price;
+    double price;
+    double weight;
 
 }

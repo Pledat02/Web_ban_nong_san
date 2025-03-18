@@ -1,5 +1,6 @@
 package com.example.profile_service.service;
 
+import com.example.profile_service.dto.request.AddressRequest;
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.PageResponse;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,38 +37,38 @@ public class ProfileService {
     ProfileMapper profileMapper;
     AddressRepository addressRepository;
 
-    public ProfileResponse saveProfile(CreationProfileRequest request) {
-        Address address;
-        if (request.getAddress().getId_address() == null || request.getAddress().getId_address().isEmpty()) {
-            // Nếu không có ID, tạo mới Address
-            address = Address.builder()
-                    .province(request.getAddress().getProvince())
-                    .district(request.getAddress().getDistrict())
-                    .ward(request.getAddress().getWard())
-                    .hamlet(request.getAddress().getHamlet())
-                    .postalCode(request.getAddress().getPostalCode())
-                    .build();
-        } else {
+    public void saveAddress(AddressRequest request, String idUser) {
             // Nếu có ID, kiểm tra xem có tồn tại không
-            address = addressRepository.findById(request.getAddress().getId_address())
-                    .orElseGet(() -> {
-                        Address newAddress = Address.builder()
-                                .id_address(request.getAddress().getId_address()) // Đảm bảo ID hợp lệ
-                                .province(request.getAddress().getProvince())
-                                .district(request.getAddress().getDistrict())
-                                .ward(request.getAddress().getWard())
-                                .hamlet(request.getAddress().getHamlet())
-                                .postalCode(request.getAddress().getPostalCode())
-                                .build();
-                        return addressRepository.save(newAddress);
-                    });
+       Optional<Profile> profile = profileRepository.findById(idUser);
+        if(profile.isPresent()){
+            Optional<Address> address = addressRepository.findById(profile.get().getAddress().getId_address());
+            if(address.isEmpty()){
+                Address newAddress = Address.builder()
+                        .id_address(request.getId_address())
+                        .province(request.getProvince())
+                        .district(request.getDistrict())
+                        .ward(request.getWard())
+                        .hamlet(request.getHamlet())
+                        .postalCode(request.getPostalCode())
+                        .build();
+                 addressRepository.save(newAddress);
+            }else{
+                Address dataAddress = address.get();
+                dataAddress.setProvince(request.getProvince());
+                dataAddress.setDistrict(request.getDistrict());
+                dataAddress.setWard(request.getWard());
+                dataAddress.setHamlet(request.getHamlet());
+                dataAddress.setPostalCode(request.getPostalCode());
+                addressRepository.save(dataAddress);
+            }
+
         }
 
-        Profile profile = profileMapper.toProfile(request);
-
-        return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
-
+    public  ProfileResponse saveProfile(CreationProfileRequest request){
+        return profileMapper.toProfileResponse(
+                profileRepository.save(profileMapper.toProfile(request)));
+    }
     public ProfileResponse getProfileById(String userId) {
         return profileMapper.toProfileResponse(profileRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND)));
     }

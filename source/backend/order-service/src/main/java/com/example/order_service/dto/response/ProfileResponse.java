@@ -11,8 +11,7 @@ public class ProfileResponse {
     String id_user;
     String firstName;
     String lastName;
-    String address;
+    AddressResponse address;
     String email;
     String phone;
-    String thumbnail;
 }

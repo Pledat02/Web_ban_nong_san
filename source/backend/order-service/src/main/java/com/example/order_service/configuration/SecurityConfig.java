@@ -31,8 +31,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(rq -> rq
-                .requestMatchers(HttpMethod.POST).permitAll()
-                .requestMatchers(HttpMethod.PUT).permitAll()
+
                 .anyRequest().authenticated()
         );
 

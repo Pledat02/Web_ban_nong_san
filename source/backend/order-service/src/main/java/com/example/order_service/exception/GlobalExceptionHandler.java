@@ -1,12 +1,15 @@
 package com.example.order_service.exception;
 
 import com.example.order_service.dto.response.ApiResponse;
+import feign.FeignException;
 import jakarta.validation.ConstraintViolation;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Map;
 import java.util.Objects;
@@ -67,4 +70,19 @@ public class GlobalExceptionHandler {
             String minvalue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
         return message.replace("{"+MIN_ATTRIBUTE+"}",minvalue);
     }
+//    @ExceptionHandler(FeignException.class)
+//    public ApiResponse<String> handleFeignExceptions(FeignException ex) {
+//        ApiResponse<String> response = new ApiResponse<>();
+//
+//        if (ex.status() == 404) {
+//            response.setCode(1108);
+//            response.setMessage("Profile not found");
+//        } else {
+//            response.setCode(1109);
+//            response.setMessage("External service error: " + ex.getMessage());
+//        }
+//
+//        return response;
+//    }
+
 }

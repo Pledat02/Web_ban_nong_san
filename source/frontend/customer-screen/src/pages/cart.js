@@ -4,7 +4,6 @@ import CartSummary from "../components/cart-summary";
 
 const Cart = () => {
     const { cart, dispatch } = useCart();
-
     return (
         <div className="container mx-auto p-6 flex flex-col lg:flex-row gap-2">
             {/* Danh sách sản phẩm */}

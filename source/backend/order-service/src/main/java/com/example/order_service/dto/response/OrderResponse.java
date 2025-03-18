@@ -19,7 +19,7 @@ public class OrderResponse {
     Double totalPrice;
     String paymentMethod;
     String status;
-    Timestamp order_date;
+    Timestamp orderDate;
     String note;
     @ToString.Exclude
     List<OrderItemResponse> orderItems;

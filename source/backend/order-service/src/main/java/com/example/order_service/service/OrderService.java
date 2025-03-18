@@ -4,6 +4,7 @@ import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
+import com.example.order_service.dto.response.ProfileResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
 import com.example.order_service.exception.AppException;
@@ -55,8 +56,11 @@ public class OrderService {
         });
 
         order = orderRepository.save(order);
-
-        return orderMapper.toOrderResponse(order);
+        OrderResponse result =   orderMapper.toOrderResponse(order);
+        ProfileResponse profileResponse = profileClientHttp.getProfile(request.getUser().getId_user()).getData();
+        log.info(profileResponse.toString());
+        result.setUser(profileResponse);
+        return result;
     }
 
 
@@ -66,7 +70,7 @@ public class OrderService {
         log.info("order"+order);
         OrderResponse response = orderMapper.toOrderResponse(order);
 
-        response.setUser(profileClientHttp.getProfile(order.getId_user()));
+        response.setUser(profileClientHttp.getProfile(order.getId_user()).getData());
         return response;
     }
 

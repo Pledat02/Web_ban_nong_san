@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
-import ProfileService from "../services/profile-service"; // Giả sử có API này để lấy Profile
-import {toast} from "react-toastify";
+import { useCart } from "../context/cart-context"; //
+import ProfileService from "../services/profile-service";
+import { toast } from "react-toastify";
+import PaymentService from "../services/payment-service";
 
 const Checkout = () => {
+    const { cart,totalPrice } = useCart();
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -17,10 +21,12 @@ const Checkout = () => {
         paymentMethod: "bank_transfer",
     });
 
+
     useEffect(() => {
         async function fetchProfile() {
             try {
                 const profile = await ProfileService.getMyProfile();
+                console.log("Tải hồ sơ thành công:", profile);
                 if (profile) {
                     setFormData((prev) => ({
                         ...prev,
@@ -28,16 +34,12 @@ const Checkout = () => {
                         lastName: profile.lastName || "",
                         phone: profile.phone || "",
                         email: profile.email || "",
-                        province: profile.province || "",
-                        district: profile.district || "",
-                        ward: profile.ward || "",
-                        postalCode: profile.postalCode || "",
-                        hamlet: profile.hamlet || "",
+                        province: profile.address.province || "",
+                        district: profile.address.district || "",
+                        ward: profile.address.ward || "",
+                        postalCode: profile.address.postalCode || "",
+                        hamlet: profile.address.hamlet || "",
                     }));
-
-                    if (!profile.province) {
-                        toast.info("Bạn chưa có địa chỉ trong hồ sơ, vui lòng nhập thông tin.");
-                    }
                 }
             } catch (error) {
                 console.error("Lỗi khi tải hồ sơ:", error);
@@ -52,22 +54,12 @@ const Checkout = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Order Submitted", formData);
 
         try {
-            await ProfileService.updateProfile({
-                address: {
-                    province: formData.province,
-                    district: formData.district,
-                    ward: formData.ward,
-                    postalCode: formData.postalCode,
-                    hamlet: formData.hamlet,
-                }
-            });
-            toast.success("Địa chỉ của bạn đã được cập nhật!");
+            const paymentUrl = await PaymentService.CreatePaymentVNPay(totalPrice);
+            window.location.href = paymentUrl;
         } catch (error) {
-            console.error("Lỗi khi cập nhật địa chỉ:", error);
-            toast.error("Cập nhật địa chỉ thất bại!");
+            console.error("Lỗi khi tạo thanh toán:", error);
         }
     };
 
@@ -88,10 +80,19 @@ const Checkout = () => {
 
                 <h2 className="text-2xl font-bold mt-6 md:col-span-2">Đơn Hàng Của Bạn</h2>
                 <div className="md:col-span-2 bg-gray-100 p-4 rounded">
-                    <p>Bơm mỹ x 1 - <strong>180.000₫</strong></p>
-                    <p>Cà chua Đà Lạt x 1 - <strong>80.000₫</strong></p>
-                    <hr className="my-2" />
-                    <p>Tổng cộng: <strong>260.000₫</strong></p>
+                    {cart.length === 0 ? (
+                        <p>Giỏ hàng của bạn đang trống.</p>
+                    ) : (
+                        <>
+                            {cart.map((item) => (
+                                <p key={item.id}>
+                                    {item.name} x {item.quantity} - <strong>{item.price * item.quantity}₫</strong>
+                                </p>
+                            ))}
+                            <hr className="my-2" />
+                            <p>Tổng cộng: <strong>{totalPrice.toLocaleString()}₫</strong></p>
+                        </>
+                    )}
                 </div>
 
                 <div className="md:col-span-2 flex flex-col gap-2">
@@ -106,7 +107,9 @@ const Checkout = () => {
                 </div>
 
                 <textarea name="notes" placeholder="Ghi chú đơn hàng (tùy chọn)" className="p-2 border rounded md:col-span-2" value={formData.notes} onChange={handleChange}></textarea>
-                <button type="submit" className="bg-green-500 text-white p-2 rounded-md md:col-span-2">ĐẶT HÀNG</button>
+                <button type="submit" className="bg-green-500 text-white p-2 rounded-md md:col-span-2">
+                    ĐẶT HÀNG
+                </button>
             </form>
         </div>
     );

@@ -55,6 +55,7 @@ public class OrderController {
         OrderResponse order = orderService.createOrder(orderRequest);
         return ApiResponse.<OrderResponse>builder()
                 .data(order)
+                .code(201)
                 .build();
     }
     // Update order

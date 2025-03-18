@@ -22,7 +22,7 @@ public class OrderRequest {
     Double totalPrice;
     String paymentMethod;
     String status;
-    Timestamp order_date;
+    Timestamp orderDate;
     String note;
     List<OrderItemRequest> orderItems;
 }

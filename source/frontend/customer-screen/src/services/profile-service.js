@@ -37,19 +37,23 @@ class ProfileService {
     }
 
     // Cập nhật thông tin cá nhân
-    async updateProfile(profileData) {
+    async updateProfile(idUser, profileData) {
         try {
-            const response = await this.api.put("/my-profile", profileData);
+            const response = await this.api.post(`address/${idUser}`, profileData);
             if (response.status === 200) {
                 toast.success("Cập nhật thành công", { position: "top-right" });
                 return response.data;
             } else {
-                toast.error(response.data.message, { position: "top-right" });
+                toast.error(response.data?.message || "Có lỗi xảy ra!", { position: "top-right" });
+                return null;
             }
         } catch (error) {
-            toast.error("Cập nhật thất bại", { position: "top-right" });
+            console.error("Lỗi khi cập nhật profile:", error);
+            toast.error("Cập nhật thất bại, vui lòng thử lại!", { position: "top-right" });
+            return null;
         }
     }
+
 }
 
 export default new ProfileService();
