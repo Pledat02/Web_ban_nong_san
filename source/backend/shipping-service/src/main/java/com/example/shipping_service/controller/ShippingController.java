@@ -1,10 +1,8 @@
 package com.example.shipping_service.controller;
 
+import com.example.shipping_service.dto.request.ShippingFeeRequest;
 import com.example.shipping_service.dto.request.ShippingRequest;
-import com.example.shipping_service.dto.response.ApiResponse;
-import com.example.shipping_service.dto.response.CancelShippingResponse;
-import com.example.shipping_service.dto.response.OrderStatusResponse;
-import com.example.shipping_service.dto.response.ShippingResponse;
+import com.example.shipping_service.dto.response.*;
 import com.example.shipping_service.service.ShippingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +27,16 @@ public class ShippingController {
     @PostMapping("/create-order")
     public ApiResponse<ShippingResponse> createOrder(@RequestBody ShippingRequest request) {
         ShippingResponse response = null;
-        try {
             response = shippingService.createShipping(request);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
         return ApiResponse.<ShippingResponse>builder()
                .data(response)
+               .build();
+    }
+    @GetMapping("fee")
+    public ApiResponse<ShippingFeeResponse> getShippingFee(@RequestBody ShippingFeeRequest request) {
+        ShippingFeeResponse fee = shippingService.getShippingFee(request);
+        return ApiResponse.<ShippingFeeResponse>builder()
+               .data(fee)
                .build();
     }
 

@@ -21,13 +21,13 @@ public class GlobalExceptionHandler {
 
     private static final String MIN_ATTRIBUTE ="min";
     // bat cac valid chua duoc configuration
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse<String>> handleRuntimeExceptions() {
-        ApiResponse<String> ApiResponse = new ApiResponse<>();
-        ApiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        ApiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode()).body(ApiResponse);
-    }
+//    @ExceptionHandler(value = Exception.class)
+//    ResponseEntity<ApiResponse<String>> handleRuntimeExceptions() {
+//        ApiResponse<String> ApiResponse = new ApiResponse<>();
+//        ApiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+//        ApiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+//        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode()).body(ApiResponse);
+//    }
 
     // check valid api
     @ExceptionHandler(value = AppException.class)

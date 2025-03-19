@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class OrderItemResponse {
     String id_order_item;
     String name;
-    long product_code;
+    long productCode;
     int quantity;
     double price;
     double weight;

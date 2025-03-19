@@ -20,10 +20,10 @@ public class OrderItem {
     String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    @JoinColumn(name = "id_order",nullable = false)
+    @JoinColumn(name = "id_order")
     Order order;
     @Column(nullable = false)
-    long product_code;
+    long productCode;
     @Column(nullable = false)
     int quantity;
     // same value as a product price

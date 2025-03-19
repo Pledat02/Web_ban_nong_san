@@ -1,5 +1,6 @@
 package com.example.order_service.service;
 
+import com.example.order_service.dto.request.OrderItemRequest;
 import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.OrderResponse;
@@ -46,22 +47,22 @@ public class OrderService {
         // Map OrderRequest -> Order
         Order order = orderMapper.toOrder(request);
 
-        // Gán order vào từng OrderItem
-        Order finalOrder = order;
-        finalOrder.setOrderItems(new ArrayList<>());
-        request.getOrderItems().forEach(itemRequest -> {
-            OrderItem orderItem = orderItemMapper.toOrderItem(itemRequest);
-            finalOrder.getOrderItems().add(orderItem);
-            orderItem.setOrder(finalOrder);
-        });
+        // Đảm bảo danh sách orderItems không null
+        List<OrderItem> orderItems = new ArrayList<>();
+        if (request.getOrderItems() != null) {
+            for (OrderItemRequest itemRequest : request.getOrderItems()) {
+                OrderItem orderItem = orderItemMapper.toOrderItem(itemRequest);
+                orderItem.setOrder(order); // Gán Order đã tạo vào OrderItem
+                orderItems.add(orderItem);
+            }
+        }
+        order.setOrderItems(orderItems); // Gán danh sách đã xử lý vào Order
 
+        // Lưu Order vào database
         order = orderRepository.save(order);
-        OrderResponse result =   orderMapper.toOrderResponse(order);
-        ProfileResponse profileResponse = profileClientHttp.getProfile(request.getUser().getId_user()).getData();
-        log.info(profileResponse.toString());
-        result.setUser(profileResponse);
-        return result;
+        return orderMapper.toOrderResponse(order);
     }
+
 
 
     public OrderResponse getOrderById(String orderId) {

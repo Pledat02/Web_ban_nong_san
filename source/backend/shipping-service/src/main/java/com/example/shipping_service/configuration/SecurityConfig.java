@@ -35,8 +35,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.authorizeHttpRequests(rq -> rq
-                .requestMatchers(HttpMethod.POST).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         );
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
@@ -63,8 +62,8 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
-    @Bean
-    public RestTemplate restTemplate() {
+    @Bean(name = "securityRestTemplate")
+    public RestTemplate securityRestTemplate() {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         RestTemplate restTemplate = new RestTemplate(factory);
 

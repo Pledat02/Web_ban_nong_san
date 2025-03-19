@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useCart } from "../context/cart-context"; //
+import { useCart, CartActionTypes } from "../context/cart-context";
+import { useUser } from "../context/UserContext";
 import ProfileService from "../services/profile-service";
-import { toast } from "react-toastify";
 import PaymentService from "../services/payment-service";
+import OrderService from "../services/order-service";
+import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
-    const { cart,totalPrice } = useCart();
+    const { cart, totalPrice, dispatch } = useCart();
+    const { user } = useUser();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -18,18 +22,16 @@ const Checkout = () => {
         postalCode: "",
         hamlet: "",
         notes: "",
-        paymentMethod: "bank_transfer",
+        paymentMethod: "cod",
     });
 
-
     useEffect(() => {
-        async function fetchProfile() {
+        const fetchProfile = async () => {
             try {
                 const profile = await ProfileService.getMyProfile();
-                console.log("Tải hồ sơ thành công:", profile);
                 if (profile) {
-                    setFormData((prev) => ({
-                        ...prev,
+                    setFormData((prevFormData) => ({
+                        ...prevFormData,
                         firstName: profile.firstName || "",
                         lastName: profile.lastName || "",
                         phone: profile.phone || "",
@@ -44,20 +46,62 @@ const Checkout = () => {
             } catch (error) {
                 console.error("Lỗi khi tải hồ sơ:", error);
             }
-        }
+        };
+
         fetchProfile();
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }));
+    };
+
+    const clearCart = () => {
+        dispatch({ type: CartActionTypes.CLEAR_CART });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const paymentUrl = await PaymentService.CreatePaymentVNPay(totalPrice);
-            window.location.href = paymentUrl;
+            const orderData = {
+                id_user: user.id_user,
+                name: `${formData.firstName} ${formData.lastName}`,
+                province: formData.province,
+                district: formData.district,
+                ward: formData.ward,
+                hamlet: formData.hamlet || "",
+                tel: formData.phone,
+                address: `${formData.hamlet}, ${formData.ward}, ${formData.district}, ${formData.province}`,
+                pick_money: 0,
+                note: formData.notes || "",
+                is_freeship: 0,
+                pick_option: formData.paymentMethod,
+                value: totalPrice,
+                orderItems: cart.map((item) => ({
+                    name: item.name ?? "unknown",
+                    price: item.price,
+                    weight: item.weight.weight,
+                    quantity: item.quantity,
+                    productCode: item.id_product || "",
+                })),
+            };
+
+            console.log(orderData);
+
+            if (formData.paymentMethod === "none") {
+                // Thanh toán online
+                localStorage.setItem("order", JSON.stringify(orderData));
+                window.location.href = await PaymentService.CreatePaymentVNPay(totalPrice);
+            } else {
+                // Thanh toán khi nhận hàng
+                await OrderService.createOrder(orderData);
+                clearCart();
+                navigate("/");
+            }
         } catch (error) {
             console.error("Lỗi khi tạo thanh toán:", error);
         }
@@ -97,11 +141,11 @@ const Checkout = () => {
 
                 <div className="md:col-span-2 flex flex-col gap-2">
                     <label className="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="bank_transfer" checked={formData.paymentMethod === "bank_transfer"} onChange={handleChange} />
+                        <input type="radio" name="paymentMethod" value="none" checked={formData.paymentMethod === "none"} onChange={handleChange} />
                         Chuyển khoản ngân hàng
                     </label>
                     <label className="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="cash_on_delivery" checked={formData.paymentMethod === "cash_on_delivery"} onChange={handleChange} />
+                        <input type="radio" name="paymentMethod" value="cod" checked={formData.paymentMethod === "cod"} onChange={handleChange} />
                         Trả tiền mặt khi nhận hàng
                     </label>
                 </div>

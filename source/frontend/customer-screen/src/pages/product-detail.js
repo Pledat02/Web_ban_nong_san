@@ -10,7 +10,7 @@ const ProductDetail = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
-    const [selectedType, setSelectedType] = useState(null);
+    const [selectedType, setSelectedType] = useState(product?.weightTypes?.[0] || null);
     const { dispatch } = useCart();
     const navigate = useNavigate();
 
@@ -27,6 +27,11 @@ const ProductDetail = () => {
             },
         });
     };
+    useEffect(() => {
+        if (product?.weightTypes?.length > 0) {
+            setSelectedType(product.weightTypes[0]);
+        }
+    }, [product]);
 
     useEffect(() => {
         const fetchProductDetail = async () => {

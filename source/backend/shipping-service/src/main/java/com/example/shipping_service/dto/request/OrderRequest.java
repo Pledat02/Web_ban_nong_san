@@ -1,12 +1,13 @@
 package com.example.shipping_service.dto.request;
 
+import com.example.shipping_service.configuration.OrderConfig;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -65,5 +66,17 @@ public class OrderRequest {
     private Integer is_freeship = 0; // Mặc định là 0 (không freeship)
 
     private String pick_option = "cod"; // Mặc định là cod
+    private ArrayList<Integer> tags;
+
+    public void fromConfig(OrderConfig config) {
+        this.pick_name = config.getPickName();
+        this.pick_address = config.getPickAddress();
+        this.pick_province = config.getPickProvince();
+        this.pick_district = config.getPickDistrict();
+        this.pick_ward = config.getPickWard();
+        this.pick_tel = config.getPickTel();
+        this.tags = new ArrayList<>(config.getTag());
+    }
+
 
 }
