@@ -1,31 +1,38 @@
 package com.example.Identity_Service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @Builder
-@Entity(name = "User")
+@Entity
+@Table(name = "users") // Tránh trùng với từ khóa SQL
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id_user;
+
+    @Column(nullable = false, unique = true)
+    String email; // Email là duy nhất
+
     @Column(nullable = false, unique = true)
     String username;
-    @Column(nullable = false, unique = true)
-    String email;
+
     @Column(nullable = false)
     String password;
+
     String avatar;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    Set<UserLoginMethod> loginMethods; // Liên kết đến phương thức đăng nhập
+
     @ManyToMany
     Set<Role> roles;
-
 }

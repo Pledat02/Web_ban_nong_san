@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, googleProvider, facebookProvider } from "../components/firebase";
+import {auth, googleProvider, facebookProvider} from "../components/firebase";
 import { signInWithPopup } from "firebase/auth";
 import AuthService from "../services/auth-service";
 import jwtDecode from "jwt-decode";
@@ -43,19 +43,21 @@ const Login = () => {
     // Đăng nhập bằng Google
     const handleGoogleLogin = async () => {
         try {
-            const result = await signInWithPopup(auth, googleProvider);
+            const result = await signInWithPopup(auth,googleProvider);
             console.log(result)
             const userGG = result._tokenResponse;
             const user = {
                 username: userGG.displayName,
                 email: userGG.email,
                 phone: result.user.phoneNumber,
-                password:userGG.uid,
-                firstname:userGG.firstname,
-                lastname: userGG.lastname,
-                avatar: userGG.photoURL,
+                password:result.user.uid,
+                firstname:userGG.firstName,
+                lastname: userGG.lastName,
+                avatar: userGG.photoUrl,
+                loginType: "google"
             };
-            const response = await AuthService.loginFirebase(user);
+            console.log(user)
+            const response = await AuthService.loginSocial(user);
             const decoded = jwtDecode(response.token);
             const storedUser = {
                 id_user: decoded.id_user,
@@ -75,19 +77,20 @@ const Login = () => {
     // Đăng nhập bằng Facebook
     const handleFacebookLogin = async () => {
         try {
-            const result = await signInWithPopup(auth, facebookProvider);
+            const result = await signInWithPopup(auth,facebookProvider);
             console.log(result)
             const userFB = result._tokenResponse;
             const user = {
                 username: userFB.displayName,
                 email: userFB.email,
                 phone: result.user.phoneNumber,
-                password:userFB.uid,
-                firstname:userFB.firstname,
-                lastname: userFB.lastname,
+                password:result.user.uid,
+                firstname:userFB.firstName,
+                lastname: userFB.lastName,
                 avatar: userFB.photoURL,
+                loginType: "facebook"
             };
-            const response = await AuthService.loginFirebase(user);
+            const response = await AuthService.loginSocial(user);
             const decoded = jwtDecode(response.token);
             const storedUser = {
                 id_user: decoded.id_user,

@@ -17,8 +17,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UserCreationRequest {
-    @Id
-    private String id_user;
 
     @NotNull(message = "Tên người dùng không được để trống")
     @Size(min = 4, message = "USERNAME_INVALID")
@@ -27,6 +25,7 @@ public class UserCreationRequest {
     String avatar;
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
+    String loginType;
     Set<Role> roles;
 //    @DobValidator(min=3, message = "BIRTHDAY_INVALID")
 }

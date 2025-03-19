@@ -12,10 +12,19 @@ class AuthService {
         });
     }
 
-    async loginFirebase(user){
+    async loginSocial(user){
         try{
-            const response = await this.api.post("/firebase", user);
+            const response = await this.api.post("/log-in-social", user);
             return response.data?.data;
+        }
+        catch(error){
+            toast.error(error.message, { position: "top-right" });
+        }
+    }
+    async refreshToken(token){
+        try{
+            const response = await this.api.post("/refresh", token);
+            return response.data?.data.token;
         }
         catch(error){
             toast.error(error.message, { position: "top-right" });
@@ -47,10 +56,10 @@ class AuthService {
         }
         return true;
     }
-    async logout() {
-        localStorage.removeItem('user');
+    async logout(token) {
         try {
-            await this.api.post("/logout");
+            await this.api.post("/log-out",token);
+            localStorage.removeItem('user');
         } catch (error) {
             console.error("Error logging out:", error);
             throw error;

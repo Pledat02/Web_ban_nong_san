@@ -29,10 +29,10 @@ public class AuthenController {
                 .build();
     }
 
-    @PostMapping("/firebase")
-    ApiResponse<AuthenicationResponse> loginFirebaseAuth
+    @PostMapping("/log-in-social")
+    ApiResponse<AuthenicationResponse> loginSocial
             (@RequestBody UserCreationRequest request){
-        AuthenicationResponse result = authenService.loginFirebaseAuth(request);
+        AuthenicationResponse result = authenService.loginWithSocial(request);
         return ApiResponse.<AuthenicationResponse>builder()
                .data(result)
                .build();
@@ -47,7 +47,7 @@ public class AuthenController {
 
     }
     @PostMapping("/refresh")
-    ApiResponse<TokenResponse> refrsesh(@RequestBody TokenRequest requestBody) throws ParseException, JOSEException {
+    ApiResponse<TokenResponse> refresh(@RequestBody TokenRequest requestBody) throws ParseException, JOSEException {
         TokenResponse result = authenService.refreshToken(requestBody);
         return ApiResponse.<TokenResponse>builder()
                 .data(result)

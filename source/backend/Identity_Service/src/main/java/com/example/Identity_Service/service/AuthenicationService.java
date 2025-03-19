@@ -4,7 +4,9 @@ import com.example.Identity_Service.dto.request.*;
 import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
+import com.example.Identity_Service.entity.UserLoginMethod;
 import com.example.Identity_Service.mapper.UserMapper;
+import com.example.Identity_Service.repository.UserLoginMethodRepository;
 import com.example.Identity_Service.repository.UserRepository;
 import com.example.Identity_Service.dto.response.ValidTokenResponse;
 import com.example.Identity_Service.entity.InvalidToken;
@@ -44,6 +46,7 @@ public class AuthenicationService {
     private UserRepository userRepository;
     UserMapper userMapper;
     private InvalidTokenRepository invalidTokenRepository;
+     UserLoginMethodRepository userLoginMethodRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signer_key;
@@ -60,6 +63,49 @@ public class AuthenicationService {
                 .token(generateToken(user))
                 .authenticated(authenticated)
                 .build();
+    }
+    public AuthenicationResponse loginWithSocial(UserCreationRequest request) {
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
+
+        if (user.isPresent()) {
+            // Kiểm tra user đã từng đăng nhập bằng Google/Facebook chưa
+            boolean hasLoginMethod = userLoginMethodRepository.existsByUserAndLoginType(user.get(), request.getLoginType());
+
+            if (!hasLoginMethod) {
+                // Thêm phương thức đăng nhập mới nếu user chưa từng dùng Google/Facebook
+                UserLoginMethod loginMethod = UserLoginMethod.builder()
+                        .user(user.get())
+                        .loginType(request.getLoginType())
+                        .build();
+                userLoginMethodRepository.save(loginMethod);
+            }
+
+            return AuthenicationResponse.builder()
+                    .authenticated(true)
+                    .token(generateToken(user.get()))
+                    .build();
+        } else {
+            // Nếu user chưa tồn tại, tạo mới tài khoản
+            User newUser = User.builder()
+                    .email(request.getEmail())
+                    .username(request.getUsername())
+                    .password("") // Không cần mật khẩu cho Google/Facebook
+                    .avatar(request.getAvatar())
+                    .roles(new HashSet<>())
+                    .build();
+            userRepository.save(newUser);
+
+            UserLoginMethod loginMethod = UserLoginMethod.builder()
+                    .user(newUser)
+                    .loginType(request.getLoginType())
+                    .build();
+            userLoginMethodRepository.save(loginMethod);
+
+            return AuthenicationResponse.builder()
+                    .authenticated(true)
+                    .token(generateToken(newUser))
+                    .build();
+        }
     }
 
 
@@ -95,23 +141,7 @@ public class AuthenicationService {
        return signedJWT;
 
     }
-    public AuthenicationResponse loginFirebaseAuth(UserCreationRequest request){
-        Optional<User> user = userRepository.findByEmail(request.getEmail());
-        request.setRoles(new HashSet<>());
-        if(user.isPresent()){
-           return AuthenicationResponse.builder()
-                   .authenticated(true)
-                   .token(generateToken(user.get()))
-                   .build();
-        }else{
-            return AuthenicationResponse.builder()
-                    .authenticated(true)
-                    .token(generateToken(
-                            userRepository.save(
-                                    userMapper.ToUser(request))))
-                    .build();
-        }
-    }
+
     public void logout(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
         SignedJWT signedJWT = verifyToken(token);
@@ -150,7 +180,7 @@ public class AuthenicationService {
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(response.getUsername())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())
+                        Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli())
                 )
                 .issueTime(new Date())
                 .claim("email", response.getEmail())

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import authService from "../services/auth-service";
 
 const UserContext = createContext();
 
@@ -19,11 +20,11 @@ export const UserProvider = ({ children }) => {
     };
 
     // Hàm đăng xuất
-    const logout = () => {
-        localStorage.removeItem("user");
+    const logout = async () => {
+        const token = JSON.parse(localStorage.getItem("user")).token;
+        await authService.logout(token);
         setUser(null);
     };
-
     return (
         <UserContext.Provider value={{ user, login, logout }}>
             {children}
