@@ -1,6 +1,8 @@
 package com.example.product_service.service;
 
+import com.example.event.dto.UpdateStockRequest;
 import com.example.product_service.dto.request.FilterRequest;
+import com.example.product_service.dto.request.OrderItemRequest;
 import com.example.product_service.dto.request.ProductRequest;
 import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.dto.response.ProductResponse;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -74,7 +77,22 @@ public class ProductService {
         return getListProductResponses(productPage,page);
     }
 
+    public void updateStock(UpdateStockRequest request){
+        log.info(request.toString());
+        request.getItems().forEach(req -> {
 
+            Optional<Product> productOp = productRepository.findById(req.getProductId());
+            if (productOp.isPresent()) {
+                Product p = productOp.get();
+
+                p.setStock(p.getStock() - req.getQuantity());
+                productRepository.save(p);
+            } else {
+                log.error("ERROR: Product not found for ID {}", req.getProductId());
+            }
+        });
+
+    }
 
     public PageResponse<ProductResponse> getProductsByCategory(long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -151,5 +169,24 @@ public class ProductService {
         };
     }
 
+
+    public List<String> checkStock(List<OrderItemRequest> request) {
+        List<String> outOfStockProducts = new ArrayList<>();
+
+        for (OrderItemRequest item : request) {
+            Optional<Product> productOpt = productRepository.findById(Long.valueOf(item.getProductCode()));
+
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                if (product.getStock() < item.getQuantity()) {
+                    outOfStockProducts.add(product.getName()); // Lưu tên sản phẩm hết hàng
+                }
+            } else {
+                outOfStockProducts.add("Sản phẩm có mã " + item.getProductCode() + " không tồn tại");
+            }
+        }
+
+        return outOfStockProducts;
+    }
 
 }

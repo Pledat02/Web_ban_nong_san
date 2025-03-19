@@ -37,6 +37,7 @@ const ProductDetail = () => {
         const fetchProductDetail = async () => {
             try {
                 const data = await ProductService.getProductById(id);
+                console.log(data)
                 setProduct(data);
             } catch (error) {
                 console.error("Failed to fetch product details:", error);
@@ -110,7 +111,7 @@ const ProductDetail = () => {
                             <p className="text-gray-600">
                                 Số lượng tồn kho:{" "}
                                 <span className="font-bold">
-                                {selectedType ? selectedType.stock : product.stock}
+                                {product.stock}
                             </span>
                             </p>
                         </div>

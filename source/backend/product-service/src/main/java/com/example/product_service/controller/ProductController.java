@@ -1,6 +1,8 @@
 package com.example.product_service.controller;
 
+import com.example.event.dto.UpdateStockRequest;
 import com.example.product_service.dto.request.FilterRequest;
+import com.example.product_service.dto.request.OrderItemRequest;
 import com.example.product_service.dto.request.ProductRequest;
 import com.example.product_service.dto.response.ApiResponse;
 import com.example.product_service.dto.response.PageResponse;
@@ -8,24 +10,31 @@ import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
      ProductService productService;
-
-     // Get all products
+    private ObjectMapper objectMapper;
+    // Get all products
     @GetMapping
     public ApiResponse<PageResponse<ProductResponse>> getAllProducts(
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -92,6 +101,21 @@ public class ProductController {
                 .data(product)
                 .build();
     }
+    //update stock
+    @KafkaListener(topics = "update-stock")
+    public void updateStock(@Payload UpdateStockRequest request) {
+        productService.updateStock(request);
+    }
+
+    @PostMapping("/stock/check")
+    public ApiResponse<List<String>> isStock(@RequestBody List<OrderItemRequest> request) {
+        List<String> nameNotStockProducts = productService.checkStock(request);
+        return  ApiResponse.<List<String>>
+                builder()
+                .data(nameNotStockProducts)
+               .build()  ;
+    }
+
     // delete product
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteProduct(@PathVariable Long id) {

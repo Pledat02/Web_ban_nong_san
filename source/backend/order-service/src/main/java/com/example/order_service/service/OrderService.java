@@ -1,11 +1,11 @@
 package com.example.order_service.service;
 
+import com.example.event.dto.ItemUpdateStock;
+import com.example.event.dto.UpdateStockRequest;
 import com.example.order_service.dto.request.OrderItemRequest;
 import com.example.order_service.dto.request.OrderRequest;
-import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
-import com.example.order_service.dto.response.ProfileResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
 import com.example.order_service.exception.AppException;
@@ -14,6 +14,7 @@ import com.example.order_service.mapper.OrderItemMapper;
 import com.example.order_service.mapper.OrderMapper;
 import com.example.order_service.repository.OrderItemRepository;
 import com.example.order_service.repository.OrderRepository;
+import com.example.order_service.repository.ProductClientHttp;
 import com.example.order_service.repository.ProfileClientHttp;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,27 +43,45 @@ public class OrderService {
     OrderRepository orderRepository;
     OrderMapper orderMapper;
     ProfileClientHttp profileClientHttp;
-    OrderItemRepository orderItemRepository;
     OrderItemMapper orderItemMapper;
+    KafkaTemplate<String, Object> kafkaTemplate;
+    ProductClientHttp productClientHttp;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         // Map OrderRequest -> Order
         Order order = orderMapper.toOrder(request);
 
-        // Đảm bảo danh sách orderItems không null
+        // Kiểm tra hàng hóa đã hết hàng
+        List<String> outOfStockProducts = productClientHttp.isStock(request.getOrderItems()).getData();
+        if (!outOfStockProducts.isEmpty()) {
+            throw new AppException(ErrorCode.OUT_OF_STOCK, String.join(", ", outOfStockProducts));
+        }
+
+        // Tạo danh sách cập nhật tồn kho
+        UpdateStockRequest listUpdations = new UpdateStockRequest(new ArrayList<>());
         List<OrderItem> orderItems = new ArrayList<>();
+
         if (request.getOrderItems() != null) {
             for (OrderItemRequest itemRequest : request.getOrderItems()) {
                 OrderItem orderItem = orderItemMapper.toOrderItem(itemRequest);
                 orderItem.setOrder(order); // Gán Order đã tạo vào OrderItem
                 orderItems.add(orderItem);
+
+                // Thêm thông tin cập nhật tồn kho
+                listUpdations.getItems().add(new ItemUpdateStock(
+                            Long.parseLong(itemRequest.getProductCode())
+                            ,itemRequest.getQuantity()));
             }
         }
-        order.setOrderItems(orderItems); // Gán danh sách đã xử lý vào Order
+        order.setOrderItems(orderItems);
 
         // Lưu Order vào database
         order = orderRepository.save(order);
+
+        // Gửi danh sách cập nhật tồn kho đến Kafka
+        kafkaTemplate.send("update-stock", listUpdations);
+
         return orderMapper.toOrderResponse(order);
     }
 
