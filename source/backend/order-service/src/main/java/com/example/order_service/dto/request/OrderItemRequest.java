@@ -25,7 +25,7 @@ public class OrderItemRequest {
     private Double weight;
 
     private Integer quantity = 1;
-
+    private String image;
     private String productCode; // Không bắt buộc
 
 }

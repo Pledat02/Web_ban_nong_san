@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -28,10 +29,8 @@ public class Order {
     String id_user;
 
     Double totalPrice;
-
-    String paymentMethod;
-
-    String status;
+    @Column(nullable = false)
+    int status = 0 ;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

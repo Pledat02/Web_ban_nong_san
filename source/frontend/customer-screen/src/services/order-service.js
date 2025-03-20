@@ -23,20 +23,6 @@ class OrderService {
         });
     }
 
-    // Lấy danh sách đơn hàng của người dùng
-    async getMyOrders() {
-        try {
-            const response = await this.api.get("/my-orders");
-            if (response.status === 200) {
-                return response.data.data;
-            } else {
-                toast.error(response.data.message, {position: "top-right"});
-            }
-        } catch (error) {
-            toast.error("Lỗi khi lấy danh sách đơn hàng", {position: "top-right"});
-        }
-    }
-
     // Tạo đơn hàng mới
     async createOrder(orderData) {
         try {
@@ -49,6 +35,24 @@ class OrderService {
             }
         } catch (error) {
             toast.error("Đặt hàng thất bại, vui lòng thử lại", {position: "top-right"});
+        }
+    }
+    async getMyOrders(page = 1, size = 5,) {
+        try {
+            const response = await this.api.get("/my-orders",
+                {
+                    params: {
+                        page,
+                        size,
+                    },
+                });
+            if (response.status === 200) {
+               return response.data.data;
+
+            } else {
+                toast.error(response.data.message, {position: "top-right"});
+            }
+        } catch (error) {
         }
     }
 

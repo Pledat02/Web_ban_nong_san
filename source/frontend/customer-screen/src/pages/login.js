@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {auth, googleProvider, facebookProvider} from "../components/firebase";
+import {auth, googleProvider, facebookProvider} from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import AuthService from "../services/auth-service";
 import jwtDecode from "jwt-decode";

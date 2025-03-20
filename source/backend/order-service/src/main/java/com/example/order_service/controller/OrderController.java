@@ -89,14 +89,5 @@ public class OrderController {
         return ApiResponse.<Void>builder()
                .build();
     }
-    // search
-    @GetMapping("/search")
-    public ApiResponse<PageResponse<OrderResponse>> searchOrders(
-            @RequestParam String query,
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size){
-        return ApiResponse.<PageResponse<OrderResponse>>builder()
-                .data(orderService.searchOrders(query, page, size))
-               .build();
-    }
+
 }

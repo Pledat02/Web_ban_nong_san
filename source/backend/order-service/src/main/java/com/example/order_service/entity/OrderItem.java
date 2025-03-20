@@ -30,5 +30,6 @@ public class OrderItem {
     @Column(nullable = false)
     double price;
     double weight;
+    String image;
 
 }

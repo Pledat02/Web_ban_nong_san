@@ -1,29 +1,21 @@
 export const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-        case 'delivered':
-            return {
-                bg: 'bg-green-100',
-                text: 'text-green-800'
-            };
-        case 'in transit':
-            return {
-                bg: 'bg-blue-100',
-                text: 'text-blue-800'
-            };
-        case 'pending':
-            return {
-                bg: 'bg-yellow-100',
-                text: 'text-yellow-800'
-            };
-        case 'cancelled':
-            return {
-                bg: 'bg-red-100',
-                text: 'text-red-800'
-            };
+    switch (status.toUpperCase()) {
+        case "DELIVERED":
+            return { bgStatus: "bg-green-100", textStatus: "text-green-800" };
+        case "SHIPPING":
+            return { bgStatus: "bg-blue-100", textStatus: "text-blue-800" };
+        case "WAITING_FOR_SHIPMENT":
+        case "PENDING_CONFIRMATION":
+            return { bgStatus: "bg-yellow-100", textStatus: "text-yellow-800" };
+        case "CANCELED":
+            return { bgStatus: "bg-red-100", textStatus: "text-red-800" };
+        case "RETURN_REQUESTED":
+        case "RETURN_APPROVED":
+        case "WAITING_FOR_PICKUP":
+            return { bgStatus: "bg-purple-100", textStatus: "text-purple-800" };
+        case "RETURNED":
+            return { bgStatus: "bg-gray-100", textStatus: "text-gray-800" };
         default:
-            return {
-                bg: 'bg-gray-100',
-                text: 'text-gray-800'
-            };
+            return { bgStatus: "bg-gray-200", textStatus: "text-gray-900" };
     }
 };

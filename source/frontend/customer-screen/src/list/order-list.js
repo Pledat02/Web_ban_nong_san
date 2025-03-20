@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react';
+import {getStatusColor} from "../utils/status";
 
-
-export const OrderList= ({ orders, getStatusColor }) => {
+export const OrderList = ({ orders }) => {
     const [expandedOrder, setExpandedOrder] = useState(null);
 
     const toggleOrder = (orderId) => {
@@ -10,67 +10,73 @@ export const OrderList= ({ orders, getStatusColor }) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {orders.map((order) => {
-                const statusColors = getStatusColor(order.status);
+                const { bgStatus, textStatus } = getStatusColor(order.status);
                 const isExpanded = expandedOrder === order.id;
 
                 return (
-                    <div key={order.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div key={order.id} className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
                         {/* Order Header */}
                         <div
-                            className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                            className="p-4 hover:bg-green-50 transition-colors cursor-pointer"
                             onClick={() => toggleOrder(order.id)}
                         >
                             <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-6 flex-grow">
+                                <div className="flex items-center space-x-4 flex-grow">
                                     {/* Order Icon */}
                                     <div className="flex-shrink-0">
-                                        <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <ShoppingBag className="w-8 h-8 text-blue-600" />
+                                        <div className="w-12 h-12 bg-green-100 rounded-md flex items-center justify-center">
+                                            <ShoppingBag className="w-6 h-6 text-green-600" />
                                         </div>
                                     </div>
 
                                     {/* Order Details */}
                                     <div className="flex-grow">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h3 className="text-lg font-semibold text-gray-900">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <h3 className="text-m font-semibold text-green-700">
                                                 Order {order.id}
                                             </h3>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors.bg} ${statusColors.text}`}>
-                                                {order.status}
+                                            <span
+                                                className={`px-2 py-0.5 rounded-full text-sm font-medium ${bgStatus} ${textStatus}`}>
+                                                      {order.status}
                                             </span>
+
                                         </div>
 
-                                        <div className="grid grid-cols-3 gap-4">
-                                            <div className="flex items-center text-gray-600">
-                                                <Clock className="w-4 h-4 mr-2" />
+                                        <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">
+                                        <div className="flex items-center">
+                                                <Clock className="w-3 h-3 mr-1 text-green-600" />
                                                 <span>{order.date}</span>
                                             </div>
-                                            <div className="flex items-center text-gray-600">
-                                                <Package2 className="w-4 h-4 mr-2" />
+                                            <div className="flex items-center">
+                                                <Package2 className="w-3 h-3 mr-1 text-green-600" />
                                                 <span>{order.items} items</span>
                                             </div>
-                                            <div className="flex items-center text-gray-600">
-                                                <MapPin className="w-4 h-4 mr-2" />
+                                            <div className="flex items-center">
+                                                <MapPin className="w-3 h-3 mr-1 text-green-600" />
                                                 <span className="truncate">{order.address}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Total and Action */}
-                                    <div className="flex items-center space-x-6">
+                                    <div className="flex items-center space-x-4 px-4">
                                         <div className="text-right">
-                                            <p className="text-sm text-gray-600">Total Amount</p>
-                                            <p className="text-lg font-semibold text-gray-900">
-                                                ${order.total.toFixed(2)}
+                                            <p className="text-m text-gray-500 whitespace-nowrap">Thành tiền</p>
+                                            <p className="text-m text-green-700 font-medium">
+                                                {new Intl.NumberFormat('vi-VN', {
+                                                    style: 'currency',
+                                                    currency: 'VND'
+                                                }).format(order.total)}
                                             </p>
                                         </div>
-                                        <button className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100">
+                                        <button
+                                            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-green-100">
                                             {isExpanded ? (
-                                                <ChevronUp className="w-5 h-5 text-gray-400" />
+                                                <ChevronUp className="w-4 h-4 text-green-600" />
                                             ) : (
-                                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                                                <ChevronDown className="w-4 h-4 text-green-600" />
                                             )}
                                         </button>
                                     </div>
@@ -81,30 +87,31 @@ export const OrderList= ({ orders, getStatusColor }) => {
                         {/* Products List */}
                         {isExpanded && (
                             <div className="border-t border-gray-200 bg-gray-50">
-                                <div className="p-6">
-                                    <h4 className="text-sm font-medium text-gray-900 mb-4">Order Items</h4>
-                                    <div className="space-y-4">
+                                <div className="p-4">
+                                    <h4 className="text-sm font-medium text-green-700 mb-3">Sản phẩm</h4>
+                                    <div className="space-y-3">
                                         {order.products.map((product, index) => (
-                                            <div key={index} className="flex items-center space-x-4 bg-white p-4 rounded-lg">
+                                            <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded-md">
                                                 <img
                                                     src={product.image}
                                                     alt={product.name}
-                                                    className="w-[100px] h-[100px] object-cover rounded-lg"
+                                                    className="w-12 h-12 object-cover rounded-md"
                                                 />
                                                 <div className="flex-grow">
-                                                    <h5 className="text-sm font-medium text-gray-900">{product.name}</h5>
-                                                    <div className="mt-1 text-sm text-gray-500">
-                                                        <p>Quantity: {product.quantity}</p>
-                                                        <p>Weight: {product.weight}kg</p>
+                                                    <h5 className="text-m font-medium text-green-700">{product.name}</h5>
+                                                    <div className="mt-0.5 text-sm text-gray-500">
+                                                        <p>Số lượng: {product.quantity}</p>
+                                                        <p>Trọng lượng: {product.weight}kg</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-sm text-gray-900 font-medium">
-                                                        ${product.price.toFixed(2)}
+                                                    <p className="text-m text-green-700 font-medium">
+                                                        {new Intl.NumberFormat('vi-VN', {
+                                                            style: 'currency',
+                                                            currency: 'VND'
+                                                        }).format(product.price)}
                                                     </p>
-                                                    <p className="text-sm text-gray-500">
-                                                        per unit
-                                                    </p>
+                                                    <p className="text-sm text-gray-500">per unit</p>
                                                 </div>
                                             </div>
                                         ))}

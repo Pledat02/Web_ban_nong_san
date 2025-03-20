@@ -102,6 +102,7 @@ const Checkout = () => {
                     price: item.price,
                     weight: item.weight.weight,
                     quantity: item.quantity,
+                    image: item.image,
                     productCode: item.id || "",
                 })),
             };

@@ -3,9 +3,6 @@ import {
     getAuth,
     GoogleAuthProvider,
     FacebookAuthProvider,
-    signInWithPopup,
-    fetchSignInMethodsForEmail,
-    linkWithCredential
 } from "firebase/auth";
 
 const firebaseConfig = {

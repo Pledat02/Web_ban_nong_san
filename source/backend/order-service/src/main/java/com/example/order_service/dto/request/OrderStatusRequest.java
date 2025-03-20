@@ -9,5 +9,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderStatusRequest {
-    String status;
+    int status;
 }

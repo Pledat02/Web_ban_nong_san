@@ -130,12 +130,7 @@ public class OrderService {
                 .elements(orderResponses)
                 .build();
     }
-    // search
-    public PageResponse<OrderResponse> searchOrders(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> orderPage = orderRepository.searchOrders(keyword, pageable);
-        return getPaginateOrderResponse(page,orderPage);
-    }
+
     public PageResponse<OrderResponse> getMyOrder(
             int page,
             int size,
@@ -146,7 +141,7 @@ public class OrderService {
         String idUser = jwt.getClaim("id_user");
         return getOrdersByUserId(idUser,page,size,status);
     }
-    public OrderResponse updateStatus(String id_order, String status){
+    public OrderResponse updateStatus(String id_order, int status){
         Order order = orderRepository.findById(id_order)
                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setStatus(status);

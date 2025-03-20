@@ -4,6 +4,7 @@ import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
+import com.example.order_service.enums.OrderStatus;
 import org.mapstruct.*;
 
 import java.util.ArrayList;
@@ -13,11 +14,19 @@ import java.util.List;
 public interface OrderMapper {
 
     @Mapping(target = "id_order", source = "id")
-    @Mapping(target = "orderItems", ignore = true) // 🚀 Bỏ qua orderItems trước
+    @Mapping(target = "orderItems", ignore = true)
     Order toOrder(OrderRequest request);
 
+
     @Mapping(target = "id", source = "id_order")
+    @Mapping(target = "orderDate", source = "order_date")
+    @Mapping(target = "status", source = "status", qualifiedByName = "mapStatus")
+    @Mapping(target = "totalPrice",source = "value")
     OrderResponse toOrderResponse(Order order);
+    @Named("mapStatus")
+    default String mapStatus(int status) {
+        return OrderStatus.fromCode(status);
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.order_service.dto.response;
 
 import com.example.order_service.entity.OrderItem;
+import com.example.order_service.enums.OrderStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -22,9 +23,8 @@ public class OrderResponse {
 
     Double totalPrice;
 
-    String paymentMethod;
 
-    String status;
+    private String status;
 
     Timestamp orderDate;
 

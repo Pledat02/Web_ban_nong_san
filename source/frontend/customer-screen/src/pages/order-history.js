@@ -1,36 +1,77 @@
-import React, { useState } from 'react';
-import { OrderList } from '../list/order-list';
-import { allOrders } from '../data/order';
-import { getStatusColor } from '../utils/status';
-import { Search } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { OrderList } from "../list/order-list";
+import { Search } from "lucide-react";
+import OrderService from "../services/order-service";
 
 const ITEMS_PER_PAGE = 5;
 
-function App() {
+const statusTabs = [
+    { key: "All", label: "Tất cả" },
+    { key: "PENDING_CONFIRMATION", label: "Đang chờ xác nhận" },
+    { key: "WAITING_FOR_SHIPMENT", label: "Chờ giao hàng" },
+    { key: "SHIPPING", label: "Đang giao hàng" },
+    { key: "DELIVERED", label: "Giao hàng thành công" },
+    { key: "CANCELED", label: "Đơn hàng bị hủy" },
+    { key: "RETURN_REQUESTED", label: "Đang yêu cầu trả hàng" },
+    { key: "RETURN_APPROVED", label: "Yêu cầu trả hàng đã được duyệt" },
+    { key: "WAITING_FOR_PICKUP", label: "Chờ nhân viên tới lấy hàng" },
+    { key: "RETURNED", label: "Trả hàng" },
+];
+
+function OrderHistory() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [activeStatus, setActiveStatus] = useState('All');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [activeStatus, setActiveStatus] = useState("All");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [orders, setOrders] = useState([]);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const statusTabs = ['All', 'In Transit', 'Delivered', 'Cancelled', 'Pending'];
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const response = await OrderService.getMyOrders(currentPage, ITEMS_PER_PAGE);
+                console.log("Dữ liệu API:", response);
 
-    const filteredOrders = allOrders.filter(order => {
-        const matchesStatus = activeStatus === 'All' || order.status === activeStatus;
-        const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.date.includes(searchQuery);
-        return matchesStatus && matchesSearch;
+                const allOrders = response.elements.map(order => ({
+                    id: order.id,
+                    date: order.orderDate.split("T")[0],
+                    status: order.status,
+                    total: order.totalPrice,
+                    items: order.orderItems.length,
+                    address: order.address,
+                    products: order.orderItems.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        weight: item.weight,
+                        image: item.image
+                    }))
+                }));
+
+                setOrders(allOrders || []);
+                setTotalPages(response?.totalPages || 1);
+            } catch (error) {
+                console.error("Lỗi khi gọi API:", error);
+                setOrders([]);
+                setTotalPages(1);
+            }
+        };
+
+        fetchOrders();
+    }, [currentPage]);
+
+    const filteredOrders = orders.filter((order) => {
+        const matchesStatus = activeStatus === "All" || order.status === activeStatus;
+        const matchesQuery = searchQuery === "" || (order.id && order.id.toString().toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesStatus && matchesQuery;
     });
-
-    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginatedOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Order History</h1>
-                    <p className="mt-2 text-gray-600">Track and manage your recent orders</p>
+                    <h1 className="text-3xl font-bold text-green-700">Lịch sử đơn hàng</h1>
+                    <p className="mt-2 text-gray-600">Theo dõi và quản lý các đơn hàng gần đây của bạn</p>
                 </div>
 
                 {/* Search and Filter Section */}
@@ -40,27 +81,30 @@ function App() {
                         <div className="relative w-full sm:w-96">
                             <input
                                 type="text"
-                                placeholder="Search by order ID or date..."
+                                placeholder="Tìm kiếm theo mã đơn hàng hoặc ngày..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             />
                             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                         </div>
 
                         {/* Status Filter */}
-                        <div className="flex gap-2">
-                            {statusTabs.map((status) => (
+                        <div className="flex gap-2 flex-wrap">
+                            {statusTabs.map(({ key, label }) => (
                                 <button
-                                    key={status}
-                                    onClick={() => setActiveStatus(status)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all
-                                        ${activeStatus === status
-                                        ? 'bg-blue-100 text-blue-700'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    key={key}
+                                    onClick={() => {
+                                        setActiveStatus(key);
+                                        setCurrentPage(1);
+                                    }}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                        activeStatus === key
+                                            ? "bg-green-100 text-green-700"
+                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                     }`}
                                 >
-                                    {status}
+                                    {label}
                                 </button>
                             ))}
                         </div>
@@ -69,30 +113,29 @@ function App() {
 
                 {/* Orders List */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <OrderList orders={paginatedOrders} getStatusColor={getStatusColor} />
+                    <OrderList orders={filteredOrders} />
                 </div>
 
                 {/* Pagination */}
                 <div className="mt-6 flex justify-between items-center bg-white rounded-lg shadow-sm p-4">
                     <div className="text-sm text-gray-600">
-                        Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, filteredOrders.length)} of {filteredOrders.length} orders
+                        Hiển thị {filteredOrders.length ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0} đến{" "}
+                        {Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length)} trong tổng số {filteredOrders.length} đơn hàng
                     </div>
                     <div className="flex gap-2">
                         <button
-                            onClick={() => setCurrentPage(currentPage - 1)}
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                             disabled={currentPage === 1}
-                            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-300
-                                     hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Previous
+                            Trước
                         </button>
                         <button
-                            onClick={() => setCurrentPage(currentPage + 1)}
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                             disabled={currentPage === totalPages}
-                            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white
-                                     hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Next
+                            Tiếp theo
                         </button>
                     </div>
                 </div>
@@ -101,4 +144,4 @@ function App() {
     );
 }
 
-export default App;
+export default OrderHistory;

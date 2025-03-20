@@ -23,12 +23,6 @@ public interface OrderRepository extends JpaRepository<Order,String> {
     Page<Order> findAllOrderByUserId(@Param("userId") String userId,
                                      @Param("status") String status,
                                      Pageable pageable);
-    @Query("SELECT o FROM Order o WHERE " +
-            "CAST(o.order_date AS string) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(o.paymentMethod) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(o.status) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    Page<Order> searchOrders(String keyword, Pageable pageable);
-
 
     // Doanh thu theo ngày
     @Query("SELECT DATE(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue FROM Order o GROUP BY DATE(o.order_date)")
