@@ -5,9 +5,11 @@ import ProfileService from "../services/profile-service";
 import PaymentService from "../services/payment-service";
 import OrderService from "../services/order-service";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify";
 
 const Checkout = () => {
-    const { cart, totalPrice, dispatch } = useCart();
+    const { cart, getTotalPrice, dispatch } = useCart();
+
     const { user } = useUser();
     const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ const Checkout = () => {
         const fetchProfile = async () => {
             try {
                 const profile = await ProfileService.getMyProfile();
+
                 if (profile) {
                     setFormData((prevFormData) => ({
                         ...prevFormData,
@@ -36,12 +39,25 @@ const Checkout = () => {
                         lastName: profile.lastName || "",
                         phone: profile.phone || "",
                         email: profile.email || "",
-                        province: profile.address.province || "",
-                        district: profile.address.district || "",
-                        ward: profile.address.ward || "",
-                        postalCode: profile.address.postalCode || "",
-                        hamlet: profile.address.hamlet || "",
+                        province: profile.address?.province || "",
+                        district: profile.address?.district || "",
+                        ward: profile.address?.ward || "",
+                        postalCode: profile.address?.postalCode || "",
+                        hamlet: profile.address?.hamlet || "",
                     }));
+                    // Kiểm tra nếu có bất kỳ trường nào bị null hoặc rỗng
+                    const missingFields = [];
+                    if (!profile.firstName) missingFields.push("Tên");
+                    if (!profile.lastName) missingFields.push("Họ");
+                    if (!profile.phone) missingFields.push("Số điện thoại");
+                    if (!profile.email) missingFields.push("Email");
+                    if (!profile.address?.province) missingFields.push("Tỉnh / Thành phố");
+                    if (!profile.address?.district) missingFields.push("Quận / Huyện");
+                    if (!profile.address?.ward) missingFields.push("Phường / Xã");
+
+                    if (missingFields.length > 0) {
+                        toast.warning(`Vui lòng cập nhật đầy đủ thông tin hồ sơ trước: ${missingFields.join(", ")}`);
+                    }
                 }
             } catch (error) {
                 console.error("Lỗi khi tải hồ sơ:", error);
@@ -67,7 +83,7 @@ const Checkout = () => {
         e.preventDefault();
 
         try {
-            const orderData = {
+            let orderData = {
                 id_user: user.id_user,
                 name: `${formData.firstName} ${formData.lastName}`,
                 province: formData.province,
@@ -80,25 +96,23 @@ const Checkout = () => {
                 note: formData.notes || "",
                 is_freeship: 0,
                 pick_option: formData.paymentMethod,
-                value: totalPrice,
+                value: getTotalPrice(),
                 orderItems: cart.map((item) => ({
                     name: item.name ?? "unknown",
                     price: item.price,
                     weight: item.weight.weight,
                     quantity: item.quantity,
-                    productCode: item.id_product || "",
+                    productCode: item.id || "",
                 })),
             };
-
-            console.log(orderData);
 
             if (formData.paymentMethod === "none") {
                 // Thanh toán online
                 localStorage.setItem("order", JSON.stringify(orderData));
-                window.location.href = await PaymentService.CreatePaymentVNPay(totalPrice);
+                window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice());
             } else {
                 // Thanh toán khi nhận hàng
-                await OrderService.createOrder(orderData);
+                 OrderService.createOrder(orderData);
                 clearCart();
                 navigate("/");
             }
@@ -111,16 +125,16 @@ const Checkout = () => {
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h2 className="text-2xl font-bold mb-4">Thông Tin Thanh Toán</h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="firstName" placeholder="Tên *" className="p-2 border rounded" value={formData.firstName} onChange={handleChange} required />
-                <input type="text" name="lastName" placeholder="Họ *" className="p-2 border rounded" value={formData.lastName} onChange={handleChange} required />
-                <input type="text" name="phone" placeholder="Số điện thoại *" className="p-2 border rounded" value={formData.phone} onChange={handleChange} required />
-                <input type="email" name="email" placeholder="Địa chỉ email *" className="p-2 border rounded md:col-span-2" value={formData.email} onChange={handleChange} required />
+                <input type="text" readOnly name="firstName" placeholder="Tên *" className="p-2 border rounded" value={formData.firstName} onChange={handleChange} required />
+                <input type="text" readOnly name="lastName" placeholder="Họ *" className="p-2 border rounded" value={formData.lastName} onChange={handleChange} required />
+                <input type="text" readOnly name="phone" placeholder="Số điện thoại *" className="p-2 border rounded" value={formData.phone} onChange={handleChange} required />
+                <input type="email" readOnly name="email" placeholder="Địa chỉ email *" className="p-2 border rounded md:col-span-2" value={formData.email} onChange={handleChange} required />
 
-                <input type="text" name="province" placeholder="Tỉnh / Thành phố *" className="p-2 border rounded" value={formData.province} onChange={handleChange} required />
-                <input type="text" name="district" placeholder="Quận / Huyện *" className="p-2 border rounded" value={formData.district} onChange={handleChange} required />
-                <input type="text" name="ward" placeholder="Phường / Xã *" className="p-2 border rounded" value={formData.ward} onChange={handleChange} required />
-                <input type="text" name="postalCode" placeholder="Mã bưu điện (tùy chọn)" className="p-2 border rounded" value={formData.postalCode} onChange={handleChange} />
-                <input type="text" name="hamlet" placeholder="Thôn / Xóm (tùy chọn)" className="p-2 border rounded md:col-span-2" value={formData.hamlet} onChange={handleChange} />
+                <input type="text" readOnly name="province" placeholder="Tỉnh / Thành phố *" className="p-2 border rounded" value={formData.province} onChange={handleChange} required />
+                <input type="text" readOnly name="district" placeholder="Quận / Huyện *" className="p-2 border rounded" value={formData.district} onChange={handleChange} required />
+                <input type="text" readOnly name="ward" placeholder="Phường / Xã *" className="p-2 border rounded" value={formData.ward} onChange={handleChange} required />
+                <input type="text" readOnly name="postalCode" placeholder="Mã bưu điện (tùy chọn)" className="p-2 border rounded" value={formData.postalCode} onChange={handleChange} />
+                <input type="text" readOnly name="hamlet" placeholder="Thôn / Xóm (tùy chọn)" className="p-2 border rounded md:col-span-2" value={formData.hamlet} onChange={handleChange} />
 
                 <h2 className="text-2xl font-bold mt-6 md:col-span-2">Đơn Hàng Của Bạn</h2>
                 <div className="md:col-span-2 bg-gray-100 p-4 rounded">
@@ -134,7 +148,7 @@ const Checkout = () => {
                                 </p>
                             ))}
                             <hr className="my-2" />
-                            <p>Tổng cộng: <strong>{totalPrice.toLocaleString()}₫</strong></p>
+                            <p>Tổng cộng: <strong>{getTotalPrice()}₫</strong></p>
                         </>
                     )}
                 </div>

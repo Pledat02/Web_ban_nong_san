@@ -1,63 +1,66 @@
-import { createContext, useReducer, useContext, useMemo } from "react";
+import { createContext, useContext, useReducer } from "react";
 
-// Khởi tạo Context
+// Lấy giỏ hàng từ Local Storage
+const getCartFromStorage = () => {
+    const storedCart = localStorage.getItem("cart");
+    return storedCart ? JSON.parse(storedCart) : [];
+};
+export const CartActionTypes = {
+    ADD_ITEM: "ADD_ITEM",
+    REMOVE_ITEM: "REMOVE_ITEM",
+    UPDATE_QUANTITY: "UPDATE_QUANTITY",
+    CLEAR_CART: "CLEAR_CART"
+};
 const CartContext = createContext();
 
-export const CartActionTypes = {
-    ADD_TO_CART: "ADD_TO_CART",
-    UPDATE_QUANTITY: "UPDATE_QUANTITY",
-    REMOVE_ITEM: "REMOVE_ITEM",
-    CLEAR_CART: "CLEAR_CART",
-};
-
 const cartReducer = (state, action) => {
+    let updatedCart;
     switch (action.type) {
-        case CartActionTypes.ADD_TO_CART:
-            const existingItem = state.find(item => item.id === action.payload.id);
-            if (existingItem) {
-                return state.map(item =>
-                    item.id === action.payload.id
-                        ? { ...item, quantity: item.quantity + action.payload.quantity }
-                        : item
-                );
-            }
-            return [...state, action.payload];
-
-        case CartActionTypes.UPDATE_QUANTITY:
-            return state.map(item =>
-                item.id === action.payload.id
-                    ? { ...item, quantity: Math.max(1, action.payload.quantity) }
-                    : item
-            );
+        case CartActionTypes.ADD_ITEM:
+            updatedCart = [...state, action.payload];
+            break;
 
         case CartActionTypes.REMOVE_ITEM:
-            return state.filter(item => item.id !== action.payload.id);
+            updatedCart = state.filter(item => item.id !== action.payload.id);
+            break;
+
+        case CartActionTypes.UPDATE_QUANTITY:
+            updatedCart = state.map(item =>
+                item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item
+            );
+            break;
 
         case CartActionTypes.CLEAR_CART:
-            return [];
+            updatedCart = [];
+            break;
 
         default:
             return state;
     }
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    return updatedCart;
 };
 
-// Tạo Provider
+
 export const CartProvider = ({ children }) => {
-    const initialCart = [];
+    const [cart, dispatch] = useReducer(cartReducer, [], getCartFromStorage);
 
-    const [cart, dispatch] = useReducer(cartReducer, initialCart);
+    // Tính tổng số lượng sản phẩm
+    const getTotalQuantity = () => {
+        return cart.reduce((total ) => total + 1, 0);
+    };
 
-    // Tính tổng giá trị giỏ hàng
-    const totalPrice = useMemo(() => {
-        return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    }, [cart]);
+    // Tính tổng giá tiền
+    const getTotalPrice = () => {
+        return cart.reduce((total, item) => total + item.price * item.quantity * item.weight.weight, 0);
+    };
 
     return (
-        <CartContext.Provider value={{ cart, dispatch, totalPrice }}>
+        <CartContext.Provider value={{ cart, dispatch, getTotalQuantity, getTotalPrice }}>
             {children}
         </CartContext.Provider>
     );
 };
 
-// Hook dùng để truy cập CartContext
 export const useCart = () => useContext(CartContext);

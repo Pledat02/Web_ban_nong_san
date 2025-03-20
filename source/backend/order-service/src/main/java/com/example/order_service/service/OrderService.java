@@ -28,6 +28,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,7 @@ public class OrderService {
     OrderItemMapper orderItemMapper;
     KafkaTemplate<String, Object> kafkaTemplate;
     ProductClientHttp productClientHttp;
+
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -102,10 +106,19 @@ public class OrderService {
                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         orderRepository.deleteById(orderId);
     }
-    public PageResponse<OrderResponse> getOrdersByUserId(String userId,int page, int size) {
+    public PageResponse<OrderResponse> getOrdersByUserId(String userId,int page, int size, String status) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> orderPage = orderRepository.findAllOrderByUserId(userId,pageable);
+        Page<Order> orderPage = orderRepository.findAllOrderByUserId(userId,status,pageable);
 
+        return getPaginateOrderResponse(page,orderPage);
+    }
+    public PageResponse<OrderResponse> getAllOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        return getPaginateOrderResponse(page,orderPage);
+    }
+    public PageResponse<OrderResponse>  getPaginateOrderResponse(int page,  Page<Order> orderPage){
         List<OrderResponse> orderResponses = orderPage.getContent()
                 .stream()
                 .map(orderMapper::toOrderResponse)
@@ -117,36 +130,21 @@ public class OrderService {
                 .elements(orderResponses)
                 .build();
     }
-    public PageResponse<OrderResponse> getAllOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> orderPage = orderRepository.findAll(pageable);
-
-        List<OrderResponse> orderResponses = orderPage.getContent()
-                .stream()
-                .map(orderMapper::toOrderResponse)
-                .toList();
-        return PageResponse.<OrderResponse>builder()
-               .currentPage(page)
-               .totalPages(orderPage.getTotalPages())
-               .totalElements(orderPage.getTotalElements())
-               .elements(orderResponses)
-               .build();
-    }
     // search
     public PageResponse<OrderResponse> searchOrders(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Order> orderPage = orderRepository.searchOrders(keyword, pageable);
-
-        List<OrderResponse> orderResponses = orderPage.getContent()
-               .stream()
-               .map(orderMapper::toOrderResponse)
-               .toList();
-        return PageResponse.<OrderResponse>builder()
-               .currentPage(page)
-               .totalPages(orderPage.getTotalPages())
-               .totalElements(orderPage.getTotalElements())
-               .elements(orderResponses)
-               .build();
+        return getPaginateOrderResponse(page,orderPage);
+    }
+    public PageResponse<OrderResponse> getMyOrder(
+            int page,
+            int size,
+            String status
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String idUser = jwt.getClaim("id_user");
+        return getOrdersByUserId(idUser,page,size,status);
     }
     public OrderResponse updateStatus(String id_order, String status){
         Order order = orderRepository.findById(id_order)

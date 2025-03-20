@@ -2,8 +2,8 @@ import { useCart } from "../context/cart-context";
 import {useNavigate} from "react-router-dom";
 
 const CartSummary = () => {
-    const { totalPrice} = useCart();
-
+    const { getTotalPrice} = useCart();
+    console.log(getTotalPrice())
 
     const navigate = useNavigate();
     return (
@@ -11,11 +11,11 @@ const CartSummary = () => {
             <h2 className="text-xl font-bold border-b pb-2 mb-4">CỘNG GIỎ HÀNG</h2>
             <div className="flex justify-between mb-2">
                 <span>Tạm tính:</span>
-                <span className="font-bold">{totalPrice.toLocaleString()}₫</span>
+                <span className="font-bold">{getTotalPrice()}₫</span>
             </div>
             <div className="flex justify-between mb-4">
                 <span>Tổng:</span>
-                <span className="font-bold">{totalPrice.toLocaleString()}₫</span>
+                <span className="font-bold">{getTotalPrice()}₫</span>
             </div>
             <button onClick={()=>{navigate("/checkout")}} className="w-full bg-black text-white py-2 font-bold rounded">TIẾN HÀNH THANH TOÁN</button>
             <button className="w-full bg-green-600 text-white py-2 mt-2 flex justify-center items-center rounded">

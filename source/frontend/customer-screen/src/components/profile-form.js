@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircleIcon, PencilIcon } from "@heroicons/react/24/solid";
 import NotificationService from "../services/notification-service";
-import ProfileService from "../services/profile-service"; // Giữ nguyên tất cả import
+import ProfileService from "../services/profile-service";
 import { useUser } from "../context/UserContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,8 +23,7 @@ export function ProfileForm({ formData, onChange }) {
         if (e.key === "Enter") {
             e.preventDefault();
             try {
-                await ProfileService.updateProfile({ [type]: formData[type] });
-                toast.success("Cập nhật thành công!");
+                await ProfileService.updateProfile(user.id_user, { [type]: formData[type] });
                 setEditing((prev) => ({ ...prev, [type]: false }));
             } catch (error) {
                 toast.error("Cập nhật thất bại, vui lòng thử lại!");
@@ -34,17 +33,15 @@ export function ProfileForm({ formData, onChange }) {
 
     // Gửi OTP
     const handleSendOtp = async (type) => {
-        let success = false;
+        let value = formData[type];
 
         if (type === "phone") {
-            success = await NotificationService.sendPhoneOtp(formData.phone);
+            value = `+84${formData.phone}`;
+            NotificationService.sendPhoneOtp(value);
         } else if (type === "email") {
-            success = await NotificationService.sendEmailOtp(formData.email);
+            NotificationService.sendEmailOtp(value);
         }
-
-        if (success) {
-            setOtpRequested((prev) => ({ ...prev, [type]: true }));
-        }
+        setOtpRequested((prev) => ({ ...prev, [type]: true }));
     };
 
     // Xác thực OTP
@@ -53,14 +50,20 @@ export function ProfileForm({ formData, onChange }) {
 
         let success = false;
         const userId = user.id_user;
+        let value = formData[type];
 
         if (type === "phone") {
-            success = await NotificationService.verifyPhoneOtp(formData.phone, otp, userId);
+            value = `+84${formData.phone}`;
+            success = await NotificationService.verifyPhoneOtp(value, otp, userId);
         } else if (type === "email") {
-            success = await NotificationService.verifyEmailOtp(formData.email, otp, userId);
+            success = await NotificationService.verifyEmailOtp(value, otp, userId);
         }
 
-        setOtpVerified((prev) => ({ ...prev, [type]: success }));
+        if (success) {
+            setOtpRequested((prev) => ({ ...prev, [type]: false }));
+            setOtpVerified((prev) => ({ ...prev, [type]: true }));
+            setEditing((prev) => ({ ...prev, [type]: false }));
+        }
     };
 
     return (
@@ -119,14 +122,15 @@ export function ProfileForm({ formData, onChange }) {
             {/* Số điện thoại */}
             <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                <div className="relative">
+                <div className="relative flex items-center">
+                    <span className="mt-1 px-3 py-2 border border-r-0 rounded-l-lg">+84</span>
                     <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={onChange}
                         disabled={!editing.phone}
-                        className={`mt-1 block w-full rounded-lg border px-3 py-2 shadow-sm pr-24 ${
+                        className={`mt-1 block w-full rounded-r-lg border px-3 py-2 shadow-sm pr-24 ${
                             editing.phone ? "border-green-500" : "bg-gray-100 cursor-not-allowed"
                         }`}
                     />
@@ -166,7 +170,6 @@ export function ProfileForm({ formData, onChange }) {
                     </div>
                 )}
             </div>
-
             {/* Email */}
             <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -218,7 +221,7 @@ export function ProfileForm({ formData, onChange }) {
                 )}
             </div>
 
-            {/* Địa chỉ   */}
+            {/* Địa chỉ */}
             <AddressForm data={formData} onChange={onChange} />
         </form>
     );

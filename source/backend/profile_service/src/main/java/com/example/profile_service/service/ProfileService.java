@@ -39,12 +39,11 @@ public class ProfileService {
 
     public void saveAddress(AddressRequest request, String idUser) {
             // Nếu có ID, kiểm tra xem có tồn tại không
-       Optional<Profile> profile = profileRepository.findById(idUser);
-        if(profile.isPresent()){
-            Optional<Address> address = addressRepository.findById(profile.get().getAddress().getId_address());
-            if(address.isEmpty()){
+       Optional<Profile> profileOp = profileRepository.findById(idUser);
+        if(profileOp.isPresent()){
+            Profile profile = profileOp.get();
+            if(profile.getAddress()!=null){
                 Address newAddress = Address.builder()
-                        .id_address(request.getId_address())
                         .province(request.getProvince())
                         .district(request.getDistrict())
                         .ward(request.getWard())
@@ -53,13 +52,14 @@ public class ProfileService {
                         .build();
                  addressRepository.save(newAddress);
             }else{
-                Address dataAddress = address.get();
+                Address dataAddress = new Address();
                 dataAddress.setProvince(request.getProvince());
                 dataAddress.setDistrict(request.getDistrict());
                 dataAddress.setWard(request.getWard());
                 dataAddress.setHamlet(request.getHamlet());
                 dataAddress.setPostalCode(request.getPostalCode());
-                addressRepository.save(dataAddress);
+                profile.setAddress(dataAddress);
+                profileRepository.save(profile);
             }
 
         }
@@ -75,8 +75,14 @@ public class ProfileService {
 
     public void updateProfile(String userId, UpdationProfileRequest request) {
         Profile profile = profileRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("Profile not found"));
-        profileMapper.updateProfile(profile, request);
+                () -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        log.info(request.toString());
+       if(request.getFirstName()!=null){
+           profile.setFirstName(request.getFirstName());
+       }
+       if(request.getLastName()!=null){
+           profile.setLastName(request.getLastName());
+       }
         profileRepository.save(profile);
     }
 

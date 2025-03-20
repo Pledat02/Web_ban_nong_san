@@ -17,8 +17,12 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order,String> {
 
-    @Query("SELECT o FROM Order o WHERE o.id_user = :userId ORDER BY o.order_date DESC")
-    Page<Order> findAllOrderByUserId(String userId, Pageable pageable);
+    @Query("SELECT o FROM Order o WHERE o.id_user = :userId " +
+            "AND (:status IS NULL OR o.status = :status) " +
+            "ORDER BY o.order_date DESC")
+    Page<Order> findAllOrderByUserId(@Param("userId") String userId,
+                                     @Param("status") String status,
+                                     Pageable pageable);
     @Query("SELECT o FROM Order o WHERE " +
             "CAST(o.order_date AS string) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(o.paymentMethod) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { FaSearch, FaShoppingBag, FaBars } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import DropdownAccount from "../list/dropdown-account";
+import {useCart} from "../context/cart-context";
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
     const [searchTerm, setSearchTerm] = useState(""); // State lưu giá trị ô input
-    const navigate = useNavigate(); // Hook điều hướng
+    const navigate = useNavigate();
+    const {getTotalQuantity} = useCart();
 
     let lastScrollY = window.scrollY;
 
@@ -76,7 +78,7 @@ const Header = () => {
                             className="text-2xl text-gray-700 hover:text-green-600 transition cursor-pointer"
                         />
                         <span
-                            className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">0</span>
+                            className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">totalQuantity()</span>
                     </div>
 
                     {/* Search Bar (Ẩn trên mobile) */}
@@ -116,7 +118,7 @@ const Header = () => {
                             className="text-2xl text-gray-700 hover:text-green-600 transition cursor-pointer"
                         />
                         <span
-                            className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">0</span>
+                            className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">{getTotalQuantity()}</span>
                     </div>
                 </div>
 

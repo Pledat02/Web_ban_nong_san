@@ -16,11 +16,11 @@ const ProductDetail = () => {
 
     const addToCart = () => {
         dispatch({
-            type: CartActionTypes.ADD_TO_CART,
+            type: CartActionTypes.ADD_ITEM,
             payload: {
-                id_product: product.id_product,
+                id: product.id_product,
                 name: product.name,
-                price: product.price,
+                price: product.price * selectedType.weight,
                 weight:selectedType,
                 image: product.image,
                 quantity,

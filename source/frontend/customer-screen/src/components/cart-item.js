@@ -6,7 +6,7 @@ const CartItem = ({ item }) => {
     if (!item) return null;
 
     const updateQuantity = (newQuantity) => {
-        if (newQuantity < 1) return; // Tránh số lượng âm
+        if (newQuantity < 1) return; //
         dispatch({ type: "UPDATE_QUANTITY", payload: { id: item.id, quantity: newQuantity } });
     };
 

@@ -1,9 +1,11 @@
 import { useCart } from "../context/cart-context";
 import CartItem from "../components/cart-item";
 import CartSummary from "../components/cart-summary";
+import {useNavigate} from "react-router-dom";
 
 const Cart = () => {
     const { cart, dispatch } = useCart();
+    let navigate = useNavigate();
     return (
         <div className="container mx-auto p-6 flex flex-col lg:flex-row gap-2">
             {/* Danh sách sản phẩm */}
@@ -20,6 +22,7 @@ const Cart = () => {
                 {/* Button điều hướng */}
                 <div className="flex flex-col sm:flex-row justify-between mt-6 gap-3">
                     <button
+                        onClick={()=>navigate("/")}
                         className="border border-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition text-center">
                         ← TIẾP TỤC XEM SẢN PHẨM
                     </button>

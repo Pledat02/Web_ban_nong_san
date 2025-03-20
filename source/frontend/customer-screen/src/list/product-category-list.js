@@ -9,7 +9,6 @@ const ProductCategoryList = ({ title, description, categoryId }) => {
     const pageSize = 8;
 
     useEffect(() => {
-        console.log (page)
         const fetchProducts = async () => {
             try {
                 const data = await ProductService.getProductsByCategory(categoryId, page, pageSize);
@@ -21,20 +20,24 @@ const ProductCategoryList = ({ title, description, categoryId }) => {
         };
 
         fetchProducts();
-    }, [page]);
+    }, [categoryId, page]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setPage(newPage);
+        }
+    };
 
     return (
         <div className="w-full">
             {/* Tiêu đề */}
-            <div className="bg-crea  py-6 w-full text-center">
+            <div className="bg-crea py-6 w-full text-center">
                 <div className="flex items-center justify-center gap-4">
                     <div className="w-1/4 h-[2px] bg-gray-300"></div>
                     <h2 className="text-2xl font-bold text-brown-700">{title}</h2>
                     <div className="w-1/4 h-[2px] bg-gray-300"></div>
                 </div>
-                <p className="text-gray-600 mt-2">
-                    {description}
-                </p>
+                <p className="text-gray-600 mt-2">{description}</p>
             </div>
 
             {/* Danh sách sản phẩm */}
@@ -47,23 +50,23 @@ const ProductCategoryList = ({ title, description, categoryId }) => {
             </div>
 
             {/* Phân trang */}
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-between lg:mx-[8rem] items-center mb-4 px-4 py-2">
                 <button
-                    className="px-4 py-2 cursor-pointer bg-gray-300 rounded disabled:opacity-50 mx-2"
-                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
+                    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
                 >
-                    Prev
+                    ← Trang trước
                 </button>
-                <span className="mx-4 text-lg font-semibold">
-                    Page {page} of {totalPages}
+                <span className="font-semibold">
+                    Trang {page} / {totalPages}
                 </span>
                 <button
-                    className="px-4 py-2 cursor-pointer bg-gray-300  rounded disabled:opacity-50 mx-2"
-                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={page >= totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
                 >
-                    Next
+                    Trang sau →
                 </button>
             </div>
         </div>

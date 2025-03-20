@@ -8,7 +8,6 @@ class ProfileService {
             headers: {
                 "Content-Type": "application/json",
             },
-            withCredentials: true, // Giữ session nếu dùng cookie
         });
         this.api.interceptors.request.use((config) => {
             const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -36,8 +35,8 @@ class ProfileService {
         }
     }
 
-    // Cập nhật thông tin cá nhân
-    async updateProfile(idUser, profileData) {
+    // Cập nhật địa chỉ cá nhân
+    async updateAddress(idUser, profileData) {
         try {
             const response = await this.api.post(`address/${idUser}`, profileData);
             if (response.status === 200) {
@@ -49,6 +48,21 @@ class ProfileService {
             }
         } catch (error) {
             console.error("Lỗi khi cập nhật profile:", error);
+            toast.error("Cập nhật thất bại, vui lòng thử lại!", { position: "top-right" });
+            return null;
+        }
+    }
+    // cập nhật thong tin cá nhân
+    async updateProfile(idUser, profileData) {
+        try {
+            const response = await this.api.put(`/${idUser}`, profileData);
+            if (response.status === 200) {
+                toast.success("Cập nhật thành công", { position: "top-right" });
+            } else {
+                toast.error(response.data?.message || "Có l��i xảy ra!", { position: "top-right" });
+                return null;
+            }
+        } catch (error) {
             toast.error("Cập nhật thất bại, vui lòng thử lại!", { position: "top-right" });
             return null;
         }

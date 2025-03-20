@@ -42,12 +42,25 @@ public class OrderController {
     public ApiResponse<PageResponse<OrderResponse>> getOrdersByUserId(
             @PathVariable String userId,
             @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false) String status
+    ) {
         return ApiResponse.<PageResponse<OrderResponse>>builder()
-               .data(orderService.getOrdersByUserId(userId, page, size))
-               .build();
+                .data(orderService.getOrdersByUserId(userId, page, size, status))
+                .build();
     }
+    // Get orders by customer id
+    @GetMapping("/my-orders")
+    public ApiResponse<PageResponse<OrderResponse>> getMyOrder(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false) String status
+    ) {
+        return ApiResponse.<PageResponse<OrderResponse>>builder()
+                .data(orderService.getMyOrder(page, size, status))
+                .build();
+    }
+
     // Create order
     @PostMapping
     public ApiResponse<OrderResponse> createOrder(

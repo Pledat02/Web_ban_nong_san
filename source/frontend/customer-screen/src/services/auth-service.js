@@ -48,11 +48,9 @@ class AuthService {
             return false;
         }
     }
-    checkExpiredToken(){
-        const token = localStorage.getItem('token');
+    checkExpiredToken(token){
         if(token){
-            const expired = new Date(token.exp * 1000) < new Date();
-            return expired;
+            return  new Date(token.exp * 1000) < new Date();
         }
         return true;
     }

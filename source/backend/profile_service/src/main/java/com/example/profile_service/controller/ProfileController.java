@@ -48,6 +48,7 @@ public class ProfileController {
     // Cập nhật hồ sơ (update profile)
     @PutMapping("/{id}")
     public ApiResponse<Void> updateProfile(@PathVariable String id, @RequestBody UpdationProfileRequest request) {
+        log.debug("Received UpdationProfileRequest: {}", request);
         profileService.updateProfile(id, request);
         return ApiResponse.<Void>builder().build();
     }

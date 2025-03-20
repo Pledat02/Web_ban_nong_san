@@ -5,7 +5,7 @@ import './App.css';
 import AppRoutes from "./route/route-config";
 import { UserProvider } from "./context/UserContext";
 import { CartProvider } from "./context/cart-context";
-import {ToastContainer} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import authService from "./services/auth-service";
 
 const isTokenExpiringSoon = () => {
@@ -38,17 +38,26 @@ const TokenCheck = () => {
     useEffect(() => {
         const refreshAccessToken = async () => {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (user && user.token && isTokenExpiringSoon()) {
-                try {
-                    const newToken = await authService.refreshToken(user.token);
-                    user.token = newToken;
-                    console.log(newToken)
-                    localStorage.setItem("user", JSON.stringify(user));
-                } catch (error) {
-                    console.error("Lỗi refresh token:", error);
-                    // Nếu refresh thất bại → logout
+
+            if (user && user.token) {
+                if(authService.checkExpiredToken(user.token)){
                     localStorage.removeItem("user");
-                    navigate("/login");
+                    toast.info("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!")
+                    return;
+                }
+
+                if(isTokenExpiringSoon()){
+                    try {
+                        const newToken = await authService.refreshToken(user.token);
+                        user.token = newToken;
+                        console.log(newToken)
+                        localStorage.setItem("user", JSON.stringify(user));
+                    } catch (error) {
+                        console.error("Lỗi refresh token:", error);
+                        // Nếu refresh thất bại → logout
+                        localStorage.removeItem("user");
+                        navigate("/login");
+                    }
                 }
             }
         };

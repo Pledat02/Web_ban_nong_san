@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AddressRequest {
-    private String id_address;
     private String province;
     private String district;
     private String ward;

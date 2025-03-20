@@ -39,11 +39,11 @@ const AddressForm = ({ data, onChange, onSuccess }) => {
         if (!data.hamlet.trim()) return toast.error("Vui lòng nhập thôn/ấp!");
         return true;
     };
-
+    // show initial address
     const handleSubmit = async () => {
         if (!validateForm()) return;
         try {
-            await ProfileService.updateProfile(user.id_user, {
+            await ProfileService.updateAddress(user.id_user, {
                 province: selectedProvince,
                 district: selectedDistrict,
                 ward: selectedWard,
@@ -55,6 +55,31 @@ const AddressForm = ({ data, onChange, onSuccess }) => {
             console.error("Update failed:", error);
         }
     };
+    useEffect(() => {
+        if (data.province) {
+            const province = addressData.province.find(p => p.name === data.province);
+            if (province) {
+                setSelectedProvince(data.province);
+                setDistricts(province.district);
+            }
+        }
+    }, [data.province]);
+
+    useEffect(() => {
+        if (data.district && districts.length > 0) {
+            const district = districts.find(d => d.name === data.district);
+            if (district) {
+                setSelectedDistrict(data.district);
+                setWards(district.ward);
+            }
+        }
+    }, [data.district, districts]);
+
+    useEffect(() => {
+        if (data.ward && wards.includes(data.ward)) {
+            setSelectedWard(data.ward);
+        }
+    }, [data.ward, wards]);
 
     return (
         <div className="space-y-6">
