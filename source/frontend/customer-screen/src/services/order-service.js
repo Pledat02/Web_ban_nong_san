@@ -69,6 +69,19 @@ class OrderService {
             toast.error("Không tìm thấy đơn hàng", {position: "top-right"});
         }
     }
+    // huy don hang
+    async cancelOrder(orderId) {
+        try {
+            const response = await this.api.put(`cancel/${orderId}`);
+            if (response.status === 200) {
+                toast.success(response.data.message, {position: "top-right"});
+            } else {
+                toast.error(response.data.message, {position: "top-right"});
+            }
+        } catch (error) {
+            toast.error("Không tìm thấy đơn hàng", {position: "top-right"});
+        }
+    }
 
 }
 export default new OrderService();

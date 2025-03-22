@@ -25,6 +25,9 @@ public enum ErrorCode {
     ROLE_NOT_FOUND(1007,"Role not found",HttpStatus.NOT_FOUND),
     OUT_OF_STOCK(1102, "Sản phẩm không đủ hàng: %s", HttpStatus.BAD_REQUEST),
     ORDER_NOT_FOUND(1017,"Order not found",HttpStatus.NOT_FOUND),
+    INVALID_STATUS(2005,"Yêu cầu thay đổi trạng thái đơn hàng không hợp lệ",HttpStatus.NOT_FOUND),
+    CANNOT_CANCEL_ORDER(2004,"Đơn hàng đã được vận chuyển, không thể yêu cầu hủy đơn",HttpStatus.BAD_REQUEST),
+    CANNOT_RETURN_ORDER(2003,"Đơn hàng chưa giao thành công, không thể yêu cầu trả đơn",HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(9999,"uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR);
     private int code;
     private String message;

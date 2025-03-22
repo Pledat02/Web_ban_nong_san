@@ -8,6 +8,7 @@ import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
+import com.example.order_service.enums.OrderStatus;
 import com.example.order_service.exception.AppException;
 import com.example.order_service.exception.ErrorCode;
 import com.example.order_service.mapper.OrderItemMapper;
@@ -88,7 +89,71 @@ public class OrderService {
 
         return orderMapper.toOrderResponse(order);
     }
+    // user role
+    public OrderResponse updateStatusCancelOrder(String id_Order){
+        Order order = orderRepository.findById(id_Order).orElseThrow(
+                () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
+        );
+        if (order.getStatus()!=OrderStatus.PENDING_CONFIRMATION.getCode()
+        && order.getStatus()!=OrderStatus.WAITING_FOR_PICKUP.getCode() ){
+            throw new AppException(ErrorCode.CANNOT_CANCEL_ORDER);
+        }
+        order.setStatus(OrderStatus.CANCELED.getCode());
+        return orderMapper.toOrderResponse(orderRepository.save(order));
+    }
+    // admin role
+    public OrderResponse updateStatusOrder(String id_Order,String status){
+        Order order = orderRepository.findById(id_Order).orElseThrow(
+                () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
+        );
+        OrderStatus statusOrder = OrderStatus.fromCode(order.getStatus());
+        switch (statusOrder){
+            case PENDING_CONFIRMATION:
+                if(OrderStatus.valueOf(status)==OrderStatus.WAITING_FOR_SHIPMENT){
+                    order.setStatus(OrderStatus.WAITING_FOR_SHIPMENT.getCode());
+                }
+               else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
+                    order.setStatus(OrderStatus.CANCELED.getCode());
+                }
+               else{
+                   throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                break;
+            case WAITING_FOR_PICKUP:
+                if(OrderStatus.valueOf(status)==OrderStatus.SHIPPING){
+                    order.setStatus(OrderStatus.SHIPPING.getCode());
+                }
+                else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
+                    order.setStatus(OrderStatus.CANCELED.getCode());
+                }
+                else{
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                break;
+            case SHIPPING:
+                if(OrderStatus.valueOf(status)!=OrderStatus.DELIVERED){
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                order.setStatus(OrderStatus.DELIVERED.getCode());
+                break;
+            case DELIVERED:
+                if(OrderStatus.valueOf(status)!=OrderStatus.RETURN_APPROVED){
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                order.setStatus(OrderStatus.RETURN_APPROVED.getCode());
+                break;
+            case RETURN_APPROVED:
+                if(OrderStatus.valueOf(status)!=OrderStatus.RETURNED){
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                order.setStatus(OrderStatus.RETURNED.getCode());
+                break;
 
+            default:
+                throw new AppException(ErrorCode.INVALID_STATUS);
+        }
+        return orderMapper.toOrderResponse(orderRepository.save(order));
+    }
 
 
     public OrderResponse getOrderById(String orderId) {
@@ -141,11 +206,5 @@ public class OrderService {
         String idUser = jwt.getClaim("id_user");
         return getOrdersByUserId(idUser,page,size,status);
     }
-    public OrderResponse updateStatus(String id_order, int status){
-        Order order = orderRepository.findById(id_order)
-               .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        order.setStatus(status);
-        order = orderRepository.save(order);
-        return orderMapper.toOrderResponse(order);
-    }
+
 }

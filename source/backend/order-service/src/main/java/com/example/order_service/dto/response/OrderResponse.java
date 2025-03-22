@@ -24,7 +24,7 @@ public class OrderResponse {
     Double totalPrice;
 
 
-    private String status;
+     OrderStatus status;
 
     Timestamp orderDate;
 

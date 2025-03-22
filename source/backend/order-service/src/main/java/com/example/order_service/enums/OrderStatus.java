@@ -27,10 +27,10 @@ public enum OrderStatus {
         return description;
     }
 
-    public static String fromCode(int code) {
+    public static OrderStatus fromCode(int code) {
         for (OrderStatus status : OrderStatus.values()) {
             if (status.code == code) {
-                return status.getDescription();
+                return status;
             }
         }
         throw new IllegalArgumentException("Không tìm thấy trạng thái tương ứng với mã: " + code);

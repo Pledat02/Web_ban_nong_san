@@ -24,7 +24,7 @@ public interface OrderMapper {
     @Mapping(target = "totalPrice",source = "value")
     OrderResponse toOrderResponse(Order order);
     @Named("mapStatus")
-    default String mapStatus(int status) {
+    default OrderStatus mapStatus(int status) {
         return OrderStatus.fromCode(status);
     }
 

@@ -1,7 +1,6 @@
 package com.example.order_service.controller;
 
 import com.example.order_service.dto.request.OrderRequest;
-import com.example.order_service.dto.request.OrderStatusRequest;
 import com.example.order_service.dto.response.ApiResponse;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.PageResponse;
@@ -71,22 +70,30 @@ public class OrderController {
                 .code(201)
                 .build();
     }
-    // Update order
-    @PutMapping("/{id}/status")
-    public ApiResponse<OrderResponse> updateOrderStatus(
-                                                  @PathVariable String id,
-                                                  @RequestBody OrderStatusRequest request){
-        OrderResponse order = orderService.updateStatus(id, request.getStatus());
-        if(order == null) throw new AppException(ErrorCode.ORDER_NOT_FOUND);
-        return ApiResponse.<OrderResponse>builder()
-               .data(order)
-               .build();
-    }
+
     // Delete order
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteOrder(@PathVariable String id){
         orderService.deleteOrder(id);
         return ApiResponse.<Void>builder()
+               .build();
+    }
+    // Cancel order
+    @PutMapping("/cancel/{id}")
+    public ApiResponse<OrderResponse> cancelOrder(@PathVariable String id){
+        OrderResponse order = orderService.updateStatusCancelOrder(id);
+        if(order == null) throw new AppException(ErrorCode.ORDER_NOT_FOUND);
+        return ApiResponse.<OrderResponse>builder()
+               .data(order)
+               .build();
+    }
+    // update status
+    @PutMapping("/{id}/update-status")
+    public ApiResponse<OrderResponse> updateOrderStatus(@PathVariable String id,
+                                                        @RequestParam String status){
+        OrderResponse order = orderService.updateStatusOrder(id,status);
+        return ApiResponse.<OrderResponse>builder()
+               .data(order)
                .build();
     }
 
