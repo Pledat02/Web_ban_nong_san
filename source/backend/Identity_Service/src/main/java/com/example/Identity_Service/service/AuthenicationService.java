@@ -1,13 +1,13 @@
 package com.example.Identity_Service.service;
 
+import com.example.Identity_Service.constant.PredefinedRole;
 import com.example.Identity_Service.dto.request.*;
 import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.UserLoginMethod;
 import com.example.Identity_Service.mapper.UserMapper;
-import com.example.Identity_Service.repository.UserLoginMethodRepository;
-import com.example.Identity_Service.repository.UserRepository;
+import com.example.Identity_Service.repository.*;
 import com.example.Identity_Service.dto.response.ValidTokenResponse;
 import com.example.Identity_Service.entity.InvalidToken;
 import com.example.Identity_Service.entity.Role;
@@ -15,7 +15,6 @@ import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.repository.UserRepository;
-import com.example.Identity_Service.repository.InvalidTokenRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -46,6 +45,7 @@ public class AuthenicationService {
     private UserRepository userRepository;
     UserMapper userMapper;
     private InvalidTokenRepository invalidTokenRepository;
+    RoleRepository roleRepository;
      UserLoginMethodRepository userLoginMethodRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -86,12 +86,14 @@ public class AuthenicationService {
                     .build();
         } else {
             // Nếu user chưa tồn tại, tạo mới tài khoản
+            HashSet<Role> roles = new HashSet<>();
+            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
             User newUser = User.builder()
                     .email(request.getEmail())
                     .username(request.getUsername())
                     .password("") // Không cần mật khẩu cho Google/Facebook
                     .avatar(request.getAvatar())
-                    .roles(new HashSet<>())
+                    .roles(roles)
                     .build();
             userRepository.save(newUser);
 

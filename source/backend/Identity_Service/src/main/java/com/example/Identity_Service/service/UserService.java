@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
@@ -56,8 +57,13 @@ public class UserService {
         if(userRepository.existsByUsername(userrq.getUsername())){
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
-        if(userRepository.findByEmail(userrq.getEmail()).isPresent()){
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        // check existed email (have password)
+        Optional<User> userOp = userRepository.findByEmail(userrq.getEmail());
+        if(userOp.isPresent()
+        ){
+            if(userOp.get().getPassword()!=null){
+                throw new AppException(ErrorCode.EMAIL_EXISTED);
+            }
         }
 
         userrq.setPassword(passwordEncoder.encode(userrq.getPassword()));
