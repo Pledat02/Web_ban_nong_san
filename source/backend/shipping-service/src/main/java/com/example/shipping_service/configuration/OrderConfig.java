@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 @ConfigurationProperties(prefix = "order")
 @Getter
@@ -18,7 +20,7 @@ public class OrderConfig {
     private String pickTel;
     private Integer pickMoney;
     private String pickOption;
-    private Integer tag;
+    private List<Integer> tags;
     private String deliverOption;
 }
 

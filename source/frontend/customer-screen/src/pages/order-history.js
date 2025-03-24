@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { OrderList } from "../list/order-list";
-import { Search } from "lucide-react";
+import {Loader2, Search} from "lucide-react";
 import OrderService from "../services/order-service";
 
 const ITEMS_PER_PAGE = 5;
@@ -124,7 +124,9 @@ function OrderHistory() {
                 {/* Orders List */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-600">Đang tải...</div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 animate-spin text-gray-600"/>
+                        </div>
                     ) : filteredOrders.length === 0 ? (
                         <div className="p-8 text-center text-gray-600">
                             Không tìm thấy đơn hàng nào

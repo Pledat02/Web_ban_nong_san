@@ -4,14 +4,21 @@ import { useUser } from "../context/UserContext";
 import ProfileService from "../services/profile-service";
 import PaymentService from "../services/payment-service";
 import OrderService from "../services/order-service";
+import ShippingService from "../services/shipping-service";
 import { useNavigate } from "react-router-dom";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
+import { ShoppingCart } from 'lucide-react';
+import ShippingInformation from "../components/shipping-infor";
+import PaymentMethod from "../components/payment-method";
+import OrderSummary from "../components/order-summary";
 
 const Checkout = () => {
     const { cart, getTotalPrice, dispatch } = useCart();
-
     const { user } = useUser();
     const navigate = useNavigate();
+    const [shippingFee, setShippingFee] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -29,6 +36,7 @@ const Checkout = () => {
 
     useEffect(() => {
         const fetchProfile = async () => {
+            setProfileLoading(true);
             try {
                 const profile = await ProfileService.getMyProfile();
 
@@ -45,27 +53,57 @@ const Checkout = () => {
                         postalCode: profile.address?.postalCode || "",
                         hamlet: profile.address?.hamlet || "",
                     }));
-                    // Kiểm tra nếu có bất kỳ trường nào bị null hoặc rỗng
+
                     const missingFields = [];
-                    if (!profile.firstName) missingFields.push("Tên");
-                    if (!profile.lastName) missingFields.push("Họ");
-                    if (!profile.phone) missingFields.push("Số điện thoại");
+                    if (!profile.firstName) missingFields.push("First Name");
+                    if (!profile.lastName) missingFields.push("Last Name");
+                    if (!profile.phone) missingFields.push("Phone Number");
                     if (!profile.email) missingFields.push("Email");
-                    if (!profile.address?.province) missingFields.push("Tỉnh / Thành phố");
-                    if (!profile.address?.district) missingFields.push("Quận / Huyện");
-                    if (!profile.address?.ward) missingFields.push("Phường / Xã");
+                    if (!profile.address?.province) missingFields.push("Province/City");
+                    if (!profile.address?.district) missingFields.push("District");
+                    if (!profile.address?.ward) missingFields.push("Ward");
 
                     if (missingFields.length > 0) {
-                        toast.warning(`Vui lòng cập nhật đầy đủ thông tin hồ sơ trước: ${missingFields.join(", ")}`);
+                        toast.warning(`Please update your profile with the following information: ${missingFields.join(", ")}`);
                     }
                 }
             } catch (error) {
-                console.error("Lỗi khi tải hồ sơ:", error);
+                console.error("Error loading profile:", error);
+                toast.error("Could not load profile information. Please try again later.");
+            } finally {
+                setProfileLoading(false);
             }
         };
 
         fetchProfile();
     }, []);
+
+    useEffect(() => {
+        const calculateShipping = async () => {
+            if (!formData.province || !formData.district || !formData.ward) return;
+
+            setLoading(true);
+            try {
+                const shippingData = {
+                    address: `${formData.hamlet}, ${formData.ward}, ${formData.district}, ${formData.province}`,
+                    province: formData.province,
+                    district: formData.district,
+                    ward: formData.ward,
+                    value: getTotalPrice(),
+                    weight: cart.reduce((total, item) => total + (item.weight?.weight || 0) * item.quantity, 0)
+                };
+                const fee = await ShippingService.getShippingFee(shippingData);
+                setShippingFee(fee);
+            } catch (error) {
+                console.error("Error calculating shipping fee:", error);
+                toast.error("Could not calculate shipping fee. Please try again later.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        calculateShipping();
+    }, [formData.province, formData.district, formData.ward, cart]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -96,7 +134,8 @@ const Checkout = () => {
                 note: formData.notes || "",
                 is_freeship: 0,
                 pick_option: formData.paymentMethod,
-                value: getTotalPrice(),
+                value: getTotalPrice() + shippingFee,
+                shipping_fee: shippingFee,
                 orderItems: cart.map((item) => ({
                     name: item.name ?? "unknown",
                     price: item.price,
@@ -108,68 +147,55 @@ const Checkout = () => {
             };
 
             if (formData.paymentMethod === "none") {
-                // Thanh toán online
                 localStorage.setItem("order", JSON.stringify(orderData));
-                window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice());
+                window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice() + shippingFee);
             } else {
-                // Thanh toán khi nhận hàng
-                 OrderService.createOrder(orderData);
+                toast.success("Order placed successfully!", {position: "top-right"});
+                OrderService.createOrder(orderData);
                 clearCart();
                 navigate("/");
             }
         } catch (error) {
-            console.error("Lỗi khi tạo thanh toán:", error);
+            console.error("Error creating payment:", error);
+            toast.error("An error occurred while processing your order. Please try again.");
         }
     };
 
+    const subtotal = getTotalPrice();
+
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Thông Tin Thanh Toán</h2>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" readOnly name="firstName" placeholder="Tên *" className="p-2 border rounded" value={formData.firstName} onChange={handleChange} required />
-                <input type="text" readOnly name="lastName" placeholder="Họ *" className="p-2 border rounded" value={formData.lastName} onChange={handleChange} required />
-                <input type="text" readOnly name="phone" placeholder="Số điện thoại *" className="p-2 border rounded" value={formData.phone} onChange={handleChange} required />
-                <input type="email" readOnly name="email" placeholder="Địa chỉ email *" className="p-2 border rounded md:col-span-2" value={formData.email} onChange={handleChange} required />
+        <div className="min-h-screen bg-gray-50 py-8">
+            <div className="max-w-7xl mx-auto px-4">
+                <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
+                    <ShoppingCart className="w-8 h-8" />
+                    Checkout
+                </h1>
 
-                <input type="text" readOnly name="province" placeholder="Tỉnh / Thành phố *" className="p-2 border rounded" value={formData.province} onChange={handleChange} required />
-                <input type="text" readOnly name="district" placeholder="Quận / Huyện *" className="p-2 border rounded" value={formData.district} onChange={handleChange} required />
-                <input type="text" readOnly name="ward" placeholder="Phường / Xã *" className="p-2 border rounded" value={formData.ward} onChange={handleChange} required />
-                <input type="text" readOnly name="postalCode" placeholder="Mã bưu điện (tùy chọn)" className="p-2 border rounded" value={formData.postalCode} onChange={handleChange} />
-                <input type="text" readOnly name="hamlet" placeholder="Thôn / Xóm (tùy chọn)" className="p-2 border rounded md:col-span-2" value={formData.hamlet} onChange={handleChange} />
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-6">
+                        <ShippingInformation
+                            formData={formData}
+                            handleChange={handleChange}
+                            isLoading={profileLoading}
+                        />
+                        <PaymentMethod
+                            formData={formData}
+                            handleChange={handleChange}
+                        />
+                    </div>
 
-                <h2 className="text-2xl font-bold mt-6 md:col-span-2">Đơn Hàng Của Bạn</h2>
-                <div className="md:col-span-2 bg-gray-100 p-4 rounded">
-                    {cart.length === 0 ? (
-                        <p>Giỏ hàng của bạn đang trống.</p>
-                    ) : (
-                        <>
-                            {cart.map((item) => (
-                                <p key={item.id}>
-                                    {item.name} x {item.quantity} - <strong>{item.price * item.quantity}₫</strong>
-                                </p>
-                            ))}
-                            <hr className="my-2" />
-                            <p>Tổng cộng: <strong>{getTotalPrice()}₫</strong></p>
-                        </>
-                    )}
-                </div>
-
-                <div className="md:col-span-2 flex flex-col gap-2">
-                    <label className="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="none" checked={formData.paymentMethod === "none"} onChange={handleChange} />
-                        Chuyển khoản ngân hàng
-                    </label>
-                    <label className="flex items-center gap-2">
-                        <input type="radio" name="paymentMethod" value="cod" checked={formData.paymentMethod === "cod"} onChange={handleChange} />
-                        Trả tiền mặt khi nhận hàng
-                    </label>
-                </div>
-
-                <textarea name="notes" placeholder="Ghi chú đơn hàng (tùy chọn)" className="p-2 border rounded md:col-span-2" value={formData.notes} onChange={handleChange}></textarea>
-                <button type="submit" className="bg-green-500 text-white p-2 rounded-md md:col-span-2">
-                    ĐẶT HÀNG
-                </button>
-            </form>
+                    <div className="lg:col-span-1">
+                        <OrderSummary
+                            cart={cart}
+                            subtotal={subtotal}
+                            shippingFee={shippingFee}
+                            loading={loading}
+                            formData={formData}
+                            handleChange={handleChange}
+                        />
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

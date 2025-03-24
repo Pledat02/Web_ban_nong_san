@@ -1,5 +1,5 @@
 import React from "react";
-import { UserPlus, LogIn, User, Settings, LogOut } from "lucide-react";
+import { UserPlus, LogIn, User, ClipboardList , LogOut } from "lucide-react";
 import DropdownItem from "../components/dropdown";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
@@ -23,8 +23,8 @@ const DropdownAccount = () => {
                                 <p className="text-sm text-gray-800 truncate max-w-[140px]">{user.email}</p>
                             </div>
                         </div>
-                        <DropdownItem icon={User} title="Hồ sơ" onClick={()=>navigate("/pro  file")}/>
-                        <DropdownItem icon={Settings} title="Cài đặt"/>
+                        <DropdownItem icon={User} title="Hồ sơ" onClick={()=>navigate("/profile")}/>
+                        <DropdownItem icon={ClipboardList} title="Lịch sử đặt hàng" onClick={()=>navigate("/order-history")}/>
                         <DropdownItem icon={LogOut} title="Đăng xuất" onClick={logout}/>
                     </div>
                 ) : (

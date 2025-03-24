@@ -16,5 +16,5 @@ public class CreationProfileRequest {
     String lastName;
 //    String address;
     String email;
-    String phone;
+//    String phone;
 }

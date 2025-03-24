@@ -12,11 +12,15 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class GhtkConfig {
 
-    @Value("${GHTK_API_URL}")
-    private String ghtkApiUrl;
+    @Value("${GHTK_STAGING_URL}")
+    private String ghtkStagingUrl;
+    @Value("${GHTK_PRODUCTION_URL}")
+    private String ghtkProductionUrl;
 
-    @Value("${GHTK_TOKEN}")
-    private String ghtkToken;
+    @Value("${GHTK_STAGING_TOKEN}")
+    private String ghtkStagingToken;
+    @Value("${GHTK_PRODUCTION_TOKEN}")
+    private String ghtkProductionToken;
 
     @Value("${GHTK_PARTNER_CODE}")
     private String ghtkPartnerCode;

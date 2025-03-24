@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import OrderService from "../services/order-service";
 import { CartActionTypes, useCart } from "../context/cart-context";
+import {toast} from "react-toastify";
 
 const PaymentResult = () => {
     const [searchParams] = useSearchParams();
@@ -22,7 +23,8 @@ const PaymentResult = () => {
                 try {
                     setStatus("success");
                     const order = JSON.parse(orderData);
-                    await OrderService.createOrder(order);
+                    toast.success("Đặt hàng thành công!", {position: "top-right"});
+                     OrderService.createOrder(order);
                     dispatch({ type: CartActionTypes.CLEAR_CART });
 
                 } catch (error) {

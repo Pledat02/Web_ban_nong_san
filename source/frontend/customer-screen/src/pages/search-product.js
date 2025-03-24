@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import CategorySidebar from "../components/category-sidebar-search";
 import FilterProductList from "../list/filter-product-list";
 import ProductService from "../services/product-service";
-import {useSearchParams} from "react-router-dom";
 
 export default function SearchPage() {
     const [filteredProducts, setFilteredProducts] = useState([]);
-    const [filters, setFilters] = useState({ brand: '', origin: '' }); // Bộ lọc mặc định
+    const [filters, setFilters] = useState({ brand: '', origin: '' });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const size = 6;
     const [searchParams] = useSearchParams();
     const query = searchParams.get("query");
+
     const fetchProducts = async (page = 1, filterParams = {}) => {
+        setIsLoading(true);
         try {
             const response = await ProductService.getFilteredProducts({
                 query,
@@ -21,27 +25,26 @@ export default function SearchPage() {
                 size,
             });
 
-            console.log("Dữ liệu sản phẩm:", response);
+            console.log("Product data:", response);
             setFilteredProducts(response.elements || []);
             setTotalPages(response.totalPages || 1);
         } catch (error) {
-            console.error("Lỗi khi lấy sản phẩm:", error);
+            console.error("Error fetching products:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    // Lấy dữ liệu ban đầu ngay khi trang tải
     useEffect(() => {
         fetchProducts(1, filters);
-    }, [query,filters]);
+    }, [query, filters]);
 
-    // Xử lý khi bộ lọc thay đổi
     const handleFilter = async (newFilters) => {
         setFilters(newFilters);
-        setCurrentPage(1); // Reset về trang đầu
+        setCurrentPage(1);
         fetchProducts(1, newFilters);
     };
 
-    // Xử lý khi chuyển trang
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -56,30 +59,38 @@ export default function SearchPage() {
                 <CategorySidebar onFilter={handleFilter} />
             </aside>
 
-            {/* Nội dung sản phẩm */}
+            {/* Product Content */}
             <main className="flex-1 p-4">
-                <FilterProductList products={filteredProducts}/>
+                {isLoading ? (
+                    <div className="min-h-[400px] flex items-center justify-center">
+                        <Loader2 className="w-12 h-12 animate-spin text-gray-600" />
+                    </div>
+                ) : (
+                    <>
+                        <FilterProductList products={filteredProducts} />
 
-                {/* Phân trang */}
-                <div className="flex justify-between items-center mb-4 px-4 py-2 bg-gray-100 rounded-md">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                    >
-                        ← Trang trước
-                    </button>
-                    <span className="font-semibold">
-                        Trang {currentPage} / {totalPages}
-                    </span>
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                    >
-                        Trang sau →
-                    </button>
-                </div>
+                        {/* Pagination */}
+                        <div className="flex justify-between items-center mt-8 mb-4 px-4 py-2 bg-gray-100 rounded-md">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1 || isLoading}
+                                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
+                            >
+                                ← Previous Page
+                            </button>
+                            <span className="font-semibold">
+                                Page {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages || isLoading}
+                                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
+                            >
+                                Next Page →
+                            </button>
+                        </div>
+                    </>
+                )}
             </main>
         </div>
     );

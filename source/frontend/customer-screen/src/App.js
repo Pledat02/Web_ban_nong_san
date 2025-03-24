@@ -3,7 +3,7 @@ import { BrowserRouter as Router, useNavigate } from "react-router-dom";
 import './App.css';
 
 import AppRoutes from "./route/route-config";
-import { UserProvider } from "./context/UserContext";
+import {UserProvider, useUser} from "./context/UserContext";
 import { CartProvider } from "./context/cart-context";
 import {toast, ToastContainer} from "react-toastify";
 import authService from "./services/auth-service";
@@ -14,11 +14,19 @@ const isTokenExpiringSoon = () => {
 
     const decodedToken = JSON.parse(atob(user.token.split(".")[1]));
     const now = Math.floor(Date.now() / 1000);
-    return decodedToken.exp - now < 300;
+    return decodedToken.exp - now < 700;
 };
 
 
 const App = () => {
+    useEffect(() => {
+        document.title = "Halona Fruits";
+        // Cập nhật favicon
+        const link = document.querySelector("link[rel~='icon']");
+        if (link) {
+            link.href = "https://nongsan4.vnwordpress.net/wp-content/uploads/2019/07/halonalogo.png";
+        }
+    }, []);
     return (
         <UserProvider>
             <CartProvider>
@@ -34,14 +42,22 @@ const App = () => {
 
 const TokenCheck = () => {
     const navigate = useNavigate();
-
+    const {logout} = useUser();
     useEffect(() => {
         const refreshAccessToken = async () => {
             const user = JSON.parse(localStorage.getItem("user"));
-
+            if (!user) return;
+            if(!user.token){
+                localStorage.removeItem("user");
+                logout();
+                toast.info("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!")
+                return;
+            }
             if (user && user.token) {
+
                 if(authService.checkExpiredToken(user.token)){
                     localStorage.removeItem("user");
+                    logout()
                     toast.info("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!")
                     return;
                 }

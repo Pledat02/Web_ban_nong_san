@@ -1,6 +1,6 @@
 import Carousel from "../components/carousel";
 import ProductCategoryList from "../list/product-category-list";
-import CategoriesList from "../list/category-home-list";
+import CategoriesList from "../list/tag-home-list";
 
 
 

@@ -25,17 +25,17 @@ public class ShippingFeeRequest {
     private String district;
     private String ward;
 
+    private String value;
     private double weight;
     private String deliver_option ;
     private List<Integer> tags;
 
     public void fromConfig(OrderConfig config) {
-        System.out.print("tag"+config.getTag());
         this.pick_address = config.getPickAddress();
         this.pick_province = config.getPickProvince();
         this.pick_district = config.getPickDistrict();
         this.pick_ward = config.getPickWard();
-        this.tags = new ArrayList<>(config.getTag());
+        this.tags = config.getTags();
         this.deliver_option = config.getDeliverOption();
     }
 }

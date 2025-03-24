@@ -28,7 +28,7 @@ class OrderService {
         try {
             const response = await this.api.post("/", orderData);
             if (response.status === 200) {
-                toast.success("Đặt hàng thành công!", {position: "top-right"});
+
                 return response.data.data;
             } else {
                 toast.error(response.data.message, {position: "top-right"});

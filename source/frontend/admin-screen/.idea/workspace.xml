@@ -4,7 +4,61 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="" />
+    <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/configuration/BeanLister.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/configuration/RedisConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/images/carousel/slider_1.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/images/carousel/slider_2.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/images/carousel/slider_3.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/images/tag/health-9086445_1280.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/images/tag/vegetables-861357_1280.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/list/tag-home-list.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/services/shipping-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/IdentityServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/IdentityServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/InvalidToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/repository/InvalidTokenRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/IdentityServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/IdentityServiceApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/InvalidToken$InvalidTokenBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/InvalidToken.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User$UserBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User$UserBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/repository/InvalidTokenRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/GhtkConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/GhtkConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/OrderConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/OrderConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/controller/ShippingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/controller/ShippingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/request/OrderRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/request/OrderRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/request/ShippingFeeRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/request/ShippingFeeRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/response/ShippingFeeResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/dto/response/ShippingFeeResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/service/ShippingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/service/ShippingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/carousel.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/carousel.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/category-card.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/category-card.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/header.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/main-layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/main-layout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/review-table.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/review-table.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/images/garden.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/list/category-home-list.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/list/product-category-list.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/list/product-category-list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/checkout.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/checkout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/home.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/home.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/product-detail.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/product-detail.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/search-product.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/search-product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/services/review-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/services/review-service.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,29 +67,30 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2tZDVhvXL2BmdInQVeMjEuqQUt3" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "28-front-endimplement-login-feature",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.npm start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="npm.npm start">
     <configuration name="Debug Application" type="JavascriptDebugType" uri="http://localhost:3000">
       <method v="2" />
@@ -68,6 +123,8 @@
       <option name="presentableId" value="Default" />
       <updated>1740550731850</updated>
       <workItem from="1740550732922" duration="595000" />
+      <workItem from="1742780937612" duration="67000" />
+      <workItem from="1742781125153" duration="15000" />
     </task>
     <servers />
   </component>

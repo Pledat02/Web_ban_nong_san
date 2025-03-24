@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
@@ -15,7 +16,7 @@ import java.util.Set;
 @Builder
 @Entity
 @NoArgsConstructor
-public class Role {
+public class Role implements Serializable {
     @Id
     String name;
     String description;

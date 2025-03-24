@@ -75,7 +75,7 @@ public class OrderRequest {
         this.pick_district = config.getPickDistrict();
         this.pick_ward = config.getPickWard();
         this.pick_tel = config.getPickTel();
-        this.tags = new ArrayList<>(config.getTag());
+        this.tags = new ArrayList<>(config.getTags());
     }
 
 

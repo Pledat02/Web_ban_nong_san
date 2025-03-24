@@ -9,7 +9,6 @@ import com.example.Identity_Service.entity.UserLoginMethod;
 import com.example.Identity_Service.mapper.UserMapper;
 import com.example.Identity_Service.repository.*;
 import com.example.Identity_Service.dto.response.ValidTokenResponse;
-import com.example.Identity_Service.entity.InvalidToken;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
@@ -26,6 +25,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,28 +45,43 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class AuthenicationService {
 
-    private UserRepository userRepository;
+     UserRepository userRepository;
     UserMapper userMapper;
-    private InvalidTokenRepository invalidTokenRepository;
     RoleRepository roleRepository;
-     UserLoginMethodRepository userLoginMethodRepository;
+//    private final RedisTemplate<String, User> redisTemplate;
+    private final RedisTemplate<String,String> stringRedisTemplate;
+    UserLoginMethodRepository userLoginMethodRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signer_key;
     public AuthenicationResponse authenticate(AuthenicationRequest request) {
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_FOUND)) ;
+//        ValueOperations<String, User> valueOperations = redisTemplate.opsForValue();
 
-        if(user == null){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
+        // Lấy user từ Redis trước
+//        User user = valueOperations.get("USER_" + request.getEmail());
+
+        // Nếu không có trong Redis, lấy từ DB
+//        if (user == null) {
+            User user= userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//        }
+
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean authenticated =  passwordEncoder.matches(request.getPassword(),user.getPassword());
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if (!authenticated) {
+            throw new AppException(ErrorCode.USER_INVALID_CREDENTIALS);
+        }
+
+        String token = generateToken(user);
+
         return AuthenicationResponse.builder()
-                .token(generateToken(user))
+                .token(token)
                 .authenticated(authenticated)
                 .build();
     }
+
     public AuthenicationResponse loginWithSocial(UserCreationRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
 
@@ -125,65 +143,65 @@ public class AuthenicationService {
                 .build();
     }
 
-    private SignedJWT verifyToken (String token) throws JOSEException, ParseException {
+    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(signer_key.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
         boolean isValid = signedJWT.verify(verifier);
-        // check expired date
-        Date expiredDate  = signedJWT.getJWTClaimsSet().getExpirationTime();
-        String jwt = signedJWT.getJWTClaimsSet().getJWTID();
-        // check if token is not  expired
-        boolean isAfterExpiredDate = expiredDate.after(new Date());
-        if(!isValid || !isAfterExpiredDate){
-           throw new IllegalStateException("Invalid token");
+        Date expiredDate = signedJWT.getJWTClaimsSet().getExpirationTime();
+        String jwtID = signedJWT.getJWTClaimsSet().getJWTID();
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+        if (expiredDate != null && expiredDate.before(new Date())) {
+            throw new IllegalStateException("Token đã hết hạn");
         }
-        if(invalidTokenRepository.existsById(jwt)){
-            throw new IllegalStateException("Invalid token");
-        }
-       return signedJWT;
+        // Kiểm tra nếu token đã bị blacklist
+//        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
+//            throw new IllegalStateException("Token đã bị thu hồi");
+//        }
 
+        return signedJWT;
     }
+
 
     public void logout(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
         SignedJWT signedJWT = verifyToken(token);
-        String jwtID  = signedJWT.getJWTClaimsSet().getJWTID();
-        Date expiredDate  = signedJWT.getJWTClaimsSet().getExpirationTime();
-        // save token from db
-        invalidTokenRepository.save(InvalidToken.builder()
-                .token(jwtID)
-                .expiredDate(expiredDate)
-                .build());
+        String jwtID = signedJWT.getJWTClaimsSet().getJWTID();
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+
+        // Thêm token vào danh sách blacklist để ngăn chặn reuse
+//        stringRedisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
 
     }
+
     public TokenResponse refreshToken(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
         SignedJWT signedJWT = verifyToken(token);
-        String jwtID  = signedJWT.getJWTClaimsSet().getJWTID();
-        Date expiredDate  = signedJWT.getJWTClaimsSet().getExpirationTime();
+        String jwtID = signedJWT.getJWTClaimsSet().getJWTID();
         String subject = signedJWT.getJWTClaimsSet().getSubject();
-        InvalidToken invalidToken = InvalidToken.builder()
-                .token(jwtID)
-                .expiredDate(expiredDate)
-                .build();
-        invalidTokenRepository.save(invalidToken);
-        User user = userRepository.findByUsername(subject).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Kiểm tra nếu token đã bị blacklist trong Redis
+//        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
+//            throw new AppException(ErrorCode.INVALID_KEY);
+//        }
+
+        // Nếu không bị blacklist, cấp token mới
+        User user = userRepository.findByUsername(subject)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         String tokenReturn = generateToken(user);
+//        stringRedisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
         return TokenResponse.builder()
                 .token(tokenReturn)
                 .build();
-
     }
+
     private String generateToken(User user) {
         UserResponse response = userMapper.toUserResponse(user);
         // header jwt
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(response.getUsername())
-                .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli())
-                )
+                .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
                 .issueTime(new Date())
                 .claim("email", response.getEmail())
                 .issuer("admin")

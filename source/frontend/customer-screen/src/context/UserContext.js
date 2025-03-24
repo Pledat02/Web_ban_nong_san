@@ -21,8 +21,10 @@ export const UserProvider = ({ children }) => {
 
     // Hàm đăng xuất
     const logout = async () => {
-        const token = JSON.parse(localStorage.getItem("user")).token;
-        await authService.logout(token);
+        const user = JSON.parse(localStorage.getItem("user"))
+        if (user) {
+            await authService.logout(user.token);
+        }
         setUser(null);
     };
     return (

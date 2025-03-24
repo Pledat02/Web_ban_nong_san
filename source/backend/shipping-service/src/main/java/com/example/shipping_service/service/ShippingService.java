@@ -32,8 +32,8 @@ public class ShippingService {
     final GhtkConfig ghtkConfig;
 
     public ShippingResponse createShipping(ShippingRequest request) {
-        String url = ghtkConfig.getGhtkApiUrl() + "/order";
-        HttpHeaders headers = createHeaders();
+        String url = ghtkConfig.getGhtkStagingUrl() + "/order";
+        HttpHeaders headers = createHeadersStaging();
         request.getOrder().fromConfig(orderConfig);
         HttpEntity<ShippingRequest> entity = new HttpEntity<>(request, headers);
         log.info("request:" +request);
@@ -55,86 +55,66 @@ public class ShippingService {
     }
 
     public ShippingFeeResponse getShippingFee(ShippingFeeRequest request) {
-        String url = ghtkConfig.getGhtkApiUrl() + "/fee";
-        HttpHeaders headers = createHeaders();
+        String url = ghtkConfig.getGhtkProductionUrl() + "/fee";
+        HttpHeaders headers = createHeadersProduction();
         request.fromConfig(orderConfig);
 
         log.info("Sending request to GHTK: {}", request);
-
         HttpEntity<ShippingFeeRequest> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<Map> response;
 
         try {
-            response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.POST, entity, Map.class);
-        } catch (Exception e) {
-            log.error("Error while calling GHTK API: {}", e.getMessage(), e);
-            return ShippingFeeResponse.builder()
-                    .success(false)
-                    .build();
-        }
+            ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.POST, entity, Map.class);
+            log.info("GHTK Response: {}", response);
 
-        log.info("GHTK Response: {}", response);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                log.error("Failed to get shipping fee. HTTP Status: {}", response.getStatusCode());
+                return ShippingFeeResponse.builder().success(false).build();
+            }
 
-        if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, Object> responseBody = response.getBody();
-            log.info("Received response from GHTK: {}", responseBody);
-
-            if (responseBody.isEmpty() || !Boolean.TRUE.equals(responseBody.get("success"))) {
-                String errorMessage =  (String) responseBody.get("message");
-                log.error("GHTK API returned failure: {}", errorMessage);
-                return ShippingFeeResponse.builder()
-                        .success(false)
-                        .build();
+            if (responseBody == null || !Boolean.TRUE.equals(responseBody.get("success"))) {
+                log.error("GHTK API failure: {}", responseBody != null ? responseBody.get("message") : "No response");
+                return ShippingFeeResponse.builder().success(false).build();
             }
 
-            Object feeObject = responseBody.get("fee");
-            if (!(feeObject instanceof Map)) {
-                log.error("Unexpected fee format from GHTK: {}", feeObject);
-                return ShippingFeeResponse.builder()
-                        .success(false)
-                        .build();
+            Map<String, Object> feeData = (Map<String, Object>) responseBody.get("fee");
+            if (feeData == null) {
+                log.error("Invalid fee format: {}", responseBody.get("fee"));
+                return ShippingFeeResponse.builder().success(false).build();
             }
 
-            Map<String, Object> feeData = (Map<String, Object>) feeObject;
-            ShippingFeeResponse shippingFeeResponse = new ShippingFeeResponse();
-            shippingFeeResponse.setSuccess(true);
-            shippingFeeResponse.setMessage((String) responseBody.get("message"));
-
-            // Parse fee details safely
             ShippingFeeResponse.FeeDetails feeDetails = new ShippingFeeResponse.FeeDetails();
             feeDetails.setName((String) feeData.getOrDefault("name", "Unknown"));
             feeDetails.setFee((Integer) feeData.getOrDefault("fee", 0));
             feeDetails.setInsuranceFee((Integer) feeData.getOrDefault("insurance_fee", 0));
             feeDetails.setDelivery((Boolean) feeData.getOrDefault("delivery", false));
 
-            // Handle extra fees safely
             Object extFeesObject = feeData.get("extFees");
-            if (extFeesObject instanceof List<?>) {
-                List<Map<String, Object>> extFeesList = (List<Map<String, Object>>) extFeesObject;
-                List<ShippingFeeResponse.ExtraFee> extraFees = extFeesList.stream().map(extFee -> {
-                    ShippingFeeResponse.ExtraFee extraFee = new ShippingFeeResponse.ExtraFee();
-                    extraFee.setDisplay((String) extFee.getOrDefault("display", "N/A"));
-                    extraFee.setTitle((String) extFee.getOrDefault("title", "N/A"));
-                    extraFee.setAmount((Integer) extFee.getOrDefault("amount", 0));
-                    extraFee.setType((String) extFee.getOrDefault("type", "N/A"));
-                    return extraFee;
-                }).toList();
-                feeDetails.setExtFees(extraFees);
+            if (extFeesObject instanceof List<?> extFeesList) {
+                feeDetails.setExtFees(extFeesList.stream().map(extFee -> {
+                    Map<String, Object> extFeeMap = (Map<String, Object>) extFee;
+                    return new ShippingFeeResponse.ExtraFee(
+                            (String) extFeeMap.getOrDefault("display", "N/A"),
+                            (String) extFeeMap.getOrDefault("title", "N/A"),
+                            (Integer) extFeeMap.getOrDefault("amount", 0),
+                            (String) extFeeMap.getOrDefault("type", "N/A"));
+                }).toList());
             }
 
-            shippingFeeResponse.setFee(feeDetails);
-            return shippingFeeResponse;
+            return ShippingFeeResponse.builder()
+                    .success(true)
+                    .message((String) responseBody.get("message"))
+                    .fee(feeDetails)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error while calling GHTK API: {}", e.getMessage(), e);
+            return ShippingFeeResponse.builder().success(false).build();
         }
-
-        log.error("Failed to get shipping fee from GHTK. HTTP Status: {}", response.getStatusCode());
-          return ShippingFeeResponse.builder()
-                .success(false)
-                .build();
     }
 
     public OrderStatusResponse checkOrderStatus(String trackingOrder) {
-        String url = ghtkConfig.getGhtkApiUrl() + trackingOrder;
-        HttpHeaders headers = createHeaders();
+        String url = ghtkConfig.getGhtkStagingUrl() + trackingOrder;
+        HttpHeaders headers = createHeadersStaging();
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.GET, entity, Map.class);
@@ -153,8 +133,8 @@ public class ShippingService {
     }
 
     public CancelShippingResponse cancelShipping(String trackingOrder) {
-        String url = ghtkConfig.getGhtkApiUrl() + "/cancel/" + trackingOrder;
-        HttpHeaders headers = createHeaders();
+        String url = ghtkConfig.getGhtkStagingUrl() + "/cancel/" + trackingOrder;
+        HttpHeaders headers = createHeadersStaging();
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.GET, entity, Map.class);
@@ -171,9 +151,16 @@ public class ShippingService {
         }
     }
 
-    private HttpHeaders createHeaders() {
+    private HttpHeaders createHeadersStaging() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Token", ghtkConfig.getGhtkToken());
+        headers.set("Token", ghtkConfig.getGhtkStagingToken());
+        headers.set("X-Client-Source", ghtkConfig.getGhtkPartnerCode());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+    private HttpHeaders createHeadersProduction() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Token", ghtkConfig.getGhtkProductionToken());
         headers.set("X-Client-Source", ghtkConfig.getGhtkPartnerCode());
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;

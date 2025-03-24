@@ -1,4 +1,5 @@
-version: "3"
+version: '3.8'
+
 services:
   kafka:
     image: 'bitnami/kafka:3.7.0'
@@ -14,3 +15,38 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - network
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - network
+    command: ["redis-server", "--appendonly", "yes"]  # Enable AOF persistence for Redis
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "identity_service"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - network
+
+networks:
+  network:
+
+volumes:
+  mysql_data: {}
+  redis_data: {}

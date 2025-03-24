@@ -10,6 +10,17 @@ class ReviewService {
             },
             withCredentials: true, // Giữ session nếu dùng cookie
         });
+        this.api.interceptors.request.use((config) => {
+            const user = JSON.parse(localStorage.getItem("user")) || {};
+            const token = user.token;
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        }, (error) => {
+            return Promise.reject(error);
+        });
+
     }
 
     // 🟢 Lấy danh sách review theo productId
@@ -30,13 +41,9 @@ class ReviewService {
     }
 
     // 🟢 Gửi một review mới
-    async createReview(reviewData, token) {
+    async createReview(reviewData) {
         try {
-            const response = await this.api.post("/", reviewData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await this.api.post("/", reviewData);
             return response.data.data;
         } catch (error) {
             console.error("Error creating review:", error);
@@ -45,16 +52,7 @@ class ReviewService {
     }
 
 
-    // 🟢 Xóa review theo ID
-    async deleteReview(reviewId) {
-        try {
-            const response = await this.api.delete(`/${reviewId}`);
-            return response.data;
-        } catch (error) {
-            console.error("Error deleting review:", error);
-            throw error;
-        }
-    }
+
 }
 
 export default new ReviewService();

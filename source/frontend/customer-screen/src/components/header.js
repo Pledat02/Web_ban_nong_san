@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaShoppingBag, FaBars } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import {Link, useNavigate} from "react-router-dom"; // Import useNavigate
 import DropdownAccount from "../list/dropdown-account";
 import {useCart} from "../context/cart-context";
 
@@ -47,8 +47,8 @@ const Header = () => {
                 <div>Chuyên cung cấp thực phẩm sạch | Halona Fruits</div>
                 <div className="hidden md:flex space-x-4">
                     <DropdownAccount />
-                    <a href="#" className="hover:underline">Thanh toán</a>
-                    <a href="#" className="hover:underline">Cửa hàng</a>
+                    <a onClick={ ()=> navigate("/checkout")} className="hover:underline">Thanh toán</a>
+                    <a onClick={handleSearch} className="hover:underline">Cửa hàng</a>
                 </div>
             </div>
 
@@ -106,11 +106,11 @@ const Header = () => {
 
 
                     <nav className="hidden md:flex space-x-6 text-gray-700 font-medium">
-                        <a href="#" className="hover:text-green-600 transition">Trang chủ</a>
-                        <a href="#" className="hover:text-green-600 transition">Cửa hàng #Halona</a>
-                        <a href="#" className="hover:text-green-600 transition">Giỏ hàng</a>
-                        <a href="#" className="hover:text-green-600 transition">Giới thiệu</a>
-                        <a href="#" className="hover:text-green-600 transition">Liên hệ</a>
+                        <Link to="/" className="hover:text-green-600 transition">Trang chủ</Link>
+                        <Link to="/search" className="hover:text-green-600 transition">Cửa hàng #Halona</Link>
+                        <Link to="/cart" className="hover:text-green-600 transition">Giỏ hàng</Link>
+                        <Link to="/" className="hover:text-green-600 transition">Giới thiệu</Link>
+                        <Link to="/" className="hover:text-green-600 transition">Liên hệ</Link>
                     </nav>
 
                     <div className="relative hidden md:block">

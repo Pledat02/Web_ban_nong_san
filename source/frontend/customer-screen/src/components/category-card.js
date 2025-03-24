@@ -1,6 +1,6 @@
 import React from "react";
 
-const CategoryCard = ({ image, title, description }) => {
+const TagCard = ({ image, title, description }) => {
     return (
         <div className="relative w-[20rem] h-[10rem] rounded-2xl overflow-hidden border-2 border-yellow-400 shadow-lg transition-transform duration-300 hover:scale-105">
             <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -12,4 +12,4 @@ const CategoryCard = ({ image, title, description }) => {
     );
 };
 
-export default CategoryCard;
+export default TagCard;
