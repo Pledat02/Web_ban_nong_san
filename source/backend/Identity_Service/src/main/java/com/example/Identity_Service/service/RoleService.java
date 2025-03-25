@@ -12,6 +12,9 @@ import com.example.Identity_Service.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,33 +30,38 @@ public class RoleService {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
    RoleMapper roleMapper;
+    @CacheEvict(value = "rolesList", allEntries = true)
+    @CachePut(value = "roles", key = "#result.name")
+    public RoleResponse create(RoleRequest roleRequest) {
+        Role role = roleMapper.toRole(roleRequest);
+        role.setPermissons(new HashSet<>(permissionRepository.findAllById(roleRequest.getPermissons())));
+        Role savedRole = roleRepository.save(role);
+        return roleMapper.toRoleResponse(savedRole);
+    }
 
-    public RoleResponse create (RoleRequest RoleRequest){
-        Role Role = roleMapper.toRole(RoleRequest);
-        Role.setPermissons(new HashSet<>
-                (permissionRepository.findAllById(
-                        RoleRequest.getPermissons())));
-        Role RoleResponse = roleRepository.save(Role);
-        return roleMapper.toRoleResponse(RoleResponse);
+    @CacheEvict(value = {"roles", "rolesList"}, key = "#name", allEntries = true)
+    public RoleResponse update(String name, RoleRequest roleRequest) {
+        Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        roleMapper.updateRole(role, roleRequest);
+        Role updatedRole = roleRepository.save(role);
+        return roleMapper.toRoleResponse(updatedRole);
     }
-    public RoleResponse update (String name, RoleRequest RoleRequest){
-        Role Role = roleRepository.findById(name).orElseThrow(()
-                -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-        roleMapper.updateRole(Role,RoleRequest);
-        return roleMapper.toRoleResponse(roleRepository.save(Role));
+
+    @CacheEvict(value = {"roles", "rolesList"}, key = "#name", allEntries = true)
+    public void deleteRole(String name) {
+        Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        roleRepository.delete(role);
     }
+
+    @Cacheable(value = "roles", key = "#name")
     public RoleResponse getRole(String name){
         Role Role = roleRepository.findById(name).orElseThrow(()
                 -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         return roleMapper.toRoleResponse(Role);
     }
-    public boolean deleteRole(String name){
-        Role Role = roleRepository.findById(name).orElseThrow(()
-                -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-        roleRepository.delete(Role);
-        return true;
-    }
+
+    @Cacheable(value = "rolesList")
     public List<RoleResponse> getAllRole(){
         return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
     }
