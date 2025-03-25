@@ -25,6 +25,8 @@ public enum ErrorCode {
     ID_USER_INVALID(1006, "ID người dùng không hợp lệ", HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_FOUND(1007, "Quyền không tồn tại", HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(1007, "Vai trò không tồn tại", HttpStatus.NOT_FOUND),
+    TOKEN_DELETED(2008,"Token đã bị thu hồi", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(2009,"Token đã hết hạn", HttpStatus.BAD_REQUEST),
     PASSWORD_WRONG(1009, "Mật khẩu không chính xác", HttpStatus.BAD_REQUEST),
     FILE_TOO_LARGE(2000, "File vượt quá kích thước cho phép (5MB)", HttpStatus.BAD_REQUEST),
     FILE_SAVE_ERROR(2001, "Không thể lưu file", HttpStatus.INTERNAL_SERVER_ERROR),

@@ -14,6 +14,8 @@ import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -48,24 +50,26 @@ public class AuthenicationService {
      UserRepository userRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
-//    private final RedisTemplate<String, User> redisTemplate;
-    private final RedisTemplate<String,String> stringRedisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
     UserLoginMethodRepository userLoginMethodRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signer_key;
     public AuthenicationResponse authenticate(AuthenicationRequest request) {
-//        ValueOperations<String, User> valueOperations = redisTemplate.opsForValue();
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
 
-        // Lấy user từ Redis trước
-//        User user = valueOperations.get("USER_" + request.getEmail());
-
-        // Nếu không có trong Redis, lấy từ DB
-//        if (user == null) {
-            User user= userRepository.findByEmail(request.getEmail())
+//         Lấy user từ Redis trước
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = (String) valueOperations.get("USER_" + request.getEmail());
+        User user = null;
+        try {
+            user = objectMapper.readValue(userJson, User.class);
+            log.info("User: " + user.toString());
+        } catch (Exception e) {
+            //         Nếu không có trong Redis, lấy từ DB
+            user= userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        }
-
+        }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -151,12 +155,12 @@ public class AuthenicationService {
         String jwtID = signedJWT.getJWTClaimsSet().getJWTID();
         String username = signedJWT.getJWTClaimsSet().getSubject();
         if (expiredDate != null && expiredDate.before(new Date())) {
-            throw new IllegalStateException("Token đã hết hạn");
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
         // Kiểm tra nếu token đã bị blacklist
-//        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
-//            throw new IllegalStateException("Token đã bị thu hồi");
-//        }
+        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
+            throw new AppException(ErrorCode.TOKEN_DELETED);
+        }
 
         return signedJWT;
     }
@@ -169,7 +173,7 @@ public class AuthenicationService {
         String username = signedJWT.getJWTClaimsSet().getSubject();
 
         // Thêm token vào danh sách blacklist để ngăn chặn reuse
-//        stringRedisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
 
     }
 
@@ -180,16 +184,16 @@ public class AuthenicationService {
         String subject = signedJWT.getJWTClaimsSet().getSubject();
 
         // Kiểm tra nếu token đã bị blacklist trong Redis
-//        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
-//            throw new AppException(ErrorCode.INVALID_KEY);
-//        }
+        if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + jwtID))) {
+            throw new AppException(ErrorCode.INVALID_KEY);
+        }
 
         // Nếu không bị blacklist, cấp token mới
         User user = userRepository.findByUsername(subject)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         String tokenReturn = generateToken(user);
-//        stringRedisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("blacklist:" + jwtID, "blacklisted", 1, TimeUnit.DAYS);
         return TokenResponse.builder()
                 .token(tokenReturn)
                 .build();

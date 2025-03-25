@@ -17,6 +17,8 @@ import com.example.Identity_Service.repository.ProfileClientHttp;
 import com.example.Identity_Service.repository.RoleRepository;
 import com.example.Identity_Service.repository.UserRepository;
 import com.example.event.dto.NotificationRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -57,7 +59,7 @@ public class UserService {
     KafkaTemplate<String, Object> kafkaTemplate;
     RedisTemplate<String, Object> redisTemplate;
 
-    public UserResponse createUser(UserCreationRequest userrq) {
+    public UserResponse createUser(UserCreationRequest userrq) throws JsonProcessingException {
         if (userRepository.existsByUsername(userrq.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
@@ -77,7 +79,9 @@ public class UserService {
 
         // Lưu vào Redis
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set("USER_" + savedUser.getId_user(), savedUser);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userJson = objectMapper.writeValueAsString(user);
+        valueOperations.set("USER_" + user.getEmail(), userJson);
 
         CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(userrq);
         profileRq.setId_user(savedUser.getId_user());

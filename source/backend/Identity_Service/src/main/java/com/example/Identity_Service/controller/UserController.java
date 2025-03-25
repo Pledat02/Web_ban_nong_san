@@ -14,6 +14,7 @@ import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.service.UserService;
 import com.example.event.dto.ChangeEmailRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request){
+    public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request) throws JsonProcessingException {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.createUser(request))
                 .build();

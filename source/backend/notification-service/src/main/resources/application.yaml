@@ -1,14 +1,22 @@
 app:
+  otp:
+    expiration: 30
   mail:
     brevo:
       url: "https://api.brevo.com/v3/smtp/email"
-      api-key: ""
+      api-key:
       name-sender: "Nong San Viet Nam"
       email-sender: "phamledatctbp@gmail.com"
+  phone:
+    twilio:
+      service-sid:
+      account-sid: 
+      auth-token:
+      phone-number: "+84369092823"
 server:
   port: 8085
   servlet:
-    context-path: /notification
+    context-path: /notifications
 spring:
   kafka:
     bootstrap-servers: localhost:9094
@@ -19,6 +27,9 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   cloud:
     config:
       enabled: false
