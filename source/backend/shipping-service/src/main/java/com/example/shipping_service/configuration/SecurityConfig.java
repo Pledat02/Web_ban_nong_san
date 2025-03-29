@@ -62,19 +62,19 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
-    @Bean(name = "securityRestTemplate")
-    public RestTemplate securityRestTemplate() {
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        RestTemplate restTemplate = new RestTemplate(factory);
-
-        restTemplate.getInterceptors().add((request, body, execution) -> {
-            log.info("Request URI: {}", request.getURI());
-            log.info("Request Headers: {}", request.getHeaders());
-            log.info("Request Body: {}", new String(body, StandardCharsets.UTF_8));
-            return execution.execute(request, body);
-        });
-
-        return restTemplate;
-    }
+//    @Bean(name = "securityRestTemplate")
+//    public RestTemplate securityRestTemplate() {
+//        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+//        RestTemplate restTemplate = new RestTemplate(factory);
+//
+//        restTemplate.getInterceptors().add((request, body, execution) -> {
+//            log.info("Request URI: {}", request.getURI());
+//            log.info("Request Headers: {}", request.getHeaders());
+//            log.info("Request Body: {}", new String(body, StandardCharsets.UTF_8));
+//            return execution.execute(request, body);
+//        });
+//
+//        return restTemplate;
+//    }
 
 }

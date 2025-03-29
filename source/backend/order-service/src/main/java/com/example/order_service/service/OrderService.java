@@ -13,10 +13,7 @@ import com.example.order_service.exception.AppException;
 import com.example.order_service.exception.ErrorCode;
 import com.example.order_service.mapper.OrderItemMapper;
 import com.example.order_service.mapper.OrderMapper;
-import com.example.order_service.repository.OrderItemRepository;
-import com.example.order_service.repository.OrderRepository;
-import com.example.order_service.repository.ProductClientHttp;
-import com.example.order_service.repository.ProfileClientHttp;
+import com.example.order_service.repository.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,7 +47,7 @@ public class OrderService {
     OrderItemMapper orderItemMapper;
     KafkaTemplate<String, Object> kafkaTemplate;
     ProductClientHttp productClientHttp;
-
+    ShippingClientHttp shippingClientHttp;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -124,6 +121,7 @@ public class OrderService {
                     order.setStatus(OrderStatus.SHIPPING.getCode());
                 }
                 else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
+                    shippingClientHttp.cancelShipping(id_Order);
                     order.setStatus(OrderStatus.CANCELED.getCode());
                 }
                 else{

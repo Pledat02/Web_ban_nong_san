@@ -9,6 +9,9 @@ import com.example.shipping_service.dto.response.CancelShippingResponse;
 import com.example.shipping_service.dto.response.OrderStatusResponse;
 import com.example.shipping_service.dto.response.ShippingFeeResponse;
 import com.example.shipping_service.dto.response.ShippingResponse;
+import com.example.shipping_service.entity.ShippingInfo;
+import com.example.shipping_service.mapper.ShippingMapper;
+import com.example.shipping_service.repository.ShippingRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +32,9 @@ import java.util.Optional;
 public class ShippingService {
     private static final Logger log = LoggerFactory.getLogger(ShippingService.class);
     private final OrderConfig orderConfig;
+    final ShippingRepository repository;
     final GhtkConfig ghtkConfig;
+    private final ShippingMapper shippingMapper;
 
     public ShippingResponse createShipping(ShippingRequest request) {
         String url = ghtkConfig.getGhtkStagingUrl() + "/order";
@@ -47,7 +52,8 @@ public class ShippingService {
 
             Map<String, Object> orderDataMap = (Map<String, Object>) responseBody.get("order");
             ShippingResponse.OrderData orderData = mapOrderData(orderDataMap);
-
+            ShippingInfo shippingInfo = shippingMapper.toEntity(orderData);
+            repository.save(shippingInfo);
             return new ShippingResponse(success, message, orderData, warningMessage);
         } else {
             throw new RuntimeException("Unexpected response from GHTK");
@@ -132,12 +138,13 @@ public class ShippingService {
         throw new RuntimeException("Failed to fetch order status from GHTK");
     }
 
-    public CancelShippingResponse cancelShipping(String trackingOrder) {
-        String url = ghtkConfig.getGhtkStagingUrl() + "/cancel/" + trackingOrder;
+    public CancelShippingResponse cancelShipping(String idOrder) {
+        ShippingInfo info = repository.findByOrderId(idOrder);
+        String url = ghtkConfig.getGhtkStagingUrl() + "/cancel/" + info.getTrackingId();
         HttpHeaders headers = createHeadersStaging();
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.GET, entity, Map.class);
+        ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.POST, entity, Map.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, Object> responseBody = response.getBody();

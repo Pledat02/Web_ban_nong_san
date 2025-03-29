@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class ShippingController {
     private final ShippingService shippingService;
 
-    @GetMapping("/cancel/{trackingOrder}")
-    public CancelShippingResponse cancelOrder(@PathVariable String trackingOrder) {
-        return shippingService.cancelShipping(trackingOrder);
+    @PostMapping("/cancel/{idOrder}")
+    public CancelShippingResponse cancelOrder(@PathVariable String idOrder) {
+        return shippingService.cancelShipping(idOrder);
     }
     @GetMapping("/order-status/{trackingOrder}")
     public ApiResponse<OrderStatusResponse> getOrderStatus(@PathVariable String trackingOrder) {

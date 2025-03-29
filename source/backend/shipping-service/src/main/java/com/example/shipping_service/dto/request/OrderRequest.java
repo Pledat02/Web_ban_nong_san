@@ -65,7 +65,7 @@ public class OrderRequest {
 
     private Integer is_freeship = 0; // Mặc định là 0 (không freeship)
 
-    private String pick_option = "cod"; // Mặc định là cod
+    private String pick_option = "cod"; // Mặc định là cod hoac la post
     private ArrayList<Integer> tags;
 
     public void fromConfig(OrderConfig config) {
