@@ -5,6 +5,7 @@ import com.example.event.dto.UpdateStockRequest;
 import com.example.order_service.dto.request.OrderItemRequest;
 import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.response.OrderResponse;
+import com.example.order_service.dto.response.OrderStatusResponse;
 import com.example.order_service.dto.response.PageResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
@@ -153,10 +154,8 @@ public class OrderService {
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
 
-
     public OrderResponse getOrderById(String orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        Order order =  updateOrderStatusFromGHTK(orderId);
         log.info("order"+order);
         OrderResponse response = orderMapper.toOrderResponse(order);
 
@@ -177,8 +176,11 @@ public class OrderService {
     }
     public PageResponse<OrderResponse> getAllOrders(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> orderPage = orderRepository.findAll(pageable);
 
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+        for (Order order : orderPage) {
+            updateOrderStatusFromGHTK(order.getId_order());
+        }
         return getPaginateOrderResponse(page,orderPage);
     }
     public PageResponse<OrderResponse>  getPaginateOrderResponse(int page,  Page<Order> orderPage){
@@ -204,5 +206,31 @@ public class OrderService {
         String idUser = jwt.getClaim("id_user");
         return getOrdersByUserId(idUser,page,size,status);
     }
+
+    public Order updateOrderStatusFromGHTK(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        // Gọi API từ GHTK
+        OrderStatusResponse response = shippingClientHttp.getShippingStatus(orderId);
+
+        if (response.isSuccess() && response.getOrder() != null) {
+            int ghtkStatus = response.getOrder().getStatus();
+            OrderStatus mappedStatus = OrderStatus.fromGHTKStatus(ghtkStatus);
+
+            // Chỉ cập nhật nếu trạng thái thay đổi
+            if (order.getStatus() != mappedStatus.getCode()) {
+                log.info("Cập nhật trạng thái đơn hàng {} từ {} -> {}",
+                        orderId, order.getStatus(), mappedStatus.getCode());
+
+                order.setStatus(mappedStatus.getCode());
+                orderRepository.save(order);
+            }
+        } else {
+            log.warn("Không thể lấy trạng thái đơn hàng từ GHTK: {}", response.getMessage());
+        }
+        return order;
+    }
+
 
 }

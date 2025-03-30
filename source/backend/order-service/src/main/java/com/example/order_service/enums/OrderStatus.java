@@ -35,4 +35,16 @@ public enum OrderStatus {
         }
         throw new IllegalArgumentException("Không tìm thấy trạng thái tương ứng với mã: " + code);
     }
+    public static OrderStatus fromGHTKStatus(int ghtkStatus) {
+        return switch (ghtkStatus) {
+            case 1 -> PENDING_CONFIRMATION;
+            case 2 -> WAITING_FOR_SHIPMENT;
+            case 3 -> WAITING_FOR_PICKUP;
+            case 5 -> SHIPPING;
+            case 6 -> DELIVERED;
+            case 8 -> RETURN_APPROVED;
+            case 9 -> RETURNED;
+            default -> CANCELED;
+        };
+    }
 }

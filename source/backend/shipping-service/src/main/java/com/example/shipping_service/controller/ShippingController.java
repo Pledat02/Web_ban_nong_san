@@ -19,9 +19,9 @@ public class ShippingController {
     public CancelShippingResponse cancelOrder(@PathVariable String idOrder) {
         return shippingService.cancelShipping(idOrder);
     }
-    @GetMapping("/order-status/{trackingOrder}")
-    public ApiResponse<OrderStatusResponse> getOrderStatus(@PathVariable String trackingOrder) {
-        OrderStatusResponse response = shippingService.checkOrderStatus(trackingOrder);
+    @GetMapping("/order-status/{idOrder}")
+    public ApiResponse<OrderStatusResponse> getOrderStatus(@PathVariable String idOrder) {
+        OrderStatusResponse response = shippingService.checkOrderStatus(idOrder);
         return ApiResponse.<OrderStatusResponse>builder()
                 .data(response)
                 .build();

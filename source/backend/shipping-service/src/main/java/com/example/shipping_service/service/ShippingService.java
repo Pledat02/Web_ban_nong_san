@@ -2,7 +2,6 @@ package com.example.shipping_service.service;
 
 import com.example.shipping_service.configuration.GhtkConfig;
 import com.example.shipping_service.configuration.OrderConfig;
-import com.example.shipping_service.dto.request.OrderRequest;
 import com.example.shipping_service.dto.request.ShippingFeeRequest;
 import com.example.shipping_service.dto.request.ShippingRequest;
 import com.example.shipping_service.dto.response.CancelShippingResponse;
@@ -17,10 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -118,8 +115,10 @@ public class ShippingService {
         }
     }
 
-    public OrderStatusResponse checkOrderStatus(String trackingOrder) {
-        String url = ghtkConfig.getGhtkStagingUrl() + trackingOrder;
+    public OrderStatusResponse checkOrderStatus(String idOrder) {
+        ShippingInfo info = repository.findByOrderId(idOrder);
+        String url = ghtkConfig.getGhtkStagingUrl() + "/v2/" + info.getTrackingId();
+        log.info("url: {}", url);
         HttpHeaders headers = createHeadersStaging();
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -201,25 +200,34 @@ public class ShippingService {
         return OrderStatusResponse.builder()
                 .success(success)
                 .message(message)
-                .labelId((String) order.get("label_id"))
-                .partnerId((String) order.get("partner_id"))
-                .status((String) order.get("status"))
-                .statusText((String) order.get("status_text"))
-                .created((String) order.get("created"))
-                .modified((String) order.get("modified"))
-                .pickDate((String) order.get("pick_date"))
-                .deliverDate((String) order.get("deliver_date"))
-                .customerFullname((String) order.get("customer_fullname"))
-                .customerTel((String) order.get("customer_tel"))
-                .address((String) order.get("address"))
-                .storageDay(parseDouble(order.get("storage_day")))
-                .shipMoney(parseDouble(order.get("ship_money")))
-                .insurance(parseDouble(order.get("insurance")))
-                .value(parseDouble(order.get("value")))
-                .weight(parseDouble(order.get("weight")))
-                .pickMoney(parseDouble(order.get("pick_money")))
-                .isFreeship(Integer.parseInt((String) order.get("is_freeship")))
+                .order(OrderStatusResponse.OrderDetail.builder()
+                        .labelId((String) order.get("label_id"))
+                        .orderId((String) order.get("partner_id"))
+                        .statusText((String) order.get("status_text"))
+                        .status((Integer) order.get("status") )
+                        .created((String) order.get("created"))
+                        .modified((String) order.get("modified"))
+                        .pickDate((String) order.get("pick_date"))
+                        .deliverDate((String) order.get("deliver_date"))
+                        .customerFullname((String) order.get("customer_fullname"))
+                        .customerTel((String) order.get("customer_tel"))
+                        .address((String) order.get("address"))
+                        .storageDay((Integer)order.get("storage_day"))
+                        .shipMoney(parseDouble( order.get("ship_money")))
+                        .insurance(parseDouble(order.get("insurance")) )
+                        .value(parseDouble(order.get("value")))
+                        .weight(parseDouble( order.get("weight")))
+                        .pickMoney(parseDouble(order.get("pick_money")))
+                        .isFreeShip(parseBoolean(order.get("is_freeship")))
+                        .build())
                 .build();
+    }
+
+
+
+    private Boolean parseBoolean(Object obj) {
+        if (obj == null) return false;
+        return "1".equals(obj.toString());
     }
 
     private Double parseDouble(Object value) {
