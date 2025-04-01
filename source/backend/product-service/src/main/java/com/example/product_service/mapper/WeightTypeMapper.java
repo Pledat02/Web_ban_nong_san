@@ -1,7 +1,8 @@
 package com.example.product_service.mapper;
 
 import com.example.product_service.dto.request.WeightTypeRequest;
-import com.example.product_service.dto.request.WeightTypeResponse;
+import com.example.product_service.dto.response.WeightTypeResponse;
+import com.example.product_service.dto.response.WeightTypeResponse;
 import com.example.product_service.entity.WeightType;
 import org.mapstruct.Mapper;
 

@@ -64,15 +64,15 @@ class ProductService {
             throw error;
         }
     }
-    getMaxPrice(weightTypes,price){
+    getMaxPrice(weightProducts,price){
         let maxValue = 0;
-        weightTypes.forEach((weightType) => {
+        weightProducts.forEach((weightProduct) => {
             let value =0;
-            if(weightType.unit === 'g'){
-                value = price * weightType.weight /1000 ;
+            if(weightProduct.unit === 'g'){
+                value = price * weightProduct.weightType.value /1000 ;
             }else {
                 //kg
-                value = price * weightType.weight;
+                value = price * weightProduct.weightType.value;
             }
             if (value > maxValue) {
                 maxValue = value;
@@ -80,15 +80,15 @@ class ProductService {
         });
         return maxValue;
     }
-    getMinPrice(weightTypes,price){
+    getMinPrice(weightProducts,price){
         let minValue = 9999999999;
-        weightTypes.forEach((weightType) => {
+        weightProducts.forEach((weightProduct) => {
             let value = 0;
-            if(weightType.unit === 'g'){
-                value = price * weightType.weight /1000 ;
+            if(weightProduct.unit === 'g'){
+                value = price * weightProduct.weightType.value /1000 ;
             }else {
                 //kg
-                value = price * weightType.weight;
+                value = price * weightProduct.weightType.value;
             }
             if (value < minValue) {
                 minValue = value;

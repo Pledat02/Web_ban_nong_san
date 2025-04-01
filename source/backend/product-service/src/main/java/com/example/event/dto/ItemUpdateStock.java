@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class ItemUpdateStock {
     private Long productId;
     private Integer quantity;
+    private double weight;
 }

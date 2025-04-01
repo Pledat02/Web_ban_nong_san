@@ -19,7 +19,6 @@ public class ProductRequest {
     String description;
     long id_category;
     String image;
-    int stock;
     Boolean organic;
     String origin;
     String packaging;

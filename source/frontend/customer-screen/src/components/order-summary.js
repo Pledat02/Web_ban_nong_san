@@ -40,7 +40,7 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
                                 </span>
                                 {loading ? (
                                     <div className="flex items-center gap-2">
-                                        <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                                        <Loader2 className="w-4 h-4 animate-spin text-green-500" />
                                         <span className="text-sm text-gray-500">Calculating...</span>
                                     </div>
                                 ) : (
@@ -50,7 +50,7 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
                             <div className="border-t pt-2 mt-2">
                                 <div className="flex justify-between font-semibold text-lg">
                                     <span>Total</span>
-                                    <span className="text-blue-600">
+                                    <span className="text-green-600">
                                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}
                                     </span>
                                 </div>
@@ -70,7 +70,7 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={cart.length === 0 || loading}
                 >
                     {loading ? (

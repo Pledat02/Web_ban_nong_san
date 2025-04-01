@@ -90,7 +90,7 @@ const Checkout = () => {
                     district: formData.district,
                     ward: formData.ward,
                     value: getTotalPrice(),
-                    weight: cart.reduce((total, item) => total + (item.weight?.weight || 0) * item.quantity, 0)
+                    weight: cart.reduce((total, item) => total + (item.weight.weightType?.value || 0) * item.quantity, 0)
                 };
                 const fee = await ShippingService.getShippingFee(shippingData);
                 setShippingFee(fee);
@@ -139,7 +139,7 @@ const Checkout = () => {
                 orderItems: cart.map((item) => ({
                     name: item.name ?? "unknown",
                     price: item.price,
-                    weight: item.weight.weight,
+                    weight: item.weight.weightType.value,
                     quantity: item.quantity,
                     image: item.image,
                     productCode: item.id || "",
@@ -150,8 +150,9 @@ const Checkout = () => {
                 localStorage.setItem("order", JSON.stringify(orderData));
                 window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice() + shippingFee);
             } else {
-                toast.success("Order placed successfully!", {position: "top-right"});
-                OrderService.createOrder(orderData);
+                toast.info("Đơn hàng đang được xử lí!", {position: "top-right"});
+                await OrderService.createOrder(orderData);
+                toast.success("Đặt hàng thành công!", {position: "top-right"});
                 clearCart();
                 navigate("/");
             }

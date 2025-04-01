@@ -70,7 +70,7 @@ const ReviewTable = ({ product }) => {
 
     return (
         <div className="bg-white p-6 rounded-lg h-[600px] flex flex-col">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Product Reviews</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Đánh giá sản phẩm</h3>
 
             {/* Reviews List */}
             <div className="flex-1 overflow-y-auto mb-4 pr-2 custom-scrollbar">
@@ -119,14 +119,14 @@ const ReviewTable = ({ product }) => {
                     </div>
                 ) : (
                     <div className="text-center py-8 text-gray-500">
-                        No reviews yet. Be the first to review this product!
+                        Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!
                     </div>
                 )}
             </div>
 
             {/* Review Form */}
             <div className="border-t pt-4 mt-auto">
-                <h4 className="text-lg font-semibold mb-3">Write Your Review</h4>
+                <h4 className="text-lg font-semibold mb-3">Viết đánh giá của bạn</h4>
                 <div className="flex items-center gap-2 mb-3">
                     {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -144,14 +144,15 @@ const ReviewTable = ({ product }) => {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"
-                    placeholder="Share your thoughts about this product..."
+                    placeholder="
+Chia sẻ suy nghĩ của bạn về sản phẩm này..."
                     rows={3}
                 />
                 <button
                     onClick={handleSubmitReview}
                     className="mt-3 w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
-                    Submit Review
+                  Gửi đánh giá
                 </button>
             </div>
         </div>

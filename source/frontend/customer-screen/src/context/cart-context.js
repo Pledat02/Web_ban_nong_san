@@ -53,7 +53,7 @@ export const CartProvider = ({ children }) => {
 
     // Tính tổng giá tiền
     const getTotalPrice = () => {
-        return cart.reduce((total, item) => total + item.price * item.quantity * item.weight.weight, 0);
+        return cart.reduce((total, item) => total + item.price * item.quantity * item.weight.weightType.value, 0);
     };
 
     return (

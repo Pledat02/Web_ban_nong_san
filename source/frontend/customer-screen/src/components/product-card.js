@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {CartActionTypes, useCart} from "../context/cart-context";
+import { useCart} from "../context/cart-context";
 import ProductService from "../services/product-service";
-const ProductCard = ({id_product,name,weightTypes,price,oldPrice,image}) => {
+const ProductCard = ({id_product,name,weightProducts,price,oldPrice,image}) => {
     const navigate = useNavigate();
     const { dispatch } = useCart();
     const handleClick = () => {
@@ -35,17 +35,17 @@ const ProductCard = ({id_product,name,weightTypes,price,oldPrice,image}) => {
                 {/* Old Price */}
                 <div className="text-xs sm:text-sm text-gray-400 line-through">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                        ProductService.getMinPrice(weightTypes, oldPrice)
+                        ProductService.getMinPrice(weightProducts, oldPrice)
                     )} - {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                    ProductService.getMaxPrice(weightTypes, oldPrice)
+                    ProductService.getMaxPrice(weightProducts, oldPrice)
                 )}
                 </div>
                 {/* New Price */}
                 <div className="text-sm sm:text-base text-orange-500 font-bold">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                        ProductService.getMinPrice(weightTypes, price)
+                        ProductService.getMinPrice(weightProducts, price)
                     )} - {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                    ProductService.getMaxPrice(weightTypes, price)
+                    ProductService.getMaxPrice(weightProducts, price)
                 )}
                 </div>
             </div>

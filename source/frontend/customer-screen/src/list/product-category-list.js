@@ -69,7 +69,7 @@ function ProductCategoryList({ title, description, categoryId }) {
                     disabled={page === 1 || isLoading}
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
                 >
-                    ← Previous
+                    ← Trang trước
                 </button>
                 <span className="font-semibold">
           Page {page} / {totalPages}
@@ -79,7 +79,7 @@ function ProductCategoryList({ title, description, categoryId }) {
                     disabled={page === totalPages || isLoading}
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
                 >
-                    Next →
+                    Trang tiếp →
                 </button>
             </div>
         </div>

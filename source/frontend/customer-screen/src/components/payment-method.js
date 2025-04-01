@@ -16,7 +16,7 @@ const PaymentMethod = ({ formData, handleChange }) => {
                         value="cod"
                         checked={formData.paymentMethod === "cod"}
                         onChange={handleChange}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 accent-green-600"
                     />
                     <span className="ml-3">Cash on Delivery (COD)</span>
                 </label>
@@ -27,7 +27,7 @@ const PaymentMethod = ({ formData, handleChange }) => {
                         value="none"
                         checked={formData.paymentMethod === "none"}
                         onChange={handleChange}
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 accent-green-600"
                     />
                     <span className="ml-3">Bank Transfer</span>
                 </label>

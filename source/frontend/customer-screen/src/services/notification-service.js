@@ -14,7 +14,7 @@ class NotificationService {
 
     async sendPhoneOtp(phone) {
         try {
-            const response = await this.api.post("/send-phone-otp", { phone });
+            const response = await this.api.post("/send-confirm-phone-otp", { phone });
 
             if (response.status === 200) {
                 toast.success("OTP đã được gửi!", { position: "top-right" });
@@ -28,9 +28,10 @@ class NotificationService {
             return false;
         }
     }
+
     async sendEmailOtp(email) {
         try {
-            const response = await this.api.post("/send-email-otp", { email });
+            const response = await this.api.post("/send-confirm-email-otp", { email });
 
             if (response.status === 200) {
                 toast.success("OTP đã được gửi!", { position: "top-right" });
@@ -47,26 +48,9 @@ class NotificationService {
 
     async verifyPhoneOtp(phone, otp, userId) {
         try {
-            const response = await this.api.post(`/verify-phone-otp/${userId}`, { phone, otp });
+            const response = await this.api.post(`/verify-confirm-phone-otp/${userId}`, { phone, otp });
 
-            if (response.status === 200 && response.data.code===1000) {
-                toast.success("Xác thực OTP thành công!", { position: "top-right" });
-                return true;
-            } else {
-                toast.error("OTP không hợp lệ!", { position: "top-right" });
-                return false;
-            }
-        } catch (error) {
-            toast.error("Lỗi khi xác thực OTP!" +error, { position: "top-right" });
-            return false;
-        }
-    }
-
-    async verifyEmailOtp(email, otp, userId) {
-        try {
-            const response = await this.api.post(`/verify-email-otp/${userId}`, { email, otp });
-
-            if (response.status === 200 && response.data.code===1000) {
+            if (response.status === 200 && response.data.code === 1000) {
                 toast.success("Xác thực OTP thành công!", { position: "top-right" });
                 return true;
             } else {
@@ -79,6 +63,75 @@ class NotificationService {
         }
     }
 
+    async verifyEmailOtp(email, otp, userId) {
+        try {
+            const response = await this.api.post(`/verify-confirm-email-otp/${userId}`, { email, otp });
+
+            if (response.status === 200 && response.data.code === 1000) {
+                toast.success("Xác thực OTP thành công!", { position: "top-right" });
+                return true;
+            } else {
+                toast.error("OTP không hợp lệ!", { position: "top-right" });
+                return false;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi xác thực OTP!", { position: "top-right" });
+            return false;
+        }
+    }
+
+    async sendForgotPasswordOtp(email) {
+        try {
+            const response = await this.api.post("/send-forgot-password-email-otp", { email });
+
+            if (response.status === 200) {
+                toast.success("OTP đặt lại mật khẩu đã được gửi!", { position: "top-right" });
+                return true;
+            } else {
+                toast.error(response.data.message, { position: "top-right" });
+                return false;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi gửi OTP đặt lại mật khẩu!", { position: "top-right" });
+            return false;
+        }
+    }
+
+    async verifyForgotPasswordOtp(email, otp) {
+        try {
+            const response = await this.api.post(`/verify-forgot-password-email-otp`, { email, otp });
+
+            if (response.status === 200 && response.data.code === 1000) {
+                toast.success("Xác thực OTP đặt lại mật khẩu thành công!", { position: "top-right" });
+                return true;
+            } else {
+                toast.error("OTP không hợp lệ!", { position: "top-right" });
+                return false;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi xác thực OTP đặt lại mật khẩu!", { position: "top-right" });
+            return false;
+        }
+    }
+    async updatePassword(newPassword, otp) {
+        try {
+            const response = await this.api.post(`/update-password`, {
+                newPassword,
+                otp
+            });
+
+            if (response.status === 200 && response.data.code === 1000) {
+                toast.success("Mật khẩu đã được cập nhật thành công!", { position: "top-right" });
+                return true;
+            } else {
+                toast.error("Cập nhật mật khẩu thất bại!", { position: "top-right" });
+                return false;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi cập nhật mật khẩu!", { position: "top-right" });
+            return false;
+        }
+    }
 }
 
 export default new NotificationService();

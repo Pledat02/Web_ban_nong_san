@@ -17,12 +17,13 @@ const ProductDetail = () => {
     const navigate = useNavigate();
 
     const addToCart = () => {
+        console.log(selectedType)
         dispatch({
             type: CartActionTypes.ADD_ITEM,
             payload: {
                 id: product.id_product,
                 name: product.name,
-                price: product.price * selectedType.weight,
+                price: product.price * selectedType.weightType.value,
                 weight: selectedType,
                 image: product.image,
                 quantity,
@@ -31,8 +32,8 @@ const ProductDetail = () => {
     };
 
     useEffect(() => {
-        if (product?.weightTypes?.length > 0) {
-            setSelectedType(product.weightTypes[0]);
+        if (product?.weightProducts?.length > 0) {
+            setSelectedType(product.weightProducts[0]);
         }
     }, [product]);
 
@@ -101,25 +102,25 @@ const ProductDetail = () => {
                                     <span className="text-2xl font-bold text-green-600">
                                         {selectedType
                                             ? new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                selectedType.unit === "g"
-                                                    ? (selectedType.weight * product.price) / 1000
-                                                    : selectedType.weight * product.price
+                                                selectedType.weightType.unit === "g"
+                                                    ? (selectedType.weightType.value * product.price) / 1000
+                                                    : selectedType.weightType.value * product.price
                                             )
                                             : `${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                ProductService.getMinPrice(product.weightTypes, product.oldPrice)
+                                                ProductService.getMinPrice(product.weightProducts, product.oldPrice)
                                             )} - ${new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
-                                                ProductService.getMaxPrice(product.weightTypes, product.oldPrice)
+                                                ProductService.getMaxPrice(product.weightProducts, product.oldPrice)
                                             )}`}
                                     </span>
                                 </div>
 
                                 {/* Product Types */}
                                 <div className="space-y-2">
-                                    <label className="text-gray-700 font-semibold block">Select Type</label>
+                                    <label className="text-gray-700 font-semibold block">Các loại tùy chọn:</label>
                                     <div className="flex flex-wrap gap-2">
-                                        {product.weightTypes.map((item) => (
+                                        {product.weightProducts.map((item) => (
                                             <button
-                                                key={item.weight}
+                                                key={item.id}
                                                 className={`px-6 py-2 rounded-full transition-all duration-200 ${
                                                     selectedType === item
                                                         ? "bg-green-500 text-white shadow-lg transform scale-105"
@@ -127,7 +128,7 @@ const ProductDetail = () => {
                                                 }`}
                                                 onClick={() => setSelectedType(item)}
                                             >
-                                                {item.weight + item.unit}
+                                                {item.weightType.value + item.weightType.unit}
                                             </button>
                                         ))}
                                     </div>
@@ -135,7 +136,7 @@ const ProductDetail = () => {
 
                                 {/* Stock Information */}
                                 <div className="text-gray-600">
-                                    Stock Available: <span className="font-bold text-green-600">{product.stock}</span>
+                                    Số lượng còn lại: <span className="font-bold text-green-600">{selectedType? selectedType.stock : -1}</span>
                                 </div>
 
                                 {/* Quantity Selector */}
@@ -169,7 +170,7 @@ const ProductDetail = () => {
                                         }}
                                         className="flex-1 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                                     >
-                                        Buy Now
+                                        Mua ngay
                                     </button>
                                     <button
                                         onClick={() => {
@@ -178,7 +179,7 @@ const ProductDetail = () => {
                                         }}
                                         className="flex-1 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                                     >
-                                        Add to Cart
+                                       Thêm vào giỏ hàng
                                     </button>
                                 </div>
                             </div>
@@ -205,8 +206,8 @@ const ProductDetail = () => {
             {/* Related Products */}
             <div className="mb-8">
                 <ProductCategoryList
-                    title="Similar Products"
-                    description="You might also like these products"
+                    title="Sản phẩm tương tự"
+                    description=" Bạn có thể thích những sản phẩm này"
                     categoryId={product.category.id_category}
                 />
             </div>
@@ -217,18 +218,18 @@ const ProductDetail = () => {
 const InformationTable = ({ product }) => {
     return (
         <div className="p-6">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Product Information</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Thông tin sản phẩm</h3>
             <div className="rounded-lg overflow-hidden border border-gray-200">
                 <table className="w-full">
                     <tbody>
                     {[
-                        { label: "Category", value: product.category.name },
-                        { label: "Brand", value: product.brand },
-                        { label: "Organic", value: product.organic ? "Yes" : "No" },
-                        { label: "Origin", value: product.origin },
-                        { label: "Packaging", value: product.packaging },
-                        { label: "Usage", value: product.howToUse },
-                        { label: "Storage", value: product.howToPreserve },
+                        { label: "Loại", value: product.category.name },
+                        { label: "Nhãn hiệu", value: product.brand },
+                        { label: "Sản phẩm hữu cơ", value: product.organic ? "Yes" : "No" },
+                        { label: "Xuất xứ", value: product.origin },
+                        { label: "Đóng gói", value: product.packaging },
+                        { label: "Cách sử dụng", value: product.howToUse },
+                        { label: "Bảo quản", value: product.howToPreserve },
                     ].map((item, index) => (
                         <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                             <td className="px-4 py-3 font-semibold text-gray-700">{item.label}</td>

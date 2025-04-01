@@ -74,7 +74,7 @@ public class OrderService {
                 // Thêm thông tin cập nhật tồn kho
                 listUpdations.getItems().add(new ItemUpdateStock(
                             Long.parseLong(itemRequest.getProductCode())
-                            ,itemRequest.getQuantity()));
+                            ,itemRequest.getQuantity(),itemRequest.getWeight()));
             }
         }
         order.setOrderItems(orderItems);
@@ -210,6 +210,14 @@ public class OrderService {
     public Order updateOrderStatusFromGHTK(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        // neu trang thai yeu cau admin duyet thi khong can lay trang thai tu ghtk
+        if( order.getStatus()==OrderStatus.PENDING_CONFIRMATION.getCode()
+        || order.getStatus()==OrderStatus.RETURN_REQUESTED.getCode()
+                || order.getStatus()==OrderStatus.CANCELED.getCode()
+        ){
+            return order;
+        }
 
         // Gọi API từ GHTK
         OrderStatusResponse response = shippingClientHttp.getShippingStatus(orderId);

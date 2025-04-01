@@ -9,7 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WeightTypeRequest {
-    private Long id_weight_type;
+//    private Long id_weight_type;
     private double weight;
-    private String unit;
+//    private String unit;
+    int stock;
+
 }

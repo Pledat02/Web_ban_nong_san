@@ -8,8 +8,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WeightTypeResponse {
-    private Long id_weight_type;
-    private double value;
-    private String unit;
+public class WeightProductResponse {
+    Long id;
+    WeightTypeResponse weightType;
+    int stock;
 }

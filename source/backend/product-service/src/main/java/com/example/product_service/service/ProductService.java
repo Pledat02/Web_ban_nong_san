@@ -8,6 +8,8 @@ import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.dto.response.ProductResponse;
 import com.example.product_service.entity.Category;
 import com.example.product_service.entity.Product;
+import com.example.product_service.entity.WeightProduct;
+import com.example.product_service.entity.WeightType;
 import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.mapper.ProductMapper;
@@ -84,8 +86,12 @@ public class ProductService {
             Optional<Product> productOp = productRepository.findById(req.getProductId());
             if (productOp.isPresent()) {
                 Product p = productOp.get();
-
-                p.setStock(p.getStock() - req.getQuantity());
+               for (WeightProduct o : p.getWeightProducts()){
+                   if(o.getWeightType().getValue()==req.getWeight()){
+                       o.setStock(o.getStock() - req.getQuantity());
+                       break;
+                   }
+               }
                 productRepository.save(p);
             } else {
                 log.error("ERROR: Product not found for ID {}", req.getProductId());
@@ -178,9 +184,15 @@ public class ProductService {
 
             if (productOpt.isPresent()) {
                 Product product = productOpt.get();
-                if (product.getStock() < item.getQuantity()) {
-                    outOfStockProducts.add(product.getName()); // Lưu tên sản phẩm hết hàng
+                for( WeightProduct weightProduct : product.getWeightProducts()){
+                    if(weightProduct.getWeightType().getValue() == item.getWeight()){
+                        if(weightProduct.getStock() < item.getQuantity()){
+                            outOfStockProducts.add(product.getName() +
+                                    " (" + weightProduct.getWeightType().getValue() + "kg)");
+                        }
+                    }
                 }
+
             } else {
                 outOfStockProducts.add("Sản phẩm có mã " + item.getProductCode() + " không tồn tại");
             }

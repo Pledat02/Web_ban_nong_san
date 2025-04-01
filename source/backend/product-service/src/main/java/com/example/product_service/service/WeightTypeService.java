@@ -1,7 +1,7 @@
 package com.example.product_service.service;
 
 import com.example.product_service.dto.request.WeightTypeRequest;
-import com.example.product_service.dto.request.WeightTypeResponse;
+import com.example.product_service.dto.response.WeightTypeResponse;
 import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.entity.WeightType;
 import com.example.product_service.mapper.WeightTypeMapper;

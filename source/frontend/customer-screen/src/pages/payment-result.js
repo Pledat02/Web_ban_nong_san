@@ -23,8 +23,9 @@ const PaymentResult = () => {
                 try {
                     setStatus("success");
                     const order = JSON.parse(orderData);
+                    toast.info("Đơn hàng đang được xử lí!", {position: "top-right"});
+                    await OrderService.createOrder(orderData);
                     toast.success("Đặt hàng thành công!", {position: "top-right"});
-                     OrderService.createOrder(order);
                     dispatch({ type: CartActionTypes.CLEAR_CART });
 
                 } catch (error) {

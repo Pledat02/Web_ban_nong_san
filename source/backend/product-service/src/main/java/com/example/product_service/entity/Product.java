@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -23,7 +24,6 @@ public class Product {
     Double price;
     String description;
     Double oldPrice;
-    int stock;
     @ManyToOne
     Category category;
     String image;
@@ -33,8 +33,8 @@ public class Product {
     String brand;
     String howToUse;
     String howToPreserve;
-    @ManyToMany
-    List<WeightType> weightTypes = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<WeightProduct> weightProducts;
 
 
 }
