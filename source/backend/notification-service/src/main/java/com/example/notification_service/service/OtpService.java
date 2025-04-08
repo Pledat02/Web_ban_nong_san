@@ -2,6 +2,7 @@ package com.example.notification_service.service;
 
 import com.example.event.dto.ChangeEmailRequest;
 import com.example.event.dto.ChangePhoneRequest;
+import com.example.event.dto.ResetPasswordRequest;
 import com.example.notification_service.configuration.TwilioConfig;
 import com.example.notification_service.dto.request.*;
 import com.example.notification_service.repository.SendEmailClient;
@@ -29,6 +30,7 @@ public class OtpService {
     final TwilioConfig twilioConfig;
     final KafkaTemplate<String, Object> kafkaTemplate;
     final SendEmailClient sendEmailClient;
+    private static final String RESET_PASSWORD_TOPIC = "reset-password-topic";
     final Map<String, String> otpStorage = new ConcurrentHashMap<>();
     @Value("${app.mail.brevo.api-key}")
     String apiKey;
@@ -47,7 +49,7 @@ public class OtpService {
                 .sender(Sender.builder().name(nameSender).email(emailSender).build())
                 .to(Collections.singletonList(
                         Recipient.builder().name("User").email(request.getEmail()).build()))
-                .subject("Mã OTP của bạn")
+                .subject("Mã OTP xác nhận email của bạn")
                 .textContent("Mã OTP của bạn là: " + otp)
                 .build();
 
@@ -80,6 +82,49 @@ public class OtpService {
             }).join(); // Chờ kết quả
 
             return resultMessage;
+        }
+
+        return "OTP không hợp lệ hoặc đã hết hạn.";
+    }
+    public void sendForgotPasswordMail(OtpRequest request) {
+        String otp = generateOtp();
+
+        // Lưu OTP vào bộ nhớ tạm
+        otpStorage.put(request.getEmail(), otp);
+
+        MailRequest mailRequest = MailRequest.builder()
+                .sender(Sender.builder().name(nameSender).email(emailSender).build())
+                .to(Collections.singletonList(
+                        Recipient.builder().name("User").email(request.getEmail()).build()))
+                .subject("Quên mật khẩu - OTP đặt lại mật khẩu")
+                .textContent("Mã OTP để đặt lại mật khẩu của bạn là: " + otp)
+                .build();
+
+        try {
+            sendEmailClient.sendMail(apiKey, mailRequest);
+        } catch (FeignException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String verifyForgotPasswordOtp(OtpVerificationRequest request) {
+        String storedOtp = otpStorage.get(request.getEmail());
+
+        if (storedOtp != null && storedOtp.equals(request.getOtp())) {
+
+            return "Xác thực OTP thành công. Bạn có thể đặt lại mật khẩu.";
+        }
+
+        return "OTP không hợp lệ hoặc đã hết hạn.";
+    }
+    public String updatePassword(SendResetPasswordRequest request) {
+        String storedOtp = otpStorage.get(request.getEmail());
+
+        if (storedOtp != null && storedOtp.equals(request.getOtp())) {
+            ResetPasswordRequest event = new ResetPasswordRequest(request.getEmail(), request.getPassword());
+            kafkaTemplate.send(RESET_PASSWORD_TOPIC, event);
+            otpStorage.remove(request.getEmail());
+            return "Cập nhật mật khẩu thành công.";
         }
 
         return "OTP không hợp lệ hoặc đã hết hạn.";

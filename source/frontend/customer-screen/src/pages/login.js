@@ -10,12 +10,13 @@ import { FaFacebook } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import {toast} from "react-toastify";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const { login } = useUser();
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
     // Đăng nhập bằng tài khoản thường
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -168,9 +169,17 @@ const Login = () => {
                 </button>
             </div>
 
-            <p className="mt-4 text-sm text-blue-500 text-center cursor-pointer hover:underline">
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="mt-4 text-sm text-blue-500 text-center cursor-pointer hover:underline w-full"
+            >
                 Quên mật khẩu?
-            </p>
+            </button>
+
+            <ForgotPasswordModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
             <p className="mt-4 text-sm text-center">
                 Chưa có tài khoản?{" "}
                 <Link to="/register" className="text-blue-500 hover:underline">

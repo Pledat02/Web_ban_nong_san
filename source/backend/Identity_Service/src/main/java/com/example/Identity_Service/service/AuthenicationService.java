@@ -14,6 +14,7 @@ import com.example.Identity_Service.entity.User;
 import com.example.Identity_Service.exception.AppException;
 import com.example.Identity_Service.exception.ErrorCode;
 import com.example.Identity_Service.repository.UserRepository;
+import com.example.event.dto.ResetPasswordRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
@@ -50,6 +51,7 @@ public class AuthenicationService {
      UserRepository userRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
+    PasswordEncoder passwordEncoder;
     RedisTemplate<String, Object> redisTemplate;
     UserLoginMethodRepository userLoginMethodRepository;
     @NonFinal
@@ -84,6 +86,16 @@ public class AuthenicationService {
                 .token(token)
                 .authenticated(authenticated)
                 .build();
+    }
+    public void resetPassword(ResetPasswordRequest request){
+        Optional<User> userOp = userRepository.findByEmail(request.getEmail());
+        if(userOp.isPresent()){
+            User user = userOp.get();
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            userRepository.save(user);
+            return;
+        }
+        throw new AppException(ErrorCode.USER_NOT_FOUND);
     }
 
     public AuthenicationResponse loginWithSocial(UserCreationRequest request) {
