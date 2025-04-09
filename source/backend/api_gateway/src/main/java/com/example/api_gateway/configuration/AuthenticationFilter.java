@@ -42,7 +42,9 @@
                 "/api/v1/reviews/product/**",
                 "/api/v1/identity/users/registration",
                 "/api/v1/notifications/**",
-                "/api/v1/profiles/internal"
+                "/api/v1/profiles/internal",
+                "/api/v1/orders/**"
+
         );
         @NonFinal
         private static final List<String> GET_PUBLIC_ENDPOINTS = List.of(

@@ -19,13 +19,11 @@ import java.util.List;
 public class OrderResponse {
     String id;
 
-    ProfileResponse user;
+    ProfileResponse customer;
 
     Double totalPrice;
-
-
      OrderStatus status;
-
+    String customerName ;
     Timestamp orderDate;
 
     String note;

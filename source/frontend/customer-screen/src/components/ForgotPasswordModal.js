@@ -8,7 +8,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
+    const [step, setStep] = useState('email');
 
     const handleSendOtp = async () => {
         if (!email) {

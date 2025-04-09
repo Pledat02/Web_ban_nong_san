@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Phone, Mail, X, Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag, AlertCircle } from 'lucide-react';
-import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel } from '../utils/status';
+import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/statusUtils'; // Thêm getStatusIcon
 import OrderService from '../services/order-service';
 
 const Modal = ({ isOpen, onClose, children }) => {
@@ -105,9 +105,12 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                                             <h3 className="text-m font-semibold text-green-700">
                                                 Đơn hàng #{order.id}
                                             </h3>
-                                            <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${bgStatus} ${textStatus}`}>
-                                                {getStatusLabel(order.status)}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                {getStatusIcon(order.status)} {/* Thêm icon trạng thái */}
+                                                <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${bgStatus} ${textStatus}`}>
+                                                    {getStatusLabel(order.status)}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-3 gap-2 text-sm text-gray-600">

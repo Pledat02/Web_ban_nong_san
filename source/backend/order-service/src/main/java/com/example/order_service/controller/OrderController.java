@@ -21,10 +21,11 @@ public class OrderController {
     @GetMapping
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false , defaultValue = "")  String query
     ){
         return ApiResponse.<PageResponse<OrderResponse>>builder()
-                .data(orderService.getAllOrders(page, size))
+                .data(orderService.getAllOrders(page, size,query))
                 .build();
     }
     // Get order by id

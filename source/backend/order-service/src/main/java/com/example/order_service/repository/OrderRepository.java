@@ -24,6 +24,8 @@ public interface OrderRepository extends JpaRepository<Order,String> {
                                      @Param("status") String status,
                                      Pageable pageable);
 
+
+
     // Doanh thu theo ngày
     @Query("SELECT DATE(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue FROM Order o GROUP BY DATE(o.order_date)")
     List<Object[]> getDailyRevenue();
@@ -36,7 +38,7 @@ public interface OrderRepository extends JpaRepository<Order,String> {
     @Query("SELECT YEAR(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue FROM Order o GROUP BY YEAR(o.order_date)")
     List<Object[]> getYearlyRevenue();
 
-
-
-
+    @Query("SELECT o FROM Order o WHERE " +
+            "LOWER(o.id_order) LIKE LOWER(CONCAT(:keyword, '%'))")
+    Page<Order> searchByQuery(Pageable pageable, String keyword);
 }

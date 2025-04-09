@@ -4,6 +4,7 @@ import com.example.event.dto.ItemUpdateStock;
 import com.example.event.dto.UpdateStockRequest;
 import com.example.order_service.dto.request.OrderItemRequest;
 import com.example.order_service.dto.request.OrderRequest;
+import com.example.order_service.dto.request.ShippingRequest;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.dto.response.OrderStatusResponse;
 import com.example.order_service.dto.response.PageResponse;
@@ -109,6 +110,15 @@ public class OrderService {
             case PENDING_CONFIRMATION:
                 if(OrderStatus.valueOf(status)==OrderStatus.WAITING_FOR_SHIPMENT){
                     order.setStatus(OrderStatus.WAITING_FOR_SHIPMENT.getCode());
+                    // tao don hang ghtk
+                    ShippingRequest request = ShippingRequest.builder()
+                            .products(order.getOrderItems().stream().map(orderItemMapper::toOrderItemRequest).toList())
+                            .order(orderMapper.toOrderRequest(order))
+                            .build();
+                    log.info(request.toString());
+                    shippingClientHttp.createShippingOrder(
+                            request
+                    );
                 }
                else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
                     order.setStatus(OrderStatus.CANCELED.getCode());
@@ -159,7 +169,7 @@ public class OrderService {
         log.info("order"+order);
         OrderResponse response = orderMapper.toOrderResponse(order);
 
-        response.setUser(profileClientHttp.getProfile(order.getId_user()).getData());
+        response.setCustomer(profileClientHttp.getProfile(order.getId_user()).getData());
         return response;
     }
 
@@ -174,10 +184,10 @@ public class OrderService {
 
         return getPaginateOrderResponse(page,orderPage);
     }
-    public PageResponse<OrderResponse> getAllOrders(int page, int size) {
+    public PageResponse<OrderResponse> getAllOrders(int page, int size,String query) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Order> orderPage = orderRepository.findAll(pageable);
+        Page<Order> orderPage = orderRepository.searchByQuery(pageable,query);
         for (Order order : orderPage) {
             updateOrderStatusFromGHTK(order.getId_order());
         }

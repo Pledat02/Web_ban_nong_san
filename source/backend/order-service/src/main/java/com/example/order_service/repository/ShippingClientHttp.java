@@ -2,6 +2,7 @@ package com.example.order_service.repository;
 
 import com.example.order_service.configuration.AuthenRequestInterceptor;
 import com.example.order_service.dto.request.OrderItemRequest;
+import com.example.order_service.dto.request.ShippingRequest;
 import com.example.order_service.dto.response.ApiResponse;
 import com.example.order_service.dto.response.CancelShippingResponse;
 import com.example.order_service.dto.response.OrderStatusResponse;
@@ -19,6 +20,9 @@ import java.util.List;
 public interface ShippingClientHttp {
     @PostMapping (value = "/cancel/{idOrder}",produces = MediaType.APPLICATION_JSON_VALUE)
     CancelShippingResponse cancelShipping(@PathVariable String idOrder);
+
+    @PostMapping (value = "/create-order",produces = MediaType.APPLICATION_JSON_VALUE)
+    Object createShippingOrder(@RequestBody ShippingRequest request);
 
     @GetMapping(value = "/order-status/{idOrder}",produces = MediaType.APPLICATION_JSON_VALUE)
     OrderStatusResponse getShippingStatus(@PathVariable String idOrder);

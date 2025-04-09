@@ -8,7 +8,6 @@ import { useUser } from "../context/UserContext";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 import {toast} from "react-toastify";
 import ForgotPasswordModal from "../components/ForgotPasswordModal";
 const Login = () => {

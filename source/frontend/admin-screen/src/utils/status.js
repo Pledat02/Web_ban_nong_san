@@ -1,5 +1,5 @@
 import {
-   CheckCircle2, Ban, Clock, Truck, RotateCcw
+    CheckCircle2, Ban, Clock, Truck, RotateCcw
 } from "lucide-react";
 export const getStatusColor = (status) => {
     const statusColors = {

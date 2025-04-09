@@ -27,7 +27,7 @@ public class Order {
     String id_order;
 
     String id_user;
-
+    String customerName ;
     Double totalPrice;
     @Column(nullable = false)
     int status = 0 ;
