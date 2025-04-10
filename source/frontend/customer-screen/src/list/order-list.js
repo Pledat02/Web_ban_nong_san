@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Phone, Mail, X, Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag, AlertCircle } from 'lucide-react';
-import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/statusUtils'; // Thêm getStatusIcon
+import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/status'; // Thêm getStatusIcon
 import OrderService from '../services/order-service';
 
 const Modal = ({ isOpen, onClose, children }) => {

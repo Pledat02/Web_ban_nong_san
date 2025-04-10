@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-class OrderService {y
+class OrderService {
     constructor() {
         this.api = axios.create({
             baseURL: "http://localhost:8888/api/v1/orders",
@@ -89,12 +89,8 @@ class OrderService {y
             const response = await this.api.put(`/${orderId}/update-status`, null, {
                 params: { status }
             });
-            if (response.status === 200) {
                 toast.success("Cập nhật trạng thái thành công", { position: "top-right" });
                 return response.data.data;
-            } else {
-                toast.error(response.data.message || "Cập nhật trạng thái thất bại", { position: "top-right" });
-            }
         } catch (error) {
             toast.error("Cập nhật trạng thái thất bại", { position: "top-right" });
             throw error;
@@ -102,4 +98,6 @@ class OrderService {y
     }
 
 }
-export default new OrderService();
+const orderService = new OrderService();
+export default orderService;
+

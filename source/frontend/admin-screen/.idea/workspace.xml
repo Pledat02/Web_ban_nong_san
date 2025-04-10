@@ -5,36 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/request/ShippingRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/service/order-service.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/firebase.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/status.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/repository/UserRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/repository/UserRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/WebClientConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/WebClientConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/OrderResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/OrderResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/entity/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderItemMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderItemMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/ShippingClientHttp.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/ShippingClientHttp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Orders.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Orders.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/ForgotPasswordModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/ForgotPasswordModal.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/order-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/order-service.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/login.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer-screen/src/utils/status.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/utils/status.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,26 +42,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "javascript.nodejs.core.library.configured.version": "21.7.1",
-    "javascript.nodejs.core.library.typings.version": "22.13.13",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/MSI DAT/IdeaProjects/Web_ban_nong_san/source/frontend/admin-screen/src",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "npm.npm start.executor": "Run",
-    "settings.editor.selected.configurable": "com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;21.7.1&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;22.13.13&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/MSI DAT/IdeaProjects/Web_ban_nong_san/source/frontend/admin-screen/src&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.npm start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\MSI DAT\IdeaProjects\Web_ban_nong_san\source\frontend\admin-screen\src" />
@@ -130,6 +110,8 @@
       <workItem from="1744160572510" duration="8183000" />
       <workItem from="1744171136676" duration="2385000" />
       <workItem from="1744186483674" duration="4802000" />
+      <workItem from="1744272203748" duration="5356000" />
+      <workItem from="1744288779770" duration="3755000" />
     </task>
     <servers />
   </component>

@@ -15,6 +15,7 @@ public interface OrderMapper {
 
     @Mapping(target = "id_order", source = "id")
     @Mapping(target = "orderItems", ignore = true)
+    @Mapping(target = "customerName", source = "name")
     Order toOrder(OrderRequest request);
 
     @Mapping(target = "orderItems", ignore = true)
