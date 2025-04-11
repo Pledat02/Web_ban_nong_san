@@ -1,5 +1,8 @@
 package com.example.order_service.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum OrderStatus {
     PENDING_CONFIRMATION(0, "Đang chờ xác nhận"),
     WAITING_FOR_SHIPMENT(1, "Chờ giao hàng"),

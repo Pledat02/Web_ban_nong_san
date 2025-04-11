@@ -17,16 +17,12 @@ import com.example.order_service.mapper.OrderItemMapper;
 import com.example.order_service.mapper.OrderMapper;
 import com.example.order_service.repository.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,10 +67,11 @@ public class OrderService {
                 orderItem.setOrder(order); // Gán Order đã tạo vào OrderItem
                 orderItems.add(orderItem);
 
-                // Thêm thông tin cập nhật tồn kho
+                // Thêm thông tin cập nhật tồn kho (giảm tồn kho)
                 listUpdations.getItems().add(new ItemUpdateStock(
-                            Long.parseLong(itemRequest.getProductCode())
-                            ,itemRequest.getQuantity(),itemRequest.getWeight()));
+                        Long.parseLong(itemRequest.getProductCode()),
+                        -itemRequest.getQuantity(), // Giảm số lượng
+                        itemRequest.getWeight()));
             }
         }
         order.setOrderItems(orderItems);
@@ -88,76 +84,105 @@ public class OrderService {
 
         return orderMapper.toOrderResponse(order);
     }
-    // user role
-    public OrderResponse updateStatusCancelOrder(String id_Order){
+
+    // Helper method to restore stock
+    private void restoreStock(Order order) {
+        UpdateStockRequest restoreRequest = new UpdateStockRequest(new ArrayList<>());
+        for (OrderItem item : order.getOrderItems()) {
+            restoreRequest.getItems().add(new ItemUpdateStock(
+                    item.getProductCode(),
+                    item.getQuantity(), // Tăng số lượng trở lại
+                    item.getWeight()));
+        }
+        kafkaTemplate.send("update-stock", restoreRequest);
+        log.info("Restored stock for order {}", order.getId_order());
+    }
+
+    // User role
+    @Transactional
+    public OrderResponse updateStatusCancelOrder(String id_Order) {
         Order order = orderRepository.findById(id_Order).orElseThrow(
                 () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
         );
-        if (order.getStatus()!=OrderStatus.PENDING_CONFIRMATION.getCode()
-        && order.getStatus()!=OrderStatus.WAITING_FOR_PICKUP.getCode() ){
+        if (order.getStatus() != OrderStatus.PENDING_CONFIRMATION.getCode()
+                && order.getStatus() != OrderStatus.WAITING_FOR_PICKUP.getCode()) {
             throw new AppException(ErrorCode.CANNOT_CANCEL_ORDER);
         }
         order.setStatus(OrderStatus.CANCELED.getCode());
-        return orderMapper.toOrderResponse(orderRepository.save(order));
+        order = orderRepository.save(order);
+
+        // Restore stock when order is canceled
+        restoreStock(order);
+
+        return orderMapper.toOrderResponse(order);
     }
-    // admin role
-    public OrderResponse updateStatusOrder(String id_Order,String status){
+
+    // Admin role
+    @Transactional
+    public OrderResponse updateStatusOrder(String id_Order, String status) {
         Order order = orderRepository.findById(id_Order).orElseThrow(
                 () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
         );
         OrderStatus statusOrder = OrderStatus.fromCode(order.getStatus());
-        switch (statusOrder){
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+
+        // Nếu trạng thái mới giống trạng thái cũ thì báo lỗi
+        if (newStatus == statusOrder) {
+            throw new AppException(ErrorCode.INVALID_STATUS);
+        }
+
+        // Check status transitions
+        switch (statusOrder) {
             case PENDING_CONFIRMATION:
-                if(OrderStatus.valueOf(status)==OrderStatus.WAITING_FOR_SHIPMENT){
+                if (newStatus == OrderStatus.WAITING_FOR_SHIPMENT) {
                     order.setStatus(OrderStatus.WAITING_FOR_SHIPMENT.getCode());
-                    // tao don hang ghtk
+                    // Tạo đơn hàng GHTK
                     ShippingRequest request = ShippingRequest.builder()
                             .products(order.getOrderItems().stream().map(orderItemMapper::toOrderItemRequest).toList())
                             .order(orderMapper.toOrderRequest(order))
                             .build();
                     log.info(request.toString());
-                    shippingClientHttp.createShippingOrder(
-                            request
-                    );
-                }
-               else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
+                    shippingClientHttp.createShippingOrder(request);
+                } else if (newStatus == OrderStatus.CANCELED) {
                     order.setStatus(OrderStatus.CANCELED.getCode());
-                }
-               else{
-                   throw new AppException(ErrorCode.INVALID_STATUS);
+                    // Restore stock when order is canceled
+                    restoreStock(order);
+                } else {
+                    throw new AppException(ErrorCode.INVALID_STATUS);
                 }
                 break;
-            case WAITING_FOR_PICKUP:
-                if(OrderStatus.valueOf(status)==OrderStatus.SHIPPING){
+            case WAITING_FOR_SHIPMENT:
+                if (newStatus == OrderStatus.SHIPPING) {
                     order.setStatus(OrderStatus.SHIPPING.getCode());
-                }
-                else if(OrderStatus.valueOf(status)==OrderStatus.CANCELED){
+                } else if (newStatus == OrderStatus.CANCELED) {
                     shippingClientHttp.cancelShipping(id_Order);
                     order.setStatus(OrderStatus.CANCELED.getCode());
-                }
-                else{
+                    // Restore stock when order is canceled
+                    restoreStock(order);
+                } else {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
                 break;
             case SHIPPING:
-                if(OrderStatus.valueOf(status)!=OrderStatus.DELIVERED){
+                if (newStatus != OrderStatus.DELIVERED) {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
                 order.setStatus(OrderStatus.DELIVERED.getCode());
                 break;
             case DELIVERED:
-                if(OrderStatus.valueOf(status)!=OrderStatus.RETURN_APPROVED){
+                if (newStatus != OrderStatus.RETURN_APPROVED) {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
                 order.setStatus(OrderStatus.RETURN_APPROVED.getCode());
                 break;
             case RETURN_APPROVED:
-                if(OrderStatus.valueOf(status)!=OrderStatus.RETURNED){
+                if (newStatus != OrderStatus.RETURNED) {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
                 order.setStatus(OrderStatus.RETURNED.getCode());
+                // Restore stock when order is returned
+                restoreStock(order);
                 break;
-
             default:
                 throw new AppException(ErrorCode.INVALID_STATUS);
         }
@@ -165,8 +190,8 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(String orderId) {
-        Order order =  updateOrderStatusFromGHTK(orderId);
-        log.info("order"+order);
+        Order order = updateOrderStatusFromGHTK(orderId);
+        log.info("order {}", order);
         OrderResponse response = orderMapper.toOrderResponse(order);
 
         response.setCustomer(profileClientHttp.getProfile(order.getId_user()).getData());
@@ -175,25 +200,28 @@ public class OrderService {
 
     public void deleteOrder(String orderId) {
         orderRepository.findById(orderId)
-               .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         orderRepository.deleteById(orderId);
     }
-    public PageResponse<OrderResponse> getOrdersByUserId(String userId,int page, int size, String status) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> orderPage = orderRepository.findAllOrderByUserId(userId,status,pageable);
 
-        return getPaginateOrderResponse(page,orderPage);
+    public PageResponse<OrderResponse> getOrdersByUserId(String userId, int page, int size, String status) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Order> orderPage = orderRepository.findAllOrderByUserId(userId, status, pageable);
+
+        return getPaginateOrderResponse(page, orderPage);
     }
-    public PageResponse<OrderResponse> getAllOrders(int page, int size,String query) {
+
+    public PageResponse<OrderResponse> getAllOrders(int page, int size, String query) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Order> orderPage = orderRepository.searchByQuery(pageable,query);
+        Page<Order> orderPage = orderRepository.searchByQuery(pageable, query);
         for (Order order : orderPage) {
             updateOrderStatusFromGHTK(order.getId_order());
         }
-        return getPaginateOrderResponse(page,orderPage);
+        return getPaginateOrderResponse(page, orderPage);
     }
-    public PageResponse<OrderResponse>  getPaginateOrderResponse(int page,  Page<Order> orderPage){
+
+    public PageResponse<OrderResponse> getPaginateOrderResponse(int page, Page<Order> orderPage) {
         List<OrderResponse> orderResponses = orderPage.getContent()
                 .stream()
                 .map(orderMapper::toOrderResponse)
@@ -214,24 +242,23 @@ public class OrderService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String idUser = jwt.getClaim("id_user");
-        return getOrdersByUserId(idUser,page,size,status);
+        return getOrdersByUserId(idUser, page, size, status);
     }
 
     public Order updateOrderStatusFromGHTK(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        // neu trang thai yeu cau admin duyet thi khong can lay trang thai tu ghtk
-        if( order.getStatus()==OrderStatus.PENDING_CONFIRMATION.getCode()
-        || order.getStatus()==OrderStatus.RETURN_REQUESTED.getCode()
-                || order.getStatus()==OrderStatus.CANCELED.getCode()
-        ){
+        // Nếu trạng thái yêu cầu admin duyệt thì không cần lấy trạng thái từ GHTK
+        if (order.getStatus() == OrderStatus.PENDING_CONFIRMATION.getCode()
+                || order.getStatus() == OrderStatus.RETURN_REQUESTED.getCode()
+                || order.getStatus() == OrderStatus.CANCELED.getCode()) {
             return order;
         }
 
         // Gọi API từ GHTK
-        OrderStatusResponse response = shippingClientHttp.getShippingStatus(orderId);
-
+        OrderStatusResponse response = shippingClientHttp.getShippingStatus(orderId).getData();
+        log.info(response.toString());
         if (response.isSuccess() && response.getOrder() != null) {
             int ghtkStatus = response.getOrder().getStatus();
             OrderStatus mappedStatus = OrderStatus.fromGHTKStatus(ghtkStatus);
@@ -249,6 +276,4 @@ public class OrderService {
         }
         return order;
     }
-
-
 }

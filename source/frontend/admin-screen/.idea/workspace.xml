@@ -5,16 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/api_gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/api_gateway/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/AuthenticationFilter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/WebClientConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/api_gateway/src/main/java/com/example/api_gateway/configuration/WebClientConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/mapper/OrderMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/shipping-service/src/main/java/com/example/shipping_service/configuration/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/entity/Order.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/enums/OrderStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/enums/OrderStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/ShippingClientHttp.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/ShippingClientHttp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/order-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/order-service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,6 +113,8 @@
       <workItem from="1744186483674" duration="4802000" />
       <workItem from="1744272203748" duration="5356000" />
       <workItem from="1744288779770" duration="3755000" />
+      <workItem from="1744338118977" duration="4134000" />
+      <workItem from="1744354859687" duration="612000" />
     </task>
     <servers />
   </component>

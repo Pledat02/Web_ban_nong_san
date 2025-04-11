@@ -2,7 +2,6 @@ package com.example.api_gateway.configuration;
 
 import com.example.api_gateway.service.AuthService;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private static final List<String> GET_PUBLIC_ENDPOINTS = List.of(
             "/api/v1/products/**"
-
     );
 
     @Override
@@ -59,15 +57,30 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        if (isPublicEndpoint(exchange.getRequest())) {
-            return chain.filter(exchange);
+        ServerHttpRequest request = exchange.getRequest();
+        log.info("Request URI: " + request.getURI() + ", Method: " + request.getMethod());
+
+        if (isPublicEndpoint(request)) {
+            log.info("Passing public endpoint: " + request.getURI());
+            return chain.filter(exchange).doOnSuccess(v -> {
+                ServerHttpResponse response = exchange.getResponse();
+                log.info("Response status after chain: " + response.getStatusCode() +
+                        ", Headers: " + response.getHeaders());
+            }).doOnError(e ->
+                    log.error("Filter chain error for: " + request.getURI(), e)
+            );
         }
-        String token = exchange.getRequest().getHeaders().getFirst("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
+
+        String token = request.getHeaders().getFirst("Authorization");
+        log.info("Authorization header: " + token);
+
+        if ( !token.startsWith("Bearer ")) {
+            log.info("No valid Bearer token, rejecting request");
             return getUnAuthentication(exchange.getResponse(), "Invalid or expired JWT token");
         } else {
             token = token.replace("Bearer ", "");
             return authService.introspect(token).flatMap(intro -> {
+                log.info("Introspection result: " + intro.getData().isValid());
                 if (intro.getData().isValid()) {
                     return chain.filter(exchange);
                 } else {
@@ -91,6 +104,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         boolean isPublic = PUBLIC_ENDPOINTS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
         if (isPublic) {
             log.info("Matched public endpoint: " + path);
+        } else {
+            log.info("No match for public endpoint: " + path);
         }
         return isPublic;
     }

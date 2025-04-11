@@ -1,6 +1,7 @@
 package com.example.api_gateway.configuration;
 
 import com.example.api_gateway.repository.AuthenticationClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -11,7 +12,7 @@ import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 import java.util.List;
-
+@Slf4j
 @Configuration
 public class WebClientConfiguration {
     @Bean
@@ -25,14 +26,10 @@ public class WebClientConfiguration {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:3002",
-                "http://localhost:3003"
-        ));
+        config.addAllowedOriginPattern("*");
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("*"));
+        log.info("CORS Filter Configured");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -45,4 +42,13 @@ public class WebClientConfiguration {
                 .builderFor(WebClientAdapter.create(webClient)).build();
         return httpServiceProxyFactory.createClient(AuthenticationClient.class);
     }
+//    @Bean
+//    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+//        http.csrf().disable()
+//                .authorizeExchange()
+//                .pathMatchers("/api/v1/orders/**").permitAll()
+//                .pathMatchers("/api/v1/products/**").permitAll()
+//                .anyExchange().authenticated();
+//        return http.build();
+//    }
 }

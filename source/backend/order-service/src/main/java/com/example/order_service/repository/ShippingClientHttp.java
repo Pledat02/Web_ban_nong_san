@@ -25,5 +25,5 @@ public interface ShippingClientHttp {
     Object createShippingOrder(@RequestBody ShippingRequest request);
 
     @GetMapping(value = "/order-status/{idOrder}",produces = MediaType.APPLICATION_JSON_VALUE)
-    OrderStatusResponse getShippingStatus(@PathVariable String idOrder);
+    ApiResponse<OrderStatusResponse> getShippingStatus(@PathVariable String idOrder);
 }
