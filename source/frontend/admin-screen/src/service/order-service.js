@@ -23,20 +23,7 @@ class OrderService {
         });
     }
 
-    // Tạo đơn hàng mới
-    async createOrder(orderData) {
-        try {
-            const response = await this.api.post("/", orderData);
-            if (response.status === 200) {
 
-                return response.data.data;
-            } else {
-                toast.error(response.data.message, {position: "top-right"});
-            }
-        } catch (error) {
-            toast.error("Đặt hàng thất bại, vui lòng thử lại", {position: "top-right"});
-        }
-    }
     async searchOrders(page = 1, size = 10, query = "") {
         try {
             const response = await this.api.get("", {
@@ -54,20 +41,6 @@ class OrderService {
         } catch (error) {
             toast.error("Không thể tải danh sách đơn hàng", { position: "top-right" });
             throw error;
-        }
-    }
-
-    // Lấy chi tiết một đơn hàng
-    async getOrderById(orderId) {
-        try {
-            const response = await this.api.get(`/${orderId}`);
-            if (response.status === 200) {
-                return response.data.data;
-            } else {
-                toast.error(response.data.message, {position: "top-right"});
-            }
-        } catch (error) {
-            toast.error("Không tìm thấy đơn hàng", {position: "top-right"});
         }
     }
     // huy don hang

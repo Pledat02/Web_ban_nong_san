@@ -12,6 +12,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(1000, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     USER_INVALID_CREDENTIALS(1002, "Tên đăng nhập hoặc mật khẩu không hợp lệ", HttpStatus.BAD_REQUEST),
     USER_ALREADY_EXISTS(1003, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    ROLE_ALREADY_ACTIVE(1003, "Vai trò đã active", HttpStatus.BAD_REQUEST),
+    ROLE_ALREADY_INACTIVE(1003, "Vai trò chưa được active", HttpStatus.BAD_REQUEST),
     USER_NOT_AUTHORIZED(1008, "Người dùng không có quyền", HttpStatus.FORBIDDEN),
     USER_NOT_AUTHENTICATED(1004, "Người dùng chưa được xác thực", HttpStatus.UNAUTHORIZED),
     USER_ALREADY_ACTIVE(1005, "Người dùng đã được kích hoạt", HttpStatus.BAD_REQUEST),

@@ -3,6 +3,7 @@ package com.example.Identity_Service.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -10,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PageResponse<T> {
+public class PageResponse<T> implements Serializable {
     int currentPage;
     int totalPages;
     long totalElements;

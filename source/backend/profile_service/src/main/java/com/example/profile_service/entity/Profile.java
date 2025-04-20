@@ -2,6 +2,9 @@ package com.example.profile_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.sql.Timestamp;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,5 +23,8 @@ public class Profile {
     String email;
     @Column(unique = true)
     String phone;
+    boolean isActive = true;
+    @CreationTimestamp
+    Timestamp createAt;
 
 }

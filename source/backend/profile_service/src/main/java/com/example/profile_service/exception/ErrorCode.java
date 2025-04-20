@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     INVALID_KEY(0,"Invalid key", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_FOUND(1000,"User not found",HttpStatus.NOT_FOUND),
+    PROFILE_ALREADY_INACTIVE(1002,"PROFILE_ALREADY_INACTIVE",HttpStatus.BAD_REQUEST),
+    PROFILE_ALREADY_ACTIVE(1002,"PROFILE_ALREADY_ACTIVE",HttpStatus.BAD_REQUEST),
     USER_INVALID_CREDENTIALS(1002,"Invalid username or password",HttpStatus.BAD_REQUEST),
     USER_ALREADY_EXISTS(1003,"User already exists",HttpStatus.BAD_REQUEST),
     USER_NOT_AUTHORIZED(1008,"User is not authorized",HttpStatus.FORBIDDEN),

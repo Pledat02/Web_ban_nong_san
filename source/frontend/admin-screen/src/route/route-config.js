@@ -6,6 +6,7 @@ import Products from "../pages/products";
 import User from "../pages/users";
 import Roles from "../pages/roles";
 import MainLayout from "../layout/main-layout";
+import Profile from "../pages/profile";
 
 const AppRoutes = () => {
     return (
@@ -17,6 +18,7 @@ const AppRoutes = () => {
                 <Route path="products-management" element={<Products/>} />
                 <Route path="users-management" element={<User/>} />
                 <Route path="roles-management" element={<Roles/>} />
+                <Route path="profile-management" element={<Profile/>} />
                 {/*<Route path="product-detail/:id" element={<ProductDetail/>} />*/}
                 {/*<Route path="login" element={<Login />} />*/}
                 {/*<Route path="profile" element={<MyProfile/>} />*/}

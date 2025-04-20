@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  ShoppingBag, 
-  Package, 
+import {
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  Package,
   Settings,
-  Shield
+  Shield, User
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -17,6 +17,7 @@ const Sidebar = () => {
     { icon: ShoppingBag, label: 'products', path: '/products-management' },
     { icon: Package, label: 'orders', path: '/orders-management' },
     { icon: Settings, label: 'settings', path: '/settings-management' },
+    { icon: User, label: 'Hồ sơ', path: '/profile-management' },
   ];
 
   return (

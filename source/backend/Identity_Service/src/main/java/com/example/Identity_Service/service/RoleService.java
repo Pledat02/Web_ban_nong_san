@@ -12,34 +12,33 @@ import com.example.Identity_Service.repository.RoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleService {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
-   RoleMapper roleMapper;
-    @CacheEvict(value = "rolesList", allEntries = true)
-    @CachePut(value = "roles", key = "#result.name")
+    RoleMapper roleMapper;
+
+    @CacheEvict(value = {"roles", "rolesList"}, allEntries = true)
     public RoleResponse create(RoleRequest roleRequest) {
         Role role = roleMapper.toRole(roleRequest);
-        role.setPermissons(new HashSet<>(permissionRepository.findAllById(roleRequest.getPermissons())));
         Role savedRole = roleRepository.save(role);
         return roleMapper.toRoleResponse(savedRole);
     }
 
-    @CacheEvict(value = {"roles", "rolesList"}, key = "#name", allEntries = true)
+    @CacheEvict(value = {"roles", "rolesList"}, allEntries = true)
     public RoleResponse update(String name, RoleRequest roleRequest) {
         Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         roleMapper.updateRole(role, roleRequest);
@@ -47,46 +46,42 @@ public class RoleService {
         return roleMapper.toRoleResponse(updatedRole);
     }
 
-    @CacheEvict(value = {"roles", "rolesList"}, key = "#name", allEntries = true)
+    @CacheEvict(value = {"roles", "rolesList"}, allEntries = true)
     public void deleteRole(String name) {
         Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-        roleRepository.delete(role);
+        if (!role.isActive()) {
+            throw new AppException(ErrorCode.ROLE_ALREADY_INACTIVE);
+        }
+        role.setActive(false);
+        roleRepository.save(role);
+    }
+
+    @CacheEvict(value = {"roles", "rolesList"}, allEntries = true)
+    public void restoreRole(String name) {
+        Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        if (role.isActive()) {
+            throw new AppException(ErrorCode.ROLE_ALREADY_ACTIVE);
+        }
+        role.setActive(true);
+        roleRepository.save(role);
     }
 
     @Cacheable(value = "roles", key = "#name")
-    public RoleResponse getRole(String name){
-        Role Role = roleRepository.findById(name).orElseThrow(()
-                -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-        return roleMapper.toRoleResponse(Role);
+    public RoleResponse getRole(String name) {
+        Role role = roleRepository.findById(name).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        return roleMapper.toRoleResponse(role);
     }
 
     @Cacheable(value = "rolesList")
-    public List<RoleResponse> getAllRole(){
-        return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
-    }
-    public PageResponse<RoleResponse> getReviews(int page, int size){
+    public PageResponse<RoleResponse> getAllRoles(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Role> rolePage = roleRepository.findAll(pageable);
+        Page<Role> rolePage = roleRepository.searchRoles(keyword, pageable);
+        log.info("roleResponse: "+ rolePage);
         List<RoleResponse> roles = rolePage.getContent()
                 .stream()
                 .map(roleMapper::toRoleResponse)
                 .toList();
-        return PageResponse.<RoleResponse>builder()
-                .currentPage(page)
-                .totalPages(rolePage.getTotalPages())
-                .totalElements(rolePage.getTotalElements())
-                .elements(roles)
-                .build();
-    }
-    public PageResponse<RoleResponse> searchReviews(String keyword, int page, int size){
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Role> rolePage = roleRepository.searchRoles(keyword, pageable);
-
-        List<RoleResponse> roles= rolePage.getContent()
-                .stream().map(roleMapper::toRoleResponse)
-                .toList();
-
+        log.info("roleResponse: "+ roles);
         return PageResponse.<RoleResponse>builder()
                 .currentPage(page)
                 .totalPages(rolePage.getTotalPages())

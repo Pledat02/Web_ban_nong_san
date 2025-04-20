@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,25 +26,16 @@ public class RoleController {
 
     // Get all Roles
     @GetMapping
-    public ApiResponse<PageResponse<RoleResponse>> getAllReviews(
+    public ApiResponse<PageResponse<RoleResponse>> getAllRoles(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "query", required = false, defaultValue = "") String query
     ){
         return ApiResponse.<PageResponse<RoleResponse>>builder()
-                .data(roleService.getReviews(page,size))
+                .data(roleService.getAllRoles(query,page,size))
                 .build();
     }
-    //search
-    @GetMapping("/search")
-    public ApiResponse<PageResponse<RoleResponse>> searchReviews(
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size)
-    {
-        return ApiResponse.<PageResponse<RoleResponse>>builder()
-                .data(roleService.searchReviews(keyword, page, size))
-                .build();
-    }
+
     // Get Role by id
     @GetMapping("/{id}")
     public ApiResponse<RoleResponse> getRoleById(@PathVariable String id){
@@ -80,11 +72,19 @@ public class RoleController {
                 .build();
     }
     // delete Roles
-    @DeleteMapping("/{id}")
+    @PatchMapping("/delete/{id}")
     public ApiResponse<Void> deleteRole(@PathVariable String id){
         roleService.deleteRole(id);
         return ApiResponse.<Void>builder()
                 .message("Role deleted")
+                .build();
+    }
+    // delete Roles
+    @PatchMapping("/restore/{id}")
+    public ApiResponse<Void> restoreRole(@PathVariable String id){
+        roleService.restoreRole(id);
+        return ApiResponse.<Void>builder()
+                .message("Role restored")
                 .build();
     }
 }

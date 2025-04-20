@@ -59,7 +59,7 @@ public class Order {
     @Column(nullable = false)
     private Double pick_money = 0.0;
 
-
+    double shipping_fee;
     @Column(nullable = false)
     Double value;
 

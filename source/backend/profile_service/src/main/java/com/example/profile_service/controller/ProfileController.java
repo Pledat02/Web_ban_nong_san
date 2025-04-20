@@ -3,6 +3,7 @@ package com.example.profile_service.controller;
 import com.example.event.dto.ChangeEmailRequest;
 import com.example.event.dto.ChangePhoneRequest;
 import com.example.profile_service.dto.request.AddressRequest;
+import com.example.profile_service.dto.request.AdminUpdationProfileRequest;
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.ApiResponse;
@@ -37,13 +38,7 @@ public class ProfileController {
                 .message("Cập nhật thông tin địa chỉ thành công")
                 .build();
     }
-    //  Lấy hồ sơ theo ID
-    @GetMapping("/{id}")
-    public ApiResponse<ProfileResponse> getProfile(@PathVariable String id) {
-        return ApiResponse.<ProfileResponse>builder()
-                .data(profileService.getProfileById(id))
-                .build();
-    }
+
 
     // Cập nhật hồ sơ (update profile)
     @PutMapping("/{id}")
@@ -53,35 +48,6 @@ public class ProfileController {
         return ApiResponse.<Void>builder().build();
     }
 
-    // Xóa hồ sơ (delete profile)
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteProfile(@PathVariable String id) {
-        profileService.deleteProfile(id);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    // Lấy tất cả hồ sơ với phân trang
-    @GetMapping
-    public ApiResponse<PageResponse<ProfileResponse>> getAllProfiles(
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
-    ) {
-        return ApiResponse.<PageResponse<ProfileResponse>>builder()
-                .data(profileService.getAllProfiles(page, size))
-                .build();
-    }
-
-    // Tìm kiếm hồ sơ (search profiles)
-    @GetMapping("/search")
-    public ApiResponse<PageResponse<ProfileResponse>> searchProfiles(
-            @RequestParam String keyword,
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
-    ) {
-        return ApiResponse.<PageResponse<ProfileResponse>>builder()
-                .data(profileService.searchProfiles(keyword, page, size))
-                .build();
-    }
 
     // Lấy thông tin hồ sơ của người dùng hiện tại
     @GetMapping("/my-profile")
@@ -92,19 +58,7 @@ public class ProfileController {
     }
 
 
-    // 🔹 Xử lý sự kiện thay đổi email từ Kafka
-    @KafkaListener(topics = "change-email", groupId = "notification-group")
-    public void changeEmail(ChangeEmailRequest request) {
-        try {
-            profileService.updateEmail(request.getUserId(), request.getEmail());
-        } catch (Exception e) {
-            log.error("Lỗi khi cập nhật email cho userId {}: {}", request.getUserId(), e.getMessage(), e);
-        }
-    }
 
-    // 🔹 Xử lý sự kiện thay đổi số điện thoại từ Kafka
-    @KafkaListener(topics = "change-phone", groupId = "notification-group")
-    public void changePhone(ChangePhoneRequest request) {
-        profileService.updatePhone(request.getUserId(), request.getPhone());
-    }
+    // Xóa hồ sơ (delete profile)
+
 }

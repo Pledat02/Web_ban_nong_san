@@ -42,12 +42,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/v1/identity/users/registration",
             "/api/v1/notifications/**",
             "/api/v1/profiles/internal",
-            "/api/v1/orders/**"
+            "/api/v1/profiles/**",
+            "/api/v1/orders/**",
+            "/api/v1/identity/**"
     );
 
     @NonFinal
     private static final List<String> GET_PUBLIC_ENDPOINTS = List.of(
-            "/api/v1/products/**"
+            "/api/v1/products/**",
+            "/api/v1/identity/**"
     );
 
     @Override

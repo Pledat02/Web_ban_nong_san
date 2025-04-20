@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -11,8 +13,11 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @Data
+
 public class RoleResponse implements Serializable {
     String name;
     String description;
-    Set<PermissionResponse> permissons;
+    List<PermissionResponse> permissions;
+    boolean isActive;
+    Timestamp createAt;
 }

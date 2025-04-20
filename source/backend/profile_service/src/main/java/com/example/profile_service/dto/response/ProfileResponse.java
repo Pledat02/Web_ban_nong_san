@@ -3,6 +3,8 @@ package com.example.profile_service.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +17,7 @@ public class ProfileResponse {
     AddressResponse address;
     String email;
     String phone;
+    boolean isActive;
+    Timestamp createAt;
+
 }

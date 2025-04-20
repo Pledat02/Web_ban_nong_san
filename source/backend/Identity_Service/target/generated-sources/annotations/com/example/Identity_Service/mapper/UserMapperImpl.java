@@ -8,14 +8,16 @@ import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.Permission;
 import com.example.Identity_Service.entity.Role;
 import com.example.Identity_Service.entity.User;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-10T20:41:09+0700",
+    date = "2025-04-19T16:25:55+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.5 (Eclipse Adoptium)"
 )
 @Component
@@ -99,17 +101,17 @@ public class UserMapperImpl implements UserMapper {
         return permissionResponse.build();
     }
 
-    protected Set<PermissionResponse> permissionSetToPermissionResponseSet(Set<Permission> set) {
+    protected List<PermissionResponse> permissionSetToPermissionResponseList(Set<Permission> set) {
         if ( set == null ) {
             return null;
         }
 
-        Set<PermissionResponse> set1 = new LinkedHashSet<PermissionResponse>( Math.max( (int) ( set.size() / .75f ) + 1, 16 ) );
+        List<PermissionResponse> list = new ArrayList<PermissionResponse>( set.size() );
         for ( Permission permission : set ) {
-            set1.add( permissionToPermissionResponse( permission ) );
+            list.add( permissionToPermissionResponse( permission ) );
         }
 
-        return set1;
+        return list;
     }
 
     protected RoleResponse roleToRoleResponse(Role role) {
@@ -121,7 +123,8 @@ public class UserMapperImpl implements UserMapper {
 
         roleResponse.name( role.getName() );
         roleResponse.description( role.getDescription() );
-        roleResponse.permissons( permissionSetToPermissionResponseSet( role.getPermissons() ) );
+        roleResponse.permissions( permissionSetToPermissionResponseList( role.getPermissions() ) );
+        roleResponse.createAt( role.getCreateAt() );
 
         return roleResponse.build();
     }

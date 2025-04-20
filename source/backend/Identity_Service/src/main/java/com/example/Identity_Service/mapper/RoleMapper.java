@@ -1,19 +1,38 @@
 package com.example.Identity_Service.mapper;
 
+import com.example.Identity_Service.dto.request.PermissionRequest;
 import com.example.Identity_Service.dto.request.RoleRequest;
 import com.example.Identity_Service.dto.response.RoleResponse;
 import com.example.Identity_Service.entity.Role;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import com.example.Identity_Service.entity.Permission;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+@Mapper(componentModel = "spring", uses = PermissonMapper.class)
 public interface RoleMapper {
 
-    @Mapping(target = "permissons", ignore = true)
-    Role toRole(RoleRequest RoleRequest);
-    RoleResponse toRoleResponse(Role Role);
+    Role toRole(RoleRequest roleRequest);
+
+    @Mapping(target = "isActive", source = "active")
+    RoleResponse toRoleResponse(Role role);
+
     @Mapping(target = "name", ignore = true)
-    @Mapping(target = "permissons", ignore = true)
-    void updateRole(@MappingTarget Role Role, RoleRequest RoleRequest);
+    void updateRole(@MappingTarget Role role, RoleRequest roleRequest);
+
+    // 👇 Bổ sung hàm convert PermissionRequest -> Permission
+    default Set<Permission> mapPermissions(Set<com.example.Identity_Service.dto.request.PermissionRequest> requests) {
+        if (requests == null) return null;
+
+        Set<Permission> result = new LinkedHashSet<>();
+        for (com.example.Identity_Service.dto.request.PermissionRequest request : requests) {
+            result.add(Permission.builder()
+                            .name(request.getName())
+                            .description(request.getDescription())
+                    .build());
+        }
+        return result;
+    }
 }
+

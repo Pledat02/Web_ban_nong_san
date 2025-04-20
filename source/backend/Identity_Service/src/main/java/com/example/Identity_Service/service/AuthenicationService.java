@@ -246,8 +246,8 @@ public class AuthenicationService {
             for(Role role : roles){
                 log.info("ROLE_"+role.getName());
                 stringJoiner.add("ROLE_"+role.getName());
-                if(!role.getPermissons().isEmpty()){
-                    stringJoiner.add(role.getPermissons().stream()
+                if(!role.getPermissions().isEmpty()){
+                    stringJoiner.add(role.getPermissions().stream()
                            .map(p -> p.getName())
                            .collect(Collectors.joining(" ")));
                 }

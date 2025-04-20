@@ -204,7 +204,7 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public PageResponse<OrderResponse> getOrdersByUserId(String userId, int page, int size, String status) {
+    public PageResponse<OrderResponse> getOrdersByUserId(String userId, int page, int size, Integer status) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Order> orderPage = orderRepository.findAllOrderByUserId(userId, status, pageable);
 
@@ -237,7 +237,7 @@ public class OrderService {
     public PageResponse<OrderResponse> getMyOrder(
             int page,
             int size,
-            String status
+            Integer status
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -252,6 +252,7 @@ public class OrderService {
         // Nếu trạng thái yêu cầu admin duyệt thì không cần lấy trạng thái từ GHTK
         if (order.getStatus() == OrderStatus.PENDING_CONFIRMATION.getCode()
                 || order.getStatus() == OrderStatus.RETURN_REQUESTED.getCode()
+                || order.getStatus() == OrderStatus.DELIVERED.getCode()
                 || order.getStatus() == OrderStatus.CANCELED.getCode()) {
             return order;
         }

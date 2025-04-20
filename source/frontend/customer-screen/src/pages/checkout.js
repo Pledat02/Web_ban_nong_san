@@ -134,6 +134,7 @@ const Checkout = () => {
                 note: formData.notes || "",
                 is_freeship: 0,
                 pick_option: formData.paymentMethod,
+                totalPrice:  getTotalPrice(),
                 value: getTotalPrice() + shippingFee,
                 shipping_fee: shippingFee,
                 orderItems: cart.map((item) => ({

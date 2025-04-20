@@ -1,6 +1,7 @@
 package com.example.profile_service.service;
 
 import com.example.profile_service.dto.request.AddressRequest;
+import com.example.profile_service.dto.request.AdminUpdationProfileRequest;
 import com.example.profile_service.dto.request.CreationProfileRequest;
 import com.example.profile_service.dto.request.UpdationProfileRequest;
 import com.example.profile_service.dto.response.PageResponse;
@@ -69,9 +70,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(
                 profileRepository.save(profileMapper.toProfile(request)));
     }
-    public ProfileResponse getProfileById(String userId) {
-        return profileMapper.toProfileResponse(profileRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND)));
-    }
+
 
     public void updateProfile(String userId, UpdationProfileRequest request) {
         Profile profile = profileRepository.findById(userId).orElseThrow(
@@ -85,14 +84,33 @@ public class ProfileService {
        }
         profileRepository.save(profile);
     }
+    public void updateProfile(String userId, AdminUpdationProfileRequest request) {
+        Profile profile = profileRepository.findById(userId).orElseThrow(
+                () -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
-    public void deleteProfile(String userId) {
-        profileRepository.deleteById(userId);
+       profileMapper.updateProfile(profile,request);
+      log.info( profileRepository.save(profile).toString());
     }
-    public List<ProfileResponse> getProfiles() {
-        List<ProfileResponse> profiles = new ArrayList<>();
-        profileRepository.findAll().forEach(profile -> profiles.add(profileMapper.toProfileResponse(profile)));
-        return profiles;
+
+
+    public void deleteProfile(String id) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        if (!profile.isActive()) {
+            throw new AppException(ErrorCode.PROFILE_ALREADY_INACTIVE);
+        }
+        profile.setActive(false);
+        profileRepository.save(profile);
+    }
+
+    public void restoreProfile(String id) {
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        if (profile.isActive()) {
+            throw new AppException(ErrorCode.PROFILE_ALREADY_ACTIVE);
+        }
+        profile.setActive(true);
+        profileRepository.save(profile);
     }
     // change phone
     public void updatePhone(String userId, String phone) {
@@ -103,8 +121,17 @@ public class ProfileService {
     public ProfileResponse getMyProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
-        Profile profile = profileRepository.findById(jwt.getClaim("id_user")).orElseThrow(() ->
-                new AppException(ErrorCode.USER_NOT_FOUND));
+        String userId = jwt.getClaim("id_user");
+        Profile profile = profileRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!profile.isActive()) {
+            throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
+        }
+        return profileMapper.toProfileResponse(profile);
+    }
+    public ProfileResponse getProfileById(String userId) {
+        Profile profile = profileRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         return profileMapper.toProfileResponse(profile);
     }
     //change email
@@ -113,7 +140,7 @@ public class ProfileService {
         profile.setEmail(email);
         profileRepository.save(profile);
     }
-    public PageResponse<ProfileResponse> searchProfiles(String keyword, int page, int size){
+    public PageResponse<ProfileResponse> getAllProfiles(String keyword, int page, int size){
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Profile> productPage = profileRepository.searchUsers(keyword, pageable);
 
@@ -129,20 +156,6 @@ public class ProfileService {
                 .elements(productResponses)
                 .build();
     }
-    public PageResponse<ProfileResponse> getAllProfiles(int page, int size){
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Profile> profilePage = profileRepository.findAll(pageable);
 
-        List<ProfileResponse> profiles = profilePage.getContent()
-               .stream()
-               .map(profileMapper::toProfileResponse)
-               .toList();
 
-        return PageResponse.<ProfileResponse>builder()
-               .currentPage(page)
-               .totalPages(profilePage.getTotalPages())
-               .totalElements(profilePage.getTotalElements())
-               .elements(profiles)
-               .build();
-    }
 }
