@@ -57,6 +57,8 @@ public class OrderRequest {
 
     private String pick_option = "cod"; // Mặc định là cod
 
+    private String payment_method;
+
     List<OrderItemRequest> orderItems = new ArrayList<>();
 
 }

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public interface ProductMapper {
 
     @Mapping(target = "category", source = "category")
+    @Mapping(target = "active", source = "active")
     @Mapping(target = "weightProducts", expression = "java(toWeightProductResponses(product.getWeightProducts()))")
     ProductResponse toProductResponse(Product product);
 

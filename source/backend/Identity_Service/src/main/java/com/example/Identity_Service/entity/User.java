@@ -3,8 +3,10 @@ package com.example.Identity_Service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Getter
@@ -31,9 +33,14 @@ public class User {
 
     String avatar;
 
+    boolean isActive=true;
+
+    @CreationTimestamp
+    Timestamp createAt;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Set<UserLoginMethod> loginMethods; // Liên kết đến phương thức đăng nhập
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     Set<Role> roles;
 }

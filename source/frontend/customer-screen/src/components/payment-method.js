@@ -24,8 +24,8 @@ const PaymentMethod = ({ formData, handleChange }) => {
                     <input
                         type="radio"
                         name="paymentMethod"
-                        value="none"
-                        checked={formData.paymentMethod === "none"}
+                        value="Vnpay"
+                        checked={formData.paymentMethod === "Vnpay"}
                         onChange={handleChange}
                         className="w-4 h-4 accent-green-600"
                     />

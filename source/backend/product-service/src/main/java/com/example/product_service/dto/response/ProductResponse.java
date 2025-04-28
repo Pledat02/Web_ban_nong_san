@@ -27,4 +27,6 @@ public class ProductResponse {
     String howToUse;
     String howToPreserve;
     List<WeightProductResponse> weightProducts;
+     boolean isActive;
+
 }

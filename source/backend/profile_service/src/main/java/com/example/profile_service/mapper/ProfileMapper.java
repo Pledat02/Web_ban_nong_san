@@ -13,8 +13,9 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface ProfileMapper {
+    @Mapping(target = "isActive", source = "active")
     Profile toProfile(CreationProfileRequest profileRequest);
 
     @Mapping(target = "id_user", ignore = true)

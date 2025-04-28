@@ -31,7 +31,7 @@ class ProfileService {
                 toast.error(response.data.message, { position: "top-right" });
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy thông tin,vui lòng đăng nhập trước", { position: "top-right" });
+            toast.error("Lỗi khi lấy thông tin", { position: "top-right" });
         }
     }
 

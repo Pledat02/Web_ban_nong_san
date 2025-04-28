@@ -130,10 +130,10 @@ const Checkout = () => {
                 hamlet: formData.hamlet || "",
                 tel: formData.phone,
                 address: `${formData.hamlet}, ${formData.ward}, ${formData.district}, ${formData.province}`,
-                pick_money: 0,
+                pick_money: formData.paymentMethod === 'cod' ? getTotalPrice() + shippingFee: 0,
                 note: formData.notes || "",
                 is_freeship: 0,
-                pick_option: formData.paymentMethod,
+                payment_method: formData.paymentMethod,
                 totalPrice:  getTotalPrice(),
                 value: getTotalPrice() + shippingFee,
                 shipping_fee: shippingFee,
@@ -147,7 +147,7 @@ const Checkout = () => {
                 })),
             };
 
-            if (formData.paymentMethod === "none") {
+            if (formData.paymentMethod === "Vnpay") {
                 localStorage.setItem("order", JSON.stringify(orderData));
                 window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice() + shippingFee);
             } else {

@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreationProfileRequest {
     @Id
@@ -19,4 +19,5 @@ public class CreationProfileRequest {
     AddressRequest address;
     String email;
     String phone;
+    boolean active =true;
 }

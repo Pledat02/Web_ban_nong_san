@@ -38,11 +38,11 @@ public class ShippingService {
         HttpHeaders headers = createHeadersStaging();
         request.getOrder().fromConfig(orderConfig);
         HttpEntity<ShippingRequest> entity = new HttpEntity<>(request, headers);
-        log.info("request:" +request);
         ResponseEntity<Map> response = ghtkConfig.ghtkRestTemplate().exchange(url, HttpMethod.POST, entity, Map.class);
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             Map<String, Object> responseBody = response.getBody();
+            log.info(responseBody.toString());
             boolean success = Optional.ofNullable((Boolean) responseBody.get("success")).orElse(false);
             String message = (String) responseBody.get("message");
             String warningMessage = (String) responseBody.getOrDefault("warning_message", "");

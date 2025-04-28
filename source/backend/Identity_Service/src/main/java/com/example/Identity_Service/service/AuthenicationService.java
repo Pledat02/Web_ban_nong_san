@@ -6,6 +6,7 @@ import com.example.Identity_Service.dto.response.AuthenicationResponse;
 import com.example.Identity_Service.dto.response.TokenResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
 import com.example.Identity_Service.entity.UserLoginMethod;
+import com.example.Identity_Service.mapper.ProfileClientMapper;
 import com.example.Identity_Service.mapper.UserMapper;
 import com.example.Identity_Service.repository.*;
 import com.example.Identity_Service.dto.response.ValidTokenResponse;
@@ -54,6 +55,9 @@ public class AuthenicationService {
     PasswordEncoder passwordEncoder;
     RedisTemplate<String, Object> redisTemplate;
     UserLoginMethodRepository userLoginMethodRepository;
+    ProfileClientMapper profileClientMapper;
+    ProfileClientHttp profileClientHttp;
+
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signer_key;
@@ -100,7 +104,7 @@ public class AuthenicationService {
 
     public AuthenicationResponse loginWithSocial(UserCreationRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());
-
+        User newUser =null;
         if (user.isPresent()) {
             // Kiểm tra user đã từng đăng nhập bằng Google/Facebook chưa
             boolean hasLoginMethod = userLoginMethodRepository.existsByUserAndLoginType(user.get(), request.getLoginType());
@@ -112,20 +116,22 @@ public class AuthenicationService {
                         .loginType(request.getLoginType())
                         .build();
                 userLoginMethodRepository.save(loginMethod);
+                // them profile neu moi tao lan dau
+                CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(request);
+                profileRq.setId_user(user.get().getId_user());
+                profileClientHttp.createProfile(profileRq);
             }
+            newUser = user.get();
 
-            return AuthenicationResponse.builder()
-                    .authenticated(true)
-                    .token(generateToken(user.get()))
-                    .build();
+
         } else {
             // Nếu user chưa tồn tại, tạo mới tài khoản
             HashSet<Role> roles = new HashSet<>();
             roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-            User newUser = User.builder()
+             newUser = User.builder()
                     .email(request.getEmail())
                     .username(request.getUsername())
-                    .password("") // Không cần mật khẩu cho Google/Facebook
+                    .password("")
                     .avatar(request.getAvatar())
                     .roles(roles)
                     .build();
@@ -136,12 +142,19 @@ public class AuthenicationService {
                     .loginType(request.getLoginType())
                     .build();
             userLoginMethodRepository.save(loginMethod);
+            // them profile neu moi tao lan dau
+            CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(request);
+            profileRq.setId_user(newUser.getId_user());
+            profileClientHttp.createProfile(profileRq);
 
-            return AuthenicationResponse.builder()
-                    .authenticated(true)
-                    .token(generateToken(newUser))
-                    .build();
         }
+
+
+
+        return AuthenicationResponse.builder()
+                .authenticated(true)
+                .token(generateToken(newUser))
+                .build();
     }
 
 

@@ -23,6 +23,7 @@ public class Profile {
     String email;
     @Column(unique = true)
     String phone;
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     boolean isActive = true;
     @CreationTimestamp
     Timestamp createAt;

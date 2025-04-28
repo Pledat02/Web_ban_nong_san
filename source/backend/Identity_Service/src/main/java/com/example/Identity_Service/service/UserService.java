@@ -1,9 +1,10 @@
 package com.example.Identity_Service.service;
 
+import com.example.Identity_Service.FileUtils;
 import com.example.Identity_Service.constant.PredefinedRole;
 import com.example.Identity_Service.dto.request.ChangePasswordRequest;
-import com.example.Identity_Service.dto.request.CreationProfileRequest;
 import com.example.Identity_Service.dto.request.UserCreationRequest;
+import com.example.Identity_Service.dto.request.UserUpdateRequest;
 import com.example.Identity_Service.dto.response.PageResponse;
 import com.example.Identity_Service.dto.response.ReviewerResponse;
 import com.example.Identity_Service.dto.response.UserResponse;
@@ -29,7 +30,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
@@ -38,6 +38,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -58,35 +59,46 @@ public class UserService {
     RoleRepository roleRepository;
     KafkaTemplate<String, Object> kafkaTemplate;
     RedisTemplate<String, Object> redisTemplate;
+    ObjectMapper objectMapper;
 
-    public UserResponse createUser(UserCreationRequest userrq) throws JsonProcessingException {
-        if (userRepository.existsByUsername(userrq.getUsername())) {
+    // Create a new user
+    @CacheEvict(value = {"usersList", "usersPage"}, allEntries = true)
+    public UserResponse createUser(UserCreationRequest request, MultipartFile part) throws JsonProcessingException {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USERNAME_EXISTED);
         }
 
-        Optional<User> userOp = userRepository.findByEmail(userrq.getEmail());
+        Optional<User> userOp = userRepository.findByEmail(request.getEmail());
         if (userOp.isPresent() && userOp.get().getPassword() != null) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
-        userrq.setPassword(passwordEncoder.encode(userrq.getPassword()));
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
-        User user = userMapper.ToUser(userrq);
+        User user = userMapper.ToUser(request);
         user.setRoles(roles);
+        user.setActive(true);
+
+        // Handle avatar upload
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+            String avatarUrl = FileUtils.saveImage(part);
+            user.setAvatar(avatarUrl);
+        }
+
         User savedUser = userRepository.save(user);
 
-        // Lưu vào Redis
-        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String userJson = objectMapper.writeValueAsString(user);
-        valueOperations.set("USER_" + user.getEmail(), userJson);
+        // Cache user in Redis
+        String cacheKey = "USER_" + savedUser.getEmail();
+        redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
 
-        CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(userrq);
+        // Create associated profile
+        com.example.Identity_Service.dto.request.CreationProfileRequest profileRq = profileClientMapper.toCreateProfileRequest(request);
         profileRq.setId_user(savedUser.getId_user());
         profileClientHttp.createProfile(profileRq);
 
+        // Send notification
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .nameReceptor(savedUser.getUsername())
                 .emailReceptor(savedUser.getEmail())
@@ -100,26 +112,133 @@ public class UserService {
         return userMapper.toUserResponse(savedUser);
     }
 
-    @CacheEvict(value = "users", key = "#id_user") // Xóa cache khi cập nhật email
-    public void updateEmail(String id_user, String newEmail) {
-        User user = userRepository.findById(id_user)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        user.setEmail(newEmail);
-        userRepository.save(user);
+    // Get all users with pagination and keyword search
+    @Cacheable(value = "usersPage", key = "#keyword + '_' + #page + '_' + #size")
+    public PageResponse<UserResponse> getAllUsers(String keyword, int page, int size) {
+        log.info("Fetching users from DB for keyword: {}, page: {}, size: {}", keyword, page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<User> userPage = userRepository.searchUsers(keyword, pageable);
+
+        List<UserResponse> userResponses = userPage.getContent()
+                .stream()
+//                .filter(User::isActive)
+                .map(userMapper::toUserResponse)
+                .toList();
+
+        return PageResponse.<UserResponse>builder()
+                .currentPage(page)
+                .totalPages(userPage.getTotalPages())
+                .totalElements(userPage.getTotalElements())
+                .elements(userResponses)
+                .build();
     }
 
-    @Cacheable(value = "users", key = "#id") // Lưu vào cache
-    @PostAuthorize("returnObject.username == authentication.name")
-    public UserResponse getUserById(String id) {
-        log.info("Fetching user from DB...");
+    // Update user by admin
+    @CacheEvict(value = {"users", "usersPage", "usersList", "reviewers"}, allEntries = true)
+    public void updateUser(String userId, UserUpdateRequest request, MultipartFile part) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
+        // Handle avatar upload
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+            String avatarUrl = FileUtils.saveImage(part);
+            user.setAvatar(avatarUrl);
+        }
+        userMapper.updateUser(user, request);
+        log.info("Updated user: {}", user);
+        User savedUser = userRepository.save(user);
+
+        // Update Redis cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+    }
+
+    // Soft delete user
+    @CacheEvict(value = {"users", "usersPage", "usersList", "reviewers"}, allEntries = true)
+    public void deleteUser(String id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_ALREADY_INACTIVE);
+        }
+        user.setActive(false);
+        User savedUser = userRepository.save(user);
+        // Evict individual user cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        redisTemplate.delete(cacheKey);
+        log.info("Deleted user ID: {}, email: {}, cache key: {}", id, savedUser.getEmail(), cacheKey);
+    }
+
+    // Restore deleted user
+    @CacheEvict(value = {"usersPage", "usersList"}, allEntries = true)
+    public void restoreUser(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user.isActive()) {
+            throw new AppException(ErrorCode.USER_ALREADY_ACTIVE);
+        }
+        user.setActive(true);
+        User savedUser = userRepository.save(user);
+        // Update Redis cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+            log.info("Restored user ID: {}, email: {}, cache key: {}", id, savedUser.getEmail(), cacheKey);
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+    }
+
+    // Get user by ID
+    @Cacheable(value = "users", key = "#id")
+    public UserResponse getUserById(String id) {
+        log.info("Fetching user from DB with ID: {}", id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
         return userMapper.toUserResponse(user);
     }
 
+    // Update email
+    @CacheEvict(value = {"users", "usersPage", "usersList", "reviewers"}, allEntries = true)
+    public void updateEmail(String id_user, String newEmail) {
+        User user = userRepository.findById(id_user)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
+        String oldEmail = user.getEmail();
+        user.setEmail(newEmail);
+        User savedUser = userRepository.save(user);
+        // Update Redis cache and remove old cache
+        try {
+            String newCacheKey = "USER_" + newEmail;
+            redisTemplate.opsForValue().set(newCacheKey, objectMapper.writeValueAsString(savedUser));
+            redisTemplate.delete("USER_" + oldEmail);
+            log.info("Updated email for user ID: {}, old email: {}, new email: {}", id_user, oldEmail, newEmail);
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+    }
+
+    // Get reviewer information
+    @Cacheable(value = "reviewers", key = "#id")
     public ReviewerResponse getReviewer(String id) {
+        log.info("Fetching reviewer from DB with ID: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
         return ReviewerResponse.builder()
                 .id_user(user.getId_user())
                 .username(user.getUsername())
@@ -127,29 +246,34 @@ public class UserService {
                 .build();
     }
 
-    @CacheEvict(value = "users", key = "#userId") // Xóa cache khi cập nhật avatar
+    // Update avatar
+    @CacheEvict(value = {"users", "usersPage", "usersList", "reviewers"}, allEntries = true)
     public UserResponse saveImage(String url, String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        user.setAvatar(url);
-        return userMapper.toUserResponse(userRepository.save(user));
-    }
-
-    @CacheEvict(value = "users", key = "#id") // Xóa cache khi xóa user
-    public boolean deleteUser(String id) {
-        try {
-            userRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            log.error("Error deleting user: " + e.getMessage());
-            return false;
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
         }
+        user.setAvatar(url);
+        User savedUser = userRepository.save(user);
+        // Update Redis cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+        return userMapper.toUserResponse(savedUser);
     }
 
-    @CacheEvict(value = "users", key = "#idUser") // Xóa cache khi đổi mật khẩu
+    // Change password
+    @CacheEvict(value = {"users", "usersPage", "usersList"}, allEntries = true)
     public void changePassword(String idUser, ChangePasswordRequest request) {
         User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
 
         PasswordEncoder encoder = new BCryptPasswordEncoder(10);
         if (!encoder.matches(request.getOldPassword(), user.getPassword())) {
@@ -157,9 +281,18 @@ public class UserService {
         }
 
         user.setPassword(encoder.encode(request.getNewPassword()));
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        // Update Redis cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
     }
 
+    // Get current user's information
+    @Cacheable(value = "users", key = "#root.methodName + '_' + T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getPrincipal().getClaim('id_user')")
     public UserResponse getMyInfor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
@@ -167,35 +300,44 @@ public class UserService {
         }
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
-        User user = userRepository.findById(jwt.getClaim("id_user"))
+        String userId = jwt.getClaim("id_user");
+        log.info("Fetching current user from DB with ID: {}", userId);
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
         return userMapper.toUserResponse(user);
     }
 
-    @CacheEvict(value = "users", key = "#id") // Xóa cache khi cập nhật username
+    // Update username
+    @CacheEvict(value = {"users", "usersPage", "usersList"}, allEntries = true)
     public UserResponse updateUsername(String id, String username) {
-        User existingUser = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        existingUser.setUsername(username);
-        return userMapper.toUserResponse(userRepository.save(existingUser));
+        if (!user.isActive()) {
+            throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+        }
+        user.setUsername(username);
+        User savedUser = userRepository.save(user);
+        // Update Redis cache
+        String cacheKey = "USER_" + savedUser.getEmail();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+        return userMapper.toUserResponse(savedUser);
     }
 
-    @Cacheable(value = "usersList") // Cache danh sách user
-//    @PostAuthorize("hasAuthority('GET_DATA')")
+    // Get all users (non-paginated)
+    @Cacheable(value = "usersList")
     public List<UserResponse> getUsers() {
+        log.info("Fetching all users from DB...");
         return userRepository.findAll()
                 .stream()
+                .filter(User::isActive)
                 .map(userMapper::toUserResponse)
                 .toList();
     }
-
-    public PageResponse<UserResponse> searchUsers(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<User> userPage = userRepository.searchUsers(keyword, pageable);
-
-        return new PageResponse<>(page, userPage.getTotalPages(), userPage.getTotalElements(),
-                userPage.map(userMapper::toUserResponse).getContent());
-    }
 }
-

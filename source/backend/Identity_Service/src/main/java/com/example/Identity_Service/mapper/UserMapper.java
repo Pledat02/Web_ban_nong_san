@@ -15,12 +15,13 @@ public interface UserMapper {
     @Mapping(target = "id_user", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest rq);
     @Mapping(target = "avatar", source = "avatar", qualifiedByName = "getAvatarUrl")
+    @Mapping(target = "active", source = "active")
     UserResponse toUserResponse(User user);
     @Named("getAvatarUrl")
     default String getAvatarUrl(String avatar) {
         if (avatar == null || avatar.isEmpty()) {
             return null;
         }
-        return "http://localhost:8080/identity" + avatar;
+        return  avatar;
     }
 }

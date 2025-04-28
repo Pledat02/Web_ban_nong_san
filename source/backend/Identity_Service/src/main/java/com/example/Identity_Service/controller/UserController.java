@@ -41,10 +41,11 @@ public class UserController {
         userService.updateEmail(request.getUserId(), request.getEmail());
     }
 
-    @PostMapping("/registration")
-    public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request) throws JsonProcessingException {
+    @PostMapping(value ="/registration",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request,
+                      @RequestPart(value = "file", required = false) MultipartFile file) throws JsonProcessingException {
         return ApiResponse.<UserResponse>builder()
-                .data(userService.createUser(request))
+                .data(userService.createUser(request,file))
                 .build();
     }
     //change password
@@ -94,17 +95,6 @@ public class UserController {
             @RequestPart("file") MultipartFile file) throws AppException {
 
         try {
-            if (file.isEmpty()) {
-                throw new AppException(ErrorCode.INVALID_FILE);
-            }
-
-            if (file.getSize() > 5 * 1024 * 1024) { // Giới hạn 5MB
-                throw new AppException(ErrorCode.FILE_TOO_LARGE);
-            }
-
-            if (!List.of("image/png", "image/jpeg").contains(file.getContentType())) {
-                throw new AppException(ErrorCode.INVALID_FILE_TYPE);
-            }
 
             // Lưu ảnh
             String imagePath = FileUtils.saveImage(file);
@@ -128,13 +118,5 @@ public class UserController {
                .build();
     }
 
-    @GetMapping
-    public ApiResponse<List<UserResponse>> getAllUsers(){
-        var authentication  = SecurityContextHolder.getContext().getAuthentication();
-        log.info("username: "+authentication.getName());
-        log.info("authority: "+authentication.getAuthorities());
-        ApiResponse<List<UserResponse>> respone = new ApiResponse<List<UserResponse>>();
-        respone.setData(userService.getUsers());
-        return respone;
-    }
+
 }

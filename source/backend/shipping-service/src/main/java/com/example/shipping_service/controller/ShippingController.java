@@ -28,10 +28,8 @@ public class ShippingController {
     }
     @PostMapping("/create-order")
     public ApiResponse<ShippingResponse> createOrder(@RequestBody ShippingRequest request) {
-        ShippingResponse response = null;
-            response = shippingService.createShipping(request);
         return ApiResponse.<ShippingResponse>builder()
-               .data(response)
+               .data(shippingService.createShipping(request))
                .build();
     }
     @PostMapping("/fee")

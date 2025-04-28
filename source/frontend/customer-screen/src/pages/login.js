@@ -48,7 +48,7 @@ const Login = () => {
             const userGG = result._tokenResponse;
             const user = {
                 username: userGG.displayName,
-                email: userGG.email,
+                email: result.user.email,
                 phone: result.user.phoneNumber,
                 password:result.user.uid,
                 firstname:userGG.firstName,

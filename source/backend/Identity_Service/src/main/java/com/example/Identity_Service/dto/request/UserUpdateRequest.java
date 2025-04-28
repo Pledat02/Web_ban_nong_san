@@ -25,9 +25,7 @@ public class UserUpdateRequest {
     String username;
     String email;
     String avatar;
-    @Size(min=8, message = "PASSWORD_INVALID")
-    String password;
+
     Set<Role> roles;
-//    @DobValidator(min=3, message = "BIRTHDAY_INVALID")
-    LocalDate birthday;
+
 }

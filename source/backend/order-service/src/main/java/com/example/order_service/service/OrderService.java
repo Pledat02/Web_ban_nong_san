@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,7 +71,7 @@ public class OrderService {
                 // Thêm thông tin cập nhật tồn kho (giảm tồn kho)
                 listUpdations.getItems().add(new ItemUpdateStock(
                         Long.parseLong(itemRequest.getProductCode()),
-                        -itemRequest.getQuantity(), // Giảm số lượng
+                        -itemRequest.getQuantity(),
                         itemRequest.getWeight()));
             }
         }
@@ -91,7 +92,7 @@ public class OrderService {
         for (OrderItem item : order.getOrderItems()) {
             restoreRequest.getItems().add(new ItemUpdateStock(
                     item.getProductCode(),
-                    item.getQuantity(), // Tăng số lượng trở lại
+                    item.getQuantity(),
                     item.getWeight()));
         }
         kafkaTemplate.send("update-stock", restoreRequest);
@@ -212,7 +213,7 @@ public class OrderService {
     }
 
     public PageResponse<OrderResponse> getAllOrders(int page, int size, String query) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("order_date").descending());
 
         Page<Order> orderPage = orderRepository.searchByQuery(pageable, query);
         for (Order order : orderPage) {

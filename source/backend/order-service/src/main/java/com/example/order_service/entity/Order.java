@@ -62,7 +62,7 @@ public class Order {
     double shipping_fee;
     @Column(nullable = false)
     Double value;
-
+    String payment_method;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     List<OrderItem> orderItems = new ArrayList<>();

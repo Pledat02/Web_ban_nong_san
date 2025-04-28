@@ -33,8 +33,7 @@ public class Product {
     String brand;
     String howToUse;
     String howToPreserve;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     Set<WeightProduct> weightProducts;
-
-
+    boolean isActive = true;
 }

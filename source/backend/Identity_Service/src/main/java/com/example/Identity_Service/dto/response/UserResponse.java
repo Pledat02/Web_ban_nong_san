@@ -20,4 +20,5 @@ public class UserResponse implements Serializable {
     String email;
     String avatar;
     Set<RoleResponse> roles;
+    boolean active =true;
 }

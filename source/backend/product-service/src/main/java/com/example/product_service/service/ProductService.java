@@ -88,7 +88,7 @@ public class ProductService {
                 Product p = productOp.get();
                for (WeightProduct o : p.getWeightProducts()){
                    if(o.getWeightType().getValue()==req.getWeight()){
-                       o.setStock(o.getStock() - req.getQuantity());
+                       o.setStock(o.getStock() + req.getQuantity());
                        break;
                    }
                }

@@ -43,7 +43,6 @@ public class ProfileService {
        Optional<Profile> profileOp = profileRepository.findById(idUser);
         if(profileOp.isPresent()){
             Profile profile = profileOp.get();
-            if(profile.getAddress()!=null){
                 Address newAddress = Address.builder()
                         .province(request.getProvince())
                         .district(request.getDistrict())
@@ -51,18 +50,8 @@ public class ProfileService {
                         .hamlet(request.getHamlet())
                         .postalCode(request.getPostalCode())
                         .build();
-                 addressRepository.save(newAddress);
-            }else{
-                Address dataAddress = new Address();
-                dataAddress.setProvince(request.getProvince());
-                dataAddress.setDistrict(request.getDistrict());
-                dataAddress.setWard(request.getWard());
-                dataAddress.setHamlet(request.getHamlet());
-                dataAddress.setPostalCode(request.getPostalCode());
-                profile.setAddress(dataAddress);
+                profile.setAddress(newAddress);
                 profileRepository.save(profile);
-            }
-
         }
 
     }
