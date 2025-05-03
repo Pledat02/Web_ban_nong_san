@@ -143,12 +143,10 @@ public class UserService {
             throw new AppException(ErrorCode.USER_NOT_ACTIVE);
         }
         // Handle avatar upload
-        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
             String avatarUrl = FileUtils.saveImage(part);
-            user.setAvatar(avatarUrl);
-        }
+            request.setAvatar(avatarUrl);
+
         userMapper.updateUser(user, request);
-        log.info("Updated user: {}", user);
         User savedUser = userRepository.save(user);
 
         // Update Redis cache

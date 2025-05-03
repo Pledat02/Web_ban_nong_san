@@ -25,6 +25,7 @@ public class ProductRequest {
     String brand;
     String howToUse;
     String howToPreserve;
+    boolean isActive = true;
     List<WeightTypeRequest> weightTypes;
 
 }

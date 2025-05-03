@@ -9,8 +9,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor

@@ -26,9 +26,20 @@ public class FileUtils {
             Path filePath = uploadPath.resolve(fileName);
             Files.write(filePath, file.getBytes());
 
-            return "/" + fileName;
+            return  fileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
+        }
+    }
+    public static void deleteImage(String filename) {
+        Path imagePath = Paths.get(UPLOAD_DIR, filename);
+        try {
+            if (Files.exists(imagePath)) {
+                Files.delete(imagePath);
+                System.out.println("Deleted old image: " + imagePath);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete old image file: " + filename, e);
         }
     }
 }

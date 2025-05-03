@@ -22,6 +22,6 @@ public interface UserMapper {
         if (avatar == null || avatar.isEmpty()) {
             return null;
         }
-        return  avatar;
+       return "http://localhost:8080/identity" + avatar;
     }
 }

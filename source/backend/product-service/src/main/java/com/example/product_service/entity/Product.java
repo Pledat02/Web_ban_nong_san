@@ -1,9 +1,11 @@
 package com.example.product_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +18,7 @@ import java.util.Set;
 @Builder
 @Entity(name = "Product")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Product {
+public class Product implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id_product;
@@ -33,7 +35,8 @@ public class Product {
     String brand;
     String howToUse;
     String howToPreserve;
-    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     Set<WeightProduct> weightProducts;
     boolean isActive = true;
 }

@@ -19,7 +19,7 @@ public class OrderController {
     OrderService orderService;
     // Get all orders
     @GetMapping("")
-    @CrossOrigin(origins = "http://localhost:3000,null", allowCredentials = "true")
+    @CrossOrigin(origins = "http://localhost:3000,http://localhost:3001,null", allowCredentials = "true")
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size,

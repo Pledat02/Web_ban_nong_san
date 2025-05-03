@@ -19,14 +19,17 @@ import java.util.stream.Collectors;
 public interface ProductMapper {
 
     @Mapping(target = "category", source = "category")
-    @Mapping(target = "active", source = "active")
+    @Mapping(target = "isActive", source = "active")
     @Mapping(target = "weightProducts", expression = "java(toWeightProductResponses(product.getWeightProducts()))")
     ProductResponse toProductResponse(Product product);
 
     @Mapping(target = "weightProducts", ignore = true)
+    @Mapping(target = "isActive", source = "active",defaultValue = "true")
     Product toProduct(ProductRequest productRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id_product", ignore = true)
+    @Mapping(target = "image", ignore = true)
     void updateProduct(@MappingTarget Product product, ProductRequest request);
 
     default List<WeightProductResponse> toWeightProductResponses(Set<WeightProduct> weightProducts) {
