@@ -1,16 +1,20 @@
-import logo from './logo.svg';
+// src/App.js
+import { BrowserRouter as Router } from 'react-router-dom';
+import { UserProvider } from './context/UserContext';
+import AppRoutes from './route/route-config';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import { BrowserRouter as Router } from "react-router-dom";
-import AppRoutes from "./route/route-config";
-import {ToastContainer} from "react-toastify";
 
 function App() {
-  return (
-      <Router>
-        <AppRoutes />
-          <ToastContainer/>
-      </Router>
-  );
+    return (
+        <UserProvider>
+            <Router>
+                <AppRoutes />
+                <ToastContainer />
+            </Router>
+        </UserProvider>
+    );
 }
 
 export default App;

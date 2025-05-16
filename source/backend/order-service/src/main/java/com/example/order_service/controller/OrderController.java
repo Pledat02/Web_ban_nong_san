@@ -10,6 +10,7 @@ import com.example.order_service.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class OrderController {
     OrderService orderService;
     // Get all orders
     @GetMapping("")
+    @PreAuthorize("hasAuthority('MANAGE_ORDER')")
     @CrossOrigin(origins = "http://localhost:3000,http://localhost:3001,null", allowCredentials = "true")
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -30,6 +32,7 @@ public class OrderController {
                 .build();
     }
     // Get order by id
+    @PreAuthorize("hasAuthority('MANAGE_ORDER')")
     @GetMapping("/{id}")
     public ApiResponse<OrderResponse> getOrderById(@PathVariable String id){
         OrderResponse order = orderService.getOrderById(id);
@@ -39,6 +42,7 @@ public class OrderController {
                .build();
     }
     // Get orders by customer id
+    @PreAuthorize("hasAuthority('MANAGE_ORDER')")
     @GetMapping("/user/{userId}")
     public ApiResponse<PageResponse<OrderResponse>> getOrdersByUserId(
             @PathVariable String userId,
@@ -64,6 +68,7 @@ public class OrderController {
 
     // Create order
     @PostMapping
+    @PreAuthorize("hasAuthority('MANAGE_ORDER')")
     public ApiResponse<OrderResponse> createOrder(
                                                   @RequestBody OrderRequest orderRequest){
         OrderResponse order = orderService.createOrder(orderRequest);
@@ -74,6 +79,7 @@ public class OrderController {
     }
 
     // Delete order
+    @PreAuthorize("hasAuthority('MANAGE_ORDER')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteOrder(@PathVariable String id){
         orderService.deleteOrder(id);

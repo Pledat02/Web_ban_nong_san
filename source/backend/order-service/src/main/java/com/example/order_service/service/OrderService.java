@@ -49,15 +49,12 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        // Map OrderRequest -> Order
         Order order = orderMapper.toOrder(request);
-
         // Kiểm tra hàng hóa đã hết hàng
         List<String> outOfStockProducts = productClientHttp.isStock(request.getOrderItems()).getData();
         if (!outOfStockProducts.isEmpty()) {
             throw new AppException(ErrorCode.OUT_OF_STOCK, String.join(", ", outOfStockProducts));
         }
-
         // Tạo danh sách cập nhật tồn kho
         UpdateStockRequest listUpdations = new UpdateStockRequest(new ArrayList<>());
         List<OrderItem> orderItems = new ArrayList<>();
@@ -65,9 +62,8 @@ public class OrderService {
         if (request.getOrderItems() != null) {
             for (OrderItemRequest itemRequest : request.getOrderItems()) {
                 OrderItem orderItem = orderItemMapper.toOrderItem(itemRequest);
-                orderItem.setOrder(order); // Gán Order đã tạo vào OrderItem
+                orderItem.setOrder(order);
                 orderItems.add(orderItem);
-
                 // Thêm thông tin cập nhật tồn kho (giảm tồn kho)
                 listUpdations.getItems().add(new ItemUpdateStock(
                         Long.parseLong(itemRequest.getProductCode()),
@@ -76,13 +72,10 @@ public class OrderService {
             }
         }
         order.setOrderItems(orderItems);
-
         // Lưu Order vào database
         order = orderRepository.save(order);
-
         // Gửi danh sách cập nhật tồn kho đến Kafka
         kafkaTemplate.send("update-stock", listUpdations);
-
         return orderMapper.toOrderResponse(order);
     }
 

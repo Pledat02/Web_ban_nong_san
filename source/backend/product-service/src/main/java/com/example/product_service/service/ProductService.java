@@ -64,7 +64,7 @@ public class ProductService {
     public PageResponse<ProductResponse> getProductsByCategoryForUser(long categoryId, int page, int size) {
         Specification<Product> spec = (root, query, cb) -> cb.and(
                 cb.equal(root.get("category").get("id"), categoryId),
-                cb.isTrue(root.get("active"))
+                cb.isTrue(root.get("isActive"))
         );
         Page<Product> productPage = productRepository.findAll(spec, PageRequest.of(page - 1, size));
         return getListProductResponses(productPage, page);

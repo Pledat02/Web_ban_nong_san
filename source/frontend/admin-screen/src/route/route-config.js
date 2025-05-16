@@ -1,31 +1,72 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Dashboard from "../pages/Dashboard";
-import Orders from "../pages/Orders";
-import Products from "../pages/products";
-import User from "../pages/users";
-import Roles from "../pages/roles";
-import MainLayout from "../layout/main-layout";
-import Profile from "../pages/profile";
+// src/route/route-config.js
+import { Routes, Route } from 'react-router-dom';
+import Dashboard from '../pages/Dashboard';
+import Orders from '../pages/Orders';
+import Products from '../pages/products';
+import User from '../pages/users';
+import Roles from '../pages/roles';
+import MainLayout from '../layout/main-layout';
+import Profile from '../pages/profile';
+import LoginPage from '../pages/login';
+import ProtectedRoute from '../utils/ProtectedRoute';
 
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Các route có Header và Footer */}
-            <Route path="/" element={<MainLayout/> }>
-                <Route index element={<Dashboard/>} />
-                <Route path="orders-management" element={<Orders/>} />
-                <Route path="products-management" element={<Products/>} />
-                <Route path="users-management" element={<User/>} />
-                <Route path="roles-management" element={<Roles/>} />
-                <Route path="profile-management" element={<Profile/>} />
-                {/*<Route path="product-detail/:id" element={<ProductDetail/>} />*/}
-                {/*<Route path="login" element={<Login />} />*/}
-                {/*<Route path="profile" element={<MyProfile/>} />*/}
+            <Route path="/" element={<MainLayout />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/orders-management"
+                    element={
+                        <ProtectedRoute>
+                            <Orders />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/products-management"
+                    element={
+                        <ProtectedRoute>
+                            <Products />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/users-management"
+                    element={
+                        <ProtectedRoute>
+                            <User />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/roles-management"
+                    element={
+                        <ProtectedRoute>
+                            <Roles />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile-management"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route index element={<LoginPage />} /> {/* Trang mặc định */}
             </Route>
-            {/* Route không cần Header/Footer */}
-            {/*<Route path="*" element={<NotFound/>} />*/}
         </Routes>
     );
 };
+
 export default AppRoutes;

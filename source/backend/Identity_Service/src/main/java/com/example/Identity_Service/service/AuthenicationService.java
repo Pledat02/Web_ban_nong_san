@@ -73,6 +73,7 @@ public class AuthenicationService {
             log.info("User: " + user.toString());
         } catch (Exception e) {
             //         Nếu không có trong Redis, lấy từ DB
+            log.info(userRepository.findByEmail(request.getEmail()).toString());
             user= userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         }
@@ -255,14 +256,20 @@ public class AuthenicationService {
 
     private String getScopeClaim(Set<Role> roles){
         StringJoiner stringJoiner = new StringJoiner(" ");
+        if(roles==null)
+            return stringJoiner.toString();
         if (!roles.isEmpty()){
             for(Role role : roles){
-                log.info("ROLE_"+role.getName());
-                stringJoiner.add("ROLE_"+role.getName());
-                if(!role.getPermissions().isEmpty()){
-                    stringJoiner.add(role.getPermissions().stream()
-                           .map(p -> p.getName())
-                           .collect(Collectors.joining(" ")));
+                if (role.isActive()) {
+                    log.info("ROLE_" + role.getName());
+                    stringJoiner.add("ROLE_" + role.getName());
+                    if (!role.getPermissions().isEmpty()) {
+                        stringJoiner.add(role.getPermissions().stream()
+                                .map(p -> p.getName())
+                                .collect(Collectors.joining(" ")));
+                    }
+                } else {
+                    log.info("Skipping inactive role: " + role.getName());
                 }
             }
         }

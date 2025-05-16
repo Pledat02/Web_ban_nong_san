@@ -24,15 +24,15 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    private final String[] PUBLIC_ENDPOINTS = {"/,**/categories,/images/**"};
+    private final String[] Authenticated_ENDPOINTS = {"/admin/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 //        httpSecurity.cors(AbstractHttpConfigurer::disable);
         httpSecurity.authorizeHttpRequests(rq -> rq
-                .requestMatchers(HttpMethod.GET).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers(Authenticated_ENDPOINTS).authenticated()
+                .anyRequest().permitAll()
         );
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

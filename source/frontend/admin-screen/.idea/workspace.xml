@@ -5,48 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/configuration/RedisConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/AdminProductController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ProductModal.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/service/category-service.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/service/product-service.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/service/weightType-service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/UserLoginMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/entity/UserLoginMethod.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/mapper/UserMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/dto/request/UserUpdateRequest$UserUpdateRequestBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/dto/request/UserUpdateRequest$UserUpdateRequestBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/dto/request/UserUpdateRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/dto/request/UserUpdateRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User$UserBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User$UserBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/entity/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/mapper/UserMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/mapper/UserMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/mapper/UserMapperImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/mapper/UserMapperImpl.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/auth/Divider.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/auth/FormInput.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/auth/SocialLoginButton.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/context/UserContext.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/pages/login.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/service/auth-service.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/ProtectedRoute.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/configuration/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/AdminUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/AdminUserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/PermissionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/PermissionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/RoleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/controller/RoleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/generated-sources/annotations/com/example/Identity_Service/mapper/UserMapperImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/configuration/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/ApiResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/ApiResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/configuration/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/configuration/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/FileUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/FileUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/request/ProductRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/request/ProductRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ApiResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ApiResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/CategoryResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/CategoryResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/PageResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/PageResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ProductResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ProductResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ReviewResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/ReviewResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/WeightProductResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/WeightProductResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/WeightTypeResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/dto/response/WeightTypeResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/entity/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/entity/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/entity/WeightProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/entity/WeightProduct.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/mapper/ProductMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/mapper/WeightTypeMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/mapper/WeightTypeMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/service/ProductService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/AdminProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/product-service/src/main/java/com/example/product_service/controller/AdminProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/AdminProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/AdminProfileController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/products.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Sidebar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/route/route-config.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/route/route-config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +47,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
   </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -98,6 +86,7 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\MSI DAT\IdeaProjects\Web_ban_nong_san\source\frontend\admin-screen\src" />
       <recent name="C:\Users\MSI DAT\IdeaProjects\Web_ban_nong_san\source\frontend\admin-screen\src\service" />
+      <recent name="C:\Users\MSI DAT\IdeaProjects\Web_ban_nong_san\source\frontend\admin-screen\src\components" />
     </key>
   </component>
   <component name="RunManager" selected="npm.npm start">
@@ -179,6 +168,11 @@
       <workItem from="1746188108806" duration="7585000" />
       <workItem from="1746275405581" duration="9000" />
       <workItem from="1746276653424" duration="9000" />
+      <workItem from="1746343876048" duration="2732000" />
+      <workItem from="1746346954252" duration="11000" />
+      <workItem from="1746364528142" duration="452000" />
+      <workItem from="1746366879222" duration="2893000" />
+      <workItem from="1746410516503" duration="597000" />
     </task>
     <servers />
   </component>

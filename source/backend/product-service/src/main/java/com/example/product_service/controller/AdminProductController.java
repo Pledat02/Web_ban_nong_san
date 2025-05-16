@@ -21,6 +21,7 @@ import org.apache.coyote.Request;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/admin")
+@PreAuthorize("hasAuthority('MANAGE_PRODUCT')")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminProductController {
      ProductService productService;
