@@ -8,19 +8,19 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
         <div className="bg-white p-6 rounded-lg shadow-sm sticky top-4">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5" />
-                Order Summary
+                Tóm tắt đơn hàng
             </h2>
 
             <div className="space-y-4">
                 {cart.length === 0 ? (
-                    <p>Your cart is empty.</p>
+                    <p>Giỏ hàng của bạn đang trống.</p>
                 ) : (
                     <>
                         {cart.map((item) => (
                             <div key={item.id} className="flex justify-between items-center py-2 border-b">
                                 <div>
                                     <p className="font-medium">{item.name}</p>
-                                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                                    <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
                                 </div>
                                 <p className="font-medium">
                                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.quantity)}
@@ -30,18 +30,18 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
 
                         <div className="space-y-2 pt-4">
                             <div className="flex justify-between text-sm">
-                                <span>Subtotal</span>
+                                <span>Tạm tính</span>
                                 <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}</span>
                             </div>
                             <div className="flex justify-between text-sm items-center">
                                 <span className="flex items-center gap-1">
                                     <Truck className="w-4 h-4" />
-                                    Shipping Fee
+                                    Phí vận chuyển
                                 </span>
                                 {loading ? (
                                     <div className="flex items-center gap-2">
                                         <Loader2 className="w-4 h-4 animate-spin text-green-500" />
-                                        <span className="text-sm text-gray-500">Calculating...</span>
+                                        <span className="text-sm text-gray-500">Đang tính toán...</span>
                                     </div>
                                 ) : (
                                     <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(shippingFee)}</span>
@@ -49,7 +49,7 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
                             </div>
                             <div className="border-t pt-2 mt-2">
                                 <div className="flex justify-between font-semibold text-lg">
-                                    <span>Total</span>
+                                    <span>Tổng cộng</span>
                                     <span className="text-green-600">
                                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total)}
                                     </span>
@@ -61,7 +61,7 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
 
                 <textarea
                     name="notes"
-                    placeholder="Order notes (optional)"
+                    placeholder="Ghi chú đơn hàng (không bắt buộc)"
                     value={formData.notes}
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-300 rounded-md mt-4"
@@ -76,10 +76,10 @@ const OrderSummary = ({ cart, subtotal, shippingFee, loading, formData, handleCh
                     {loading ? (
                         <div className="flex items-center justify-center gap-2">
                             <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Calculating shipping fee...</span>
+                            <span>Đang tính phí vận chuyển...</span>
                         </div>
                     ) : (
-                        'Confirm Order'
+                        'Xác nhận đơn hàng'
                     )}
                 </button>
             </div>

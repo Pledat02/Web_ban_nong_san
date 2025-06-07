@@ -27,6 +27,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             return;
         }
         const success = await NotificationService.verifyForgotPasswordOtp(email, otp);
+
         if (success) {
             setStep('password');
         }
@@ -41,7 +42,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             toast.error('Mật khẩu xác nhận không khớp!');
             return;
         }
-        const success = await NotificationService.updatePassword(newPassword, otp);
+        const success = await NotificationService.updatePassword(otp,email, newPassword );
         if (success) {
             onClose();
             setStep('email');

@@ -22,6 +22,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +42,7 @@ public class UserController {
         userService.updateEmail(request.getUserId(), request.getEmail());
     }
 
-    @PostMapping(value ="/registration",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value ="/registration")
     public ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request,
                       @RequestPart(value = "file", required = false) MultipartFile file) throws JsonProcessingException {
         return ApiResponse.<UserResponse>builder()
@@ -78,6 +79,7 @@ public class UserController {
     }
 
     @GetMapping("my-info")
+    @PreAuthorize("isAuthenticated()")
     public  ApiResponse<UserResponse> getMe(){
         UserResponse user =  userService.getMyInfor();
         if(user == null) throw new RuntimeException("User not found");

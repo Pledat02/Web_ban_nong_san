@@ -27,8 +27,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminUserController {
     UserService userService;
 
-    // Get all users with pagination and keyword search
+    // Get all users with pagination and keyword search (requires READ_USER)
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_USER')")
     public ApiResponse<PageResponse<UserResponse>> getAllUsers(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -41,8 +42,9 @@ public class AdminUserController {
                 .build();
     }
 
-    // Update user by ID
+    // Update user by ID (requires WRITE_USER)
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PreAuthorize("hasAuthority('WRITE_USER')")
     public ApiResponse<Void> updateUserByAdmin(
             @PathVariable String id,
             @Valid @RequestPart("user") UserUpdateRequest request,
@@ -51,15 +53,17 @@ public class AdminUserController {
         return ApiResponse.<Void>builder().build();
     }
 
-    // Delete user by ID
+    // Delete user by ID (requires DELETE_USER)
     @PatchMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public ApiResponse<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ApiResponse.<Void>builder().build();
     }
 
-    // Restore deleted user by ID
+    // Restore deleted user by ID (requires DELETE_USER)
     @PatchMapping("/restore/{id}")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public ApiResponse<Void> restoreUser(@PathVariable String id) {
         userService.restoreUser(id);
         return ApiResponse.<Void>builder()
@@ -67,16 +71,18 @@ public class AdminUserController {
                 .build();
     }
 
-    // Get user by ID
+    // Get user by ID (requires READ_USER)
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_USER')")
     public ApiResponse<UserResponse> getUser(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.getUserById(id))
                 .build();
     }
 
-    // Create a new user
+    // Create a new user (requires WRITE_USER)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('WRITE_USER')")
     public ApiResponse<UserResponse> createUser(
             @Valid @RequestPart("user") UserCreationRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file) throws JsonProcessingException {

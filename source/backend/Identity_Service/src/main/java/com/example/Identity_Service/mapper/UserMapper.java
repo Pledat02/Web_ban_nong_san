@@ -11,6 +11,7 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    @Mapping(target = "isActive", source = "active")
     User ToUser(UserCreationRequest user);
     @Mapping(target = "id_user", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest rq);

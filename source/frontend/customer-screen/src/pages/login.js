@@ -46,6 +46,10 @@ const Login = () => {
             const result = await signInWithPopup(auth,googleProvider);
             console.log(result)
             const userGG = result._tokenResponse;
+            if(result.user.email ===null){
+                toast.info("Tài khoản chưa xác thực email")
+                return
+            }
             const user = {
                 username: userGG.displayName,
                 email: result.user.email,
@@ -78,7 +82,10 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         try {
             const result = await signInWithPopup(auth,facebookProvider);
-            console.log(result)
+            if(result.user.email ===null){
+                toast.info("Tài khoản chưa xác thực email")
+                return
+            }
             const userFB = result._tokenResponse;
             const user = {
                 username: userFB.displayName,

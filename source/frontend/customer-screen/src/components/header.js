@@ -3,7 +3,7 @@ import { FaSearch, FaShoppingBag, FaBars } from "react-icons/fa";
 import {Link, useNavigate} from "react-router-dom"; // Import useNavigate
 import DropdownAccount from "../list/dropdown-account";
 import {useCart} from "../context/cart-context";
-
+import logo from "../images/logo/agri-fresh-logo.png"
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
@@ -30,12 +30,12 @@ const Header = () => {
     // Xử lý tìm kiếm
     const handleSearch = () => {
         if (searchTerm.trim() !== "") {
-            navigate(`/search?query=${searchTerm}`); // Điều hướng sang trang search
+            navigate(`/search?query=${searchTerm}`);
         }
     };
     const clearSearch = () => {
-        setSearchTerm(""); // Xóa nội dung ô input
-        navigate("/search"); // Điều hướng về trang tìm kiếm trống (hoặc "/" nếu muốn về trang chủ)
+        setSearchTerm("");
+        navigate("/search");
     };
 
     return (
@@ -44,7 +44,7 @@ const Header = () => {
     ${showHeader ? "translate-y-0" : "-translate-y-full absolute"}`}
         >
             <div className="bg-green-600 text-white flex justify-between items-center px-8 py-2 text-sm">
-                <div>Chuyên cung cấp thực phẩm sạch | Halona Fruits</div>
+                <div>Chuyên cung cấp thực phẩm sạch | AGRI FRESH</div>
                 <div className="hidden md:flex space-x-4">
                     <DropdownAccount />
                     <a onClick={ ()=> navigate("/checkout")} className="hover:underline">Thanh toán</a>
@@ -64,12 +64,12 @@ const Header = () => {
                     onClick={()=>navigate("/")}
                     >
                         <img
-                            src="https://nongsan4.vnwordpress.net/wp-content/uploads/2019/07/halonalogo.png"
-                            alt="Halona Fruits"
+                            src={logo}
+                            alt="AGRI FRESH"
                             className="h-12"
                         />
-                        <span className="text-green-700 text-xl font-bold">
-                            Halona <span className="text-red-500">Fruits</span>
+                        <span className="text-amber-700 text-xl font-bold">
+                            AGRI <span className="text-green-700">FRESH</span>
                         </span>
                     </div>
 
@@ -107,7 +107,7 @@ const Header = () => {
 
                     <nav className="hidden md:flex space-x-6 text-gray-700 font-medium">
                         <Link to="/" className="hover:text-green-600 transition">Trang chủ</Link>
-                        <Link to="/search" className="hover:text-green-600 transition">Cửa hàng #Halona</Link>
+                        <Link to="/search" className="hover:text-green-600 transition">Cửa hàng</Link>
                         <Link to="/cart" className="hover:text-green-600 transition">Giỏ hàng</Link>
                         <Link to="/" className="hover:text-green-600 transition">Giới thiệu</Link>
                         <Link to="/" className="hover:text-green-600 transition">Liên hệ</Link>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { OrderList } from "../list/order-list";
+import OrderList from "../list/order-list";
 import {Loader2, Search} from "lucide-react";
 import OrderService from "../services/order-service";
 

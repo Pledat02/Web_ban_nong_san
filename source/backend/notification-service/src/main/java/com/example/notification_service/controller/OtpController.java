@@ -17,15 +17,15 @@ public class OtpController {
     OtpService otpService;
 
     @PostMapping("/send-confirm-phone-otp")
-    public ApiResponse<Void> sendConfirmPhoneOtp(@RequestBody OtpRequest request) {
+    public ApiResponse<String> sendConfirmPhoneOtp(@RequestBody OtpRequest request) {
         try {
             otpService.sendPhoneOtp(request);
-            return ApiResponse.<Void>builder()
+            return ApiResponse.<String>builder()
                     .message("Mã OTP đã được gửi thành công")
                     .code(1000)  // Thành công
                     .build();
         } catch (Exception e) {
-            return ApiResponse.<Void>builder()
+            return ApiResponse.<String>builder()
                     .message("Gửi mã OTP thất bại: " + e.getMessage())
                     .code(5000)  // Lỗi server
                     .build();
@@ -49,15 +49,14 @@ public class OtpController {
     }
 
     @PostMapping("/send-confirm-email-otp")
-    public ApiResponse<Void> sendConfirmEmailOtp(@RequestBody OtpRequest email) {
+    public ApiResponse<String> sendConfirmEmailOtp(@RequestBody OtpRequest email) {
         try {
             otpService.sendOtpMail(email);
-            return ApiResponse.<Void>builder()
-                    .message("Mã OTP qua email đã được gửi thành công")
+            return ApiResponse.<String>builder()
                     .code(1000)
                     .build();
         } catch (Exception e) {
-            return ApiResponse.<Void>builder()
+            return ApiResponse.<String>builder()
                     .message("Gửi OTP qua email thất bại: " + e.getMessage())
                     .code(5002)
                     .build();
@@ -65,15 +64,16 @@ public class OtpController {
     }
 
     @PostMapping("/send-forgot-password-email-otp")
-    public ApiResponse<Void> sendForgotPasswordEmailOtp(@RequestBody OtpRequest email) {
+    public ApiResponse<String> sendForgotPasswordEmailOtp(@RequestBody OtpRequest email) {
         try {
-            otpService.sendForgotPasswordMail(email);
-            return ApiResponse.<Void>builder()
+
+            return ApiResponse.<String>builder()
                     .message("Mã OTP đặt lại mật khẩu đã được gửi thành công")
+                    .data(otpService.sendForgotPasswordMail(email))
                     .code(1000)
                     .build();
         } catch (Exception e) {
-            return ApiResponse.<Void>builder()
+            return ApiResponse.<String>builder()
                     .message("Gửi OTP quên mật khẩu thất bại: " + e.getMessage())
                     .code(5004)
                     .build();
@@ -83,9 +83,8 @@ public class OtpController {
     @PostMapping("/verify-confirm-email-otp/{userId}")
     public ApiResponse<String> verifyConfirmEmailOtp(@PathVariable String userId, @RequestBody OtpVerificationRequest request) {
         try {
-            String isVerified = otpService.verifyEmailOtp(request, userId);
             return ApiResponse.<String>builder()
-                    .data(isVerified)
+                    .data(otpService.verifyEmailOtp(request, userId))
                     .code(1000)
                     .build();
         } catch (Exception e) {
@@ -101,7 +100,6 @@ public class OtpController {
             String result = otpService.updatePassword(request);
             return ApiResponse.<String>builder()
                     .data(result)
-
                     .code(1000)
                     .build();
         } catch (Exception e) {

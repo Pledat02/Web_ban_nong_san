@@ -11,7 +11,6 @@ class RevenueService {
             withCredentials: true, // Giữ session nếu dùng cookie
         });
 
-        // Interceptor để thêm token vào header
         this.api.interceptors.request.use(
             (config) => {
                 const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -22,6 +21,19 @@ class RevenueService {
                 return config;
             },
             (error) => {
+                return Promise.reject(error);
+            }
+        );
+        this.api.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 403) {
+                    toast.error("Bạn không có quyền truy cập tài nguyên này!", {
+                        position: "top-right",
+                    });
+
+                    window.location.href = "/403";
+                }
                 return Promise.reject(error);
             }
         );

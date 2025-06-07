@@ -5,8 +5,8 @@ import AuthService from '../service/auth-service';
 import {toast} from "react-toastify";
 
 function ProtectedRoute({ children }) {
-    const { user } = useUser();
-    if (!user || AuthService.checkExpiredToken(user)) {
+    const user = JSON.parse(localStorage.getItem("user"))
+    if (!user || AuthService.checkExpiredToken(user.token)) {
         toast.warn("Vui lòng đăng nhập !")
         return <Navigate to="/login" replace />;
     }

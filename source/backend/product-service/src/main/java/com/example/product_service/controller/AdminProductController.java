@@ -11,16 +11,12 @@ import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Request;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,52 +27,57 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/admin")
-@PreAuthorize("hasAuthority('MANAGE_PRODUCT')")
+@PreAuthorize("hasRole('MODERATOR')")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminProductController {
-     ProductService productService;
+    ProductService productService;
+
     // Get all products
     @GetMapping
-    @CrossOrigin(origins = "http://localhost:3000,http://localhost:3001,null", allowCredentials = "true")
+    @PreAuthorize("hasAuthority('READ_PRODUCT')")
     public ApiResponse<PageResponse<ProductResponse>> getAllProducts(
             @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size
-    ){
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .data(productService.getAllProducts(page, size))
                 .build();
     }
-    // Get product by id
+
+    // Get product by ID
     @GetMapping("/{id}")
-    public ApiResponse<ProductResponse> getProductById(@PathVariable Long id){
+    @PreAuthorize("hasAuthority('READ_PRODUCT')")
+    public ApiResponse<ProductResponse> getProductById(@PathVariable Long id) {
         ProductResponse product = productService.getProductById(id);
-        if(product == null) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        if (product == null) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         return ApiResponse.<ProductResponse>builder()
-               .data(product)
-               .build();
+                .data(product)
+                .build();
     }
-    // Get products by category id
+
+    // Get products by category ID
     @GetMapping("/category/{categoryId}")
-    public ApiResponse<PageResponse<ProductResponse>>
-    getProductsByCategoryId(@PathVariable Long categoryId,
-                            @RequestParam(required = false, defaultValue = "1") Integer page,
-                            @RequestParam(required = false, defaultValue = "10") Integer size) {
-        PageResponse<ProductResponse> products = productService.getProductsByCategory(categoryId,page,size);
+    @PreAuthorize("hasAuthority('READ_PRODUCT')")
+    public ApiResponse<PageResponse<ProductResponse>> getProductsByCategoryId(
+            @PathVariable Long categoryId,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        PageResponse<ProductResponse> products = productService.getProductsByCategory(categoryId, page, size);
         return ApiResponse.<PageResponse<ProductResponse>>builder()
-               .data(products)
-               .build();
+                .data(products)
+                .build();
     }
-    // create product
+
+    // Create product
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('WRITE_PRODUCT')")
     public ApiResponse<ProductResponse> createProduct(
             @RequestPart("request") @Valid ProductRequest request,
             @RequestPart("file") MultipartFile file) throws AppException {
-
         try {
             String imagePath = FileUtils.saveImage(file);
             request.setImage(imagePath);
 
-            ProductResponse response = productService.createProduct(request,file);
+            ProductResponse response = productService.createProduct(request, file);
 
             return ApiResponse.<ProductResponse>builder()
                     .data(response)
@@ -86,40 +87,27 @@ public class AdminProductController {
         }
     }
 
-    // update product
+    // Update product
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('WRITE_PRODUCT')")
     public ApiResponse<ProductResponse> updateProduct(
             @PathVariable Long id,
             @RequestPart("request") @Valid ProductRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-
         if (file != null) {
             request.setImage(FileUtils.saveImage(file));
         }
-        ProductResponse product = productService.updateProduct(id, request,file);
+        ProductResponse product = productService.updateProduct(id, request, file);
         if (product == null) throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
 
         return ApiResponse.<ProductResponse>builder()
                 .data(product)
                 .build();
     }
-    //update stock
-    @KafkaListener(topics = "update-stock")
-    public void updateStock(@Payload UpdateStockRequest request) {
-        productService.updateStock(request);
-    }
 
-    @PostMapping("/stock/check")
-    public ApiResponse<List<String>> isStock(@RequestBody List<OrderItemRequest> request) {
-        List<String> nameNotStockProducts = productService.checkStock(request);
-        return  ApiResponse.<List<String>>
-                builder()
-                .data(nameNotStockProducts)
-               .build()  ;
-    }
-
-    // delete product
+    // Delete product
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ApiResponse<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ApiResponse.<Void>builder()
@@ -128,7 +116,9 @@ public class AdminProductController {
                 .build();
     }
 
+    // Restore product
     @PostMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ApiResponse<Void> restoreProduct(@PathVariable Long id) {
         productService.restoreProduct(id);
         return ApiResponse.<Void>builder()
@@ -136,29 +126,30 @@ public class AdminProductController {
                 .message("Sản phẩm đã được khôi phục")
                 .build();
     }
+
+    // Search products
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_PRODUCT')")
     public ApiResponse<PageResponse<ProductResponse>> searchProducts(
             @RequestParam String keyword,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size) {
-        PageResponse<ProductResponse> products =
-                productService.searchProducts(keyword, page, size);
-        return ApiResponse.<PageResponse<ProductResponse>>builder()
-                .data(products)
-                .build() ;
-    }
-    // Get products by filter
-    @GetMapping("/filter")
-    public ApiResponse<PageResponse<ProductResponse>> filterProducts(
-            FilterRequest filter,
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size) throws JsonProcessingException {
-        PageResponse<ProductResponse> products =
-                productService.getProductsByFilter(filter,page, size);
+        PageResponse<ProductResponse> products = productService.searchProducts(keyword, page, size);
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .data(products)
                 .build();
     }
 
-
+    // Get products by filter
+    @GetMapping("/filter")
+    @PreAuthorize("hasAuthority('READ_PRODUCT')")
+    public ApiResponse<PageResponse<ProductResponse>> filterProducts(
+            FilterRequest filter,
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) throws JsonProcessingException {
+        PageResponse<ProductResponse> products = productService.getProductsByFilter(filter, page, size);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(products)
+                .build();
+    }
 }

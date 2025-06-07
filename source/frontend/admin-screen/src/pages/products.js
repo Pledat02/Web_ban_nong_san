@@ -17,17 +17,17 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { toast } from 'react-toastify';
 import DataTable from '../components/DataTable';
 import ProductModal from '../components/ProductModal';
-import ProductService from '../service/product-service';
 import categoryService from '../service/category-service';
+import productServiceClass from '../service/product-service';
 import weightTypeService from '../service/weightType-service';
 import Badge from '../ui/badge';
+import {useNavigate} from "react-router-dom";
 
 const CategoryModal = ({ isOpen, onClose, onCategoryCreated }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     if (isOpen) {
       const fetchCategories = async () => {
@@ -264,6 +264,8 @@ const WeightTypeModal = ({ isOpen, onClose, onWeightTypeCreated }) => {
 };
 
 const Products = () => {
+  const navigate = useNavigate();
+  const productService = new productServiceClass(navigate);
   const [pageResponse, setPageResponse] = useState({
     content: [],
     page: 1,
@@ -286,7 +288,8 @@ const Products = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await ProductService.getAllProducts(pageResponse.page, pageResponse.size, searchTerm);
+      const response = await productService.getAllProducts(pageResponse.page, pageResponse.size, searchTerm);
+      console.log(response)
       if (response && typeof response === 'object' && Array.isArray(response.content)) {
         console.log('Fetched products:', response.content);
         setPageResponse({
@@ -306,10 +309,6 @@ const Products = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Lỗi khi tải sản phẩm: ' + (error.response?.data?.message || error.message), {
-        position: 'top-right',
-      });
       setPageResponse({
         content: [],
         page: pageResponse.page,
@@ -341,7 +340,7 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+     fetchProducts();
     fetchCategories();
     fetchWeightTypes();
   }, [pageResponse.page, pageResponse.size, searchTerm]);
@@ -358,7 +357,7 @@ const Products = () => {
         return;
       }
       try {
-        const fetchedProduct = await ProductService.getProductById(product.id_product);
+        const fetchedProduct = await productService.getProductById(product.id_product);
         console.log('Fetched product for modal:', fetchedProduct);
         if (!fetchedProduct || !fetchedProduct.id_product) {
           toast.error('Không thể tải thông tin sản phẩm', { position: 'top-right' });
@@ -398,10 +397,10 @@ const Products = () => {
     try {
       console.log('Saving product:', JSON.stringify(productData, null, 2), 'File:', file);
       if (modalMode === 'add') {
-        await ProductService.createProduct({ productData, file });
+        await productService.createProduct({ productData, file });
         toast.success('Tạo sản phẩm thành công', { position: 'top-right' });
       } else if (modalMode === 'edit') {
-        await ProductService.updateProduct(selectedProduct.id_product, { productData, file });
+        await productService.updateProduct(selectedProduct.id_product, { productData, file });
         toast.success('Cập nhật sản phẩm thành công', { position: 'top-right' });
       }
       await fetchProducts();
@@ -428,7 +427,7 @@ const Products = () => {
     }
     setLoading(true);
     try {
-      await ProductService.deleteProduct(selectedProduct.id_product);
+      await productService.deleteProduct(selectedProduct.id_product);
       toast.success('Xóa sản phẩm thành công', { position: 'top-right' });
       await fetchProducts();
       setIsDeleteModalOpen(false);
@@ -450,7 +449,7 @@ const Products = () => {
     }
     setLoading(true);
     try {
-      await ProductService.restoreProduct(product.id_product);
+      await productService.restoreProduct(product.id_product);
       toast.success('Khôi phục sản phẩm thành công', { position: 'top-right' });
       await fetchProducts();
     } catch (error) {

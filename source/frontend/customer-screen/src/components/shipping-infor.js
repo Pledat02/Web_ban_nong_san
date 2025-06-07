@@ -16,11 +16,11 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
         <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                Shipping Information
+                Thông tin giao hàng
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Họ</label>
                     <input
                         type="text"
                         readOnly
@@ -32,7 +32,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên</label>
                     <input
                         type="text"
                         readOnly
@@ -56,7 +56,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
                     <input
                         type="text"
                         readOnly
@@ -68,7 +68,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Province/City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố</label>
                     <input
                         type="text"
                         readOnly
@@ -80,7 +80,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện</label>
                     <input
                         type="text"
                         readOnly
@@ -92,7 +92,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ward</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phường/Xã</label>
                     <input
                         type="text"
                         readOnly
@@ -104,7 +104,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mã bưu điện</label>
                     <input
                         type="text"
                         readOnly
@@ -115,7 +115,7 @@ const ShippingInformation = ({ formData, handleChange, isLoading }) => {
                     />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Detailed Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ chi tiết</label>
                     <input
                         type="text"
                         readOnly

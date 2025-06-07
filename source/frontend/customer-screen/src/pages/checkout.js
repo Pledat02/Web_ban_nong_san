@@ -55,21 +55,21 @@ const Checkout = () => {
                     }));
 
                     const missingFields = [];
-                    if (!profile.firstName) missingFields.push("First Name");
-                    if (!profile.lastName) missingFields.push("Last Name");
-                    if (!profile.phone) missingFields.push("Phone Number");
+                    if (!profile.firstName) missingFields.push("Họ");
+                    if (!profile.lastName) missingFields.push("Tên");
+                    if (!profile.phone) missingFields.push("Số điện thoại");
                     if (!profile.email) missingFields.push("Email");
-                    if (!profile.address?.province) missingFields.push("Province/City");
-                    if (!profile.address?.district) missingFields.push("District");
-                    if (!profile.address?.ward) missingFields.push("Ward");
+                    if (!profile.address?.province) missingFields.push("Tỉnh/Thành phố");
+                    if (!profile.address?.district) missingFields.push("Quận/Huyện");
+                    if (!profile.address?.ward) missingFields.push("Phường/Xã");
 
                     if (missingFields.length > 0) {
-                        toast.warning(`Please update your profile with the following information: ${missingFields.join(", ")}`);
+                        toast.warning(`Vui lòng cập nhật hồ sơ với các thông tin sau: ${missingFields.join(", ")}`);
                     }
                 }
             } catch (error) {
-                console.error("Error loading profile:", error);
-                toast.error("Could not load profile information. Please try again later.");
+                console.error("Lỗi khi tải thông tin hồ sơ:", error);
+                toast.error("Không thể tải thông tin hồ sơ. Vui lòng thử lại sau.");
             } finally {
                 setProfileLoading(false);
             }
@@ -95,8 +95,8 @@ const Checkout = () => {
                 const fee = await ShippingService.getShippingFee(shippingData);
                 setShippingFee(fee);
             } catch (error) {
-                console.error("Error calculating shipping fee:", error);
-                toast.error("Could not calculate shipping fee. Please try again later.");
+                console.error("Lỗi khi tính phí vận chuyển:", error);
+                toast.error("Không thể tính phí vận chuyển. Vui lòng thử lại sau.");
             } finally {
                 setLoading(false);
             }
@@ -130,15 +130,15 @@ const Checkout = () => {
                 hamlet: formData.hamlet || "",
                 tel: formData.phone,
                 address: `${formData.hamlet}, ${formData.ward}, ${formData.district}, ${formData.province}`,
-                pick_money: formData.paymentMethod === 'cod' ? getTotalPrice() + shippingFee: 0,
+                pick_money: formData.paymentMethod === 'cod' ? getTotalPrice() + shippingFee : 0,
                 note: formData.notes || "",
                 is_freeship: 0,
                 payment_method: formData.paymentMethod,
-                totalPrice:  getTotalPrice(),
+                totalPrice: getTotalPrice(),
                 value: getTotalPrice() + shippingFee,
                 shipping_fee: shippingFee,
                 orderItems: cart.map((item) => ({
-                    name: item.name ?? "unknown",
+                    name: item.name ?? "không xác định",
                     price: item.price,
                     weight: item.weight.weightType.value,
                     quantity: item.quantity,
@@ -151,15 +151,15 @@ const Checkout = () => {
                 localStorage.setItem("order", JSON.stringify(orderData));
                 window.location.href = await PaymentService.CreatePaymentVNPay(getTotalPrice() + shippingFee);
             } else {
-                toast.info("Đơn hàng đang được xử lí!", {position: "top-right"});
+                toast.info("Đơn hàng đang được xử lý!", { position: "top-right" });
                 await OrderService.createOrder(orderData);
-                toast.success("Đặt hàng thành công!", {position: "top-right"});
+                toast.success("Đặt hàng thành công!", { position: "top-right" });
                 clearCart();
                 navigate("/");
             }
         } catch (error) {
-            console.error("Error creating payment:", error);
-            toast.error("An error occurred while processing your order. Please try again.");
+            console.error("Lỗi khi tạo thanh toán:", error);
+            toast.error("Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại.");
         }
     };
 
@@ -170,7 +170,7 @@ const Checkout = () => {
             <div className="max-w-7xl mx-auto px-4">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
                     <ShoppingCart className="w-8 h-8" />
-                    Checkout
+                    Thanh toán
                 </h1>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">

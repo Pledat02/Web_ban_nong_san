@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import { Phone, Mail, X, Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag, AlertCircle } from 'lucide-react';
-import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/status'; // Thêm getStatusIcon
+import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/status';
 import OrderService from '../services/order-service';
 
+// Reusable Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            role="dialog"
+            aria-modal="true"
+        >
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
                 <button
                     onClick={onClose}
                     className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+                    aria-label="Đóng"
                 >
                     <X size={20} />
                 </button>
@@ -21,28 +27,32 @@ const Modal = ({ isOpen, onClose, children }) => {
     );
 };
 
-export const OrderList = ({ orders, onOrderUpdate }) => {
+// OrderList Component
+const OrderList = ({ orders, onOrderUpdate }) => {
     const [expandedOrder, setExpandedOrder] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [returnReason, setReturnReason] = useState('');
     const [selectedOrderId, setSelectedOrderId] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showContactModal, setShowContactModal] = useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
+    // Toggle order expansion
     const toggleOrder = (orderId) => {
         setExpandedOrder(expandedOrder === orderId ? null : orderId);
     };
 
+    // Open cancel confirmation modal
     const openCancelModal = (orderId) => {
         setSelectedOrderId(orderId);
-        setIsModalOpen(true);
+        setIsCancelModalOpen(true);
     };
 
+    // Close cancel confirmation modal
     const closeCancelModal = () => {
-        setIsModalOpen(false);
+        setIsCancelModalOpen(false);
         setSelectedOrderId(null);
     };
 
+    // Handle order cancellation
     const handleCancelOrder = async () => {
         if (!selectedOrderId) return;
 
@@ -50,31 +60,18 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
             setLoading(true);
             await OrderService.cancelOrder(selectedOrderId);
             onOrderUpdate();
+            closeCancelModal();
         } catch (error) {
-            console.error("Error canceling order:", error);
+            console.error('Error canceling order:', error);
+            alert('Không thể hủy đơn hàng. Vui lòng thử lại sau.');
         } finally {
             setLoading(false);
-            closeCancelModal();
         }
     };
 
-    const handleRequestReturn = async (orderId) => {
-        if (!returnReason.trim()) {
-            alert('Vui lòng nhập lý do trả hàng');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            await OrderService.requestReturn(orderId, returnReason);
-            setReturnReason('');
-            onOrderUpdate();
-            setShowContactModal(true);
-        } catch (error) {
-            console.error('Error requesting return:', error);
-        } finally {
-            setLoading(false);
-        }
+    // Open admin contact modal for return request
+    const openContactModal = () => {
+        setIsContactModalOpen(true);
     };
 
     return (
@@ -102,14 +99,12 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                                     {/* Order Details */}
                                     <div className="flex-grow">
                                         <div className="flex items-center justify-between mb-1">
-                                            <h3 className="text-m font-semibold text-green-700">
-                                                Đơn hàng #{order.id}
-                                            </h3>
+                                            <h3 className="text-m font-semibold text-green-700">Đơn hàng #{order.id}</h3>
                                             <div className="flex items-center gap-2">
-                                                {getStatusIcon(order.status)} {/* Thêm icon trạng thái */}
+                                                {getStatusIcon(order.status)}
                                                 <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${bgStatus} ${textStatus}`}>
-                                                    {getStatusLabel(order.status)}
-                                                </span>
+                          {getStatusLabel(order.status)}
+                        </span>
                                             </div>
                                         </div>
 
@@ -136,7 +131,7 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                                             <p className="text-m text-green-700 font-medium">
                                                 {new Intl.NumberFormat('vi-VN', {
                                                     style: 'currency',
-                                                    currency: 'VND'
+                                                    currency: 'VND',
                                                 }).format(order.total)}
                                             </p>
                                         </div>
@@ -176,7 +171,7 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                                                     <p className="text-m text-green-700 font-medium">
                                                         {new Intl.NumberFormat('vi-VN', {
                                                             style: 'currency',
-                                                            currency: 'VND'
+                                                            currency: 'VND',
                                                         }).format(product.price)}
                                                     </p>
                                                     <p className="text-sm text-gray-500">đơn giá</p>
@@ -198,27 +193,35 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                                         )}
 
                                         {canReturnOrder(order.status) && (
-                                            <div className="space-y-2">
-                                                <textarea
-                                                    value={returnReason}
-                                                    onChange={(e) => setReturnReason(e.target.value)}
-                                                    placeholder="Lý do trả hàng..."
-                                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                                    rows="3"
-                                                />
-                                                <button
-                                                    onClick={() => handleRequestReturn(order.id)}
-                                                    disabled={loading || !returnReason.trim()}
-                                                    className="w-full py-2 px-4 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
-                                                >
-                                                    Yêu cầu trả hàng
-                                                </button>
-                                            </div>
+                                            <button
+                                                onClick={openContactModal}
+                                                disabled={loading}
+                                                className="w-full py-2 px-4 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
+                                            >
+                                                Yêu cầu trả hàng
+                                            </button>
                                         )}
 
                                         {loading && (
                                             <div className="flex items-center justify-center text-gray-600">
-                                                <AlertCircle className="w-4 h-4 mr-2" />
+                                                <svg
+                                                    className="animate-spin h-5 w-5 mr-2 text-green-600"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                    />
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                                    />
+                                                </svg>
                                                 Đang xử lý...
                                             </div>
                                         )}
@@ -231,11 +234,9 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
             })}
 
             {/* Cancel Confirmation Modal */}
-            <Modal isOpen={isModalOpen} onClose={closeCancelModal}>
+            <Modal isOpen={isCancelModalOpen} onClose={closeCancelModal}>
                 <h2 className="text-2xl font-bold mb-4">Xác nhận hủy đơn hàng</h2>
-                <p className="text-gray-600 mb-6">
-                    Bạn có chắc muốn hủy đơn hàng này không?
-                </p>
+                <p className="text-gray-600 mb-6">Bạn có chắc muốn hủy đơn hàng này không?</p>
                 <div className="flex gap-4 justify-end">
                     <button
                         onClick={closeCancelModal}
@@ -252,9 +253,10 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                 </div>
             </Modal>
 
-            {/* Contact Information Modal */}
-            <Modal isOpen={showContactModal} onClose={() => setShowContactModal(false)}>
+            {/* Admin Contact Modal */}
+            <Modal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)}>
                 <h2 className="text-2xl font-bold mb-4">Thông tin liên hệ Admin</h2>
+                <p className="text-gray-600 mb-4"> Vui lòng liên hệ với admin để được hỗ trợ về việc trả hàng.</p>
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Phone className="text-gray-600" />
@@ -270,9 +272,7 @@ export const OrderList = ({ orders, onOrderUpdate }) => {
                             <p className="text-gray-600">admin@example.com</p>
                         </div>
                     </div>
-                    <p className="text-sm text-gray-500 mt-4">
-                        Vui lòng liên hệ với admin để được hỗ trợ về việc trả hàng.
-                    </p>
+
                 </div>
             </Modal>
         </div>

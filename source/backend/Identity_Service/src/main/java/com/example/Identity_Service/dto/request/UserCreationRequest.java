@@ -24,10 +24,11 @@ public class UserCreationRequest {
     String email;
     String avatar;
 
+
     @Size(min=8, message = "PASSWORD_INVALID")
     String password;
     String loginType;
     Set<Role> roles;
-    boolean active =true;
+    boolean active = true;
 //    @DobValidator(min=3, message = "BIRTHDAY_INVALID")
 }

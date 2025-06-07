@@ -35,7 +35,7 @@ public class Product implements Serializable {
     String brand;
     String howToUse;
     String howToPreserve;
-    @OneToMany(mappedBy = "product",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Set<WeightProduct> weightProducts;
     boolean isActive = true;

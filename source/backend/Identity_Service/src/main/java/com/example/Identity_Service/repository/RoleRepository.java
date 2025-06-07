@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface RoleRepository extends JpaRepository<Role,String> {
     @Query("SELECT r FROM Role r WHERE " +
@@ -14,4 +16,6 @@ public interface RoleRepository extends JpaRepository<Role,String> {
             "LOWER(r.description) LIKE LOWER(CONCAT('%', :keyword, '%')) "
     )
     Page<Role> searchRoles(String keyword, Pageable pageable);
+    @Query("SELECT r FROM Role r LEFT JOIN FETCH r.permissions WHERE r.name = :name")
+    Optional<Role> findByIdWithPermissions(String name);
 }

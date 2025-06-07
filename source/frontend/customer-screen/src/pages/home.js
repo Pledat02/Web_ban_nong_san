@@ -1,6 +1,7 @@
 import Carousel from "../components/carousel";
 import ProductCategoryList from "../list/product-category-list";
 import CategoriesList from "../list/tag-home-list";
+import banner from "../images/logo/banner.png"
 
 
 
@@ -16,7 +17,7 @@ const Home = () => {
                     description="Cung cấp trái cây hữu cơ tươi sạch, không hóa chất, đảm bảo sức khỏe cho gia đình bạn."
                     categoryId={1}
                 />
-                <img className="justify-self-center w-1/2" src="https://nongsan4.vnwordpress.net/wp-content/uploads/2019/07/banner-main-002-5.png"/>
+                <img className="justify-self-center w-2/3" src={banner}/>
                 {/*vegetable product*/}
                 <ProductCategoryList
                     title="RAU CỦ HỮU CƠ"

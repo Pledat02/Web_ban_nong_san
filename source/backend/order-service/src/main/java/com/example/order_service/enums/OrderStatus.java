@@ -9,6 +9,7 @@ public enum OrderStatus {
     SHIPPING(2, "Đang giao hàng"),
     DELIVERED(3, "Giao hàng thành công"),
     CANCELED(4, "Đơn hàng bị hủy"),
+    CONFIRMED_BY_CUSTOMER(5, "Khách hàng đã xác nhận đã nhận hàng"),
     RETURN_REQUESTED(-1, "Đang yêu cầu trả hàng"),
     RETURN_APPROVED(-2, "Yêu cầu trả hàng đã được duyệt"),
     WAITING_FOR_PICKUP(-3, "Chờ nhân viên tới lấy hàng"),

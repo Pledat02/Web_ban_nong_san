@@ -92,6 +92,9 @@ public class AuthenicationService {
                 .authenticated(authenticated)
                 .build();
     }
+    public boolean findByEmail(String email){
+        return userRepository.findByEmail(email).isPresent();
+    }
     public void resetPassword(ResetPasswordRequest request){
         Optional<User> userOp = userRepository.findByEmail(request.getEmail());
         if(userOp.isPresent()){
@@ -133,6 +136,7 @@ public class AuthenicationService {
                     .email(request.getEmail())
                     .username(request.getUsername())
                     .password("")
+                     .isActive(true)
                     .avatar(request.getAvatar())
                     .roles(roles)
                     .build();

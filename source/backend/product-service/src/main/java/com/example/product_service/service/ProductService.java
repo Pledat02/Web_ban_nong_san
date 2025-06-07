@@ -15,14 +15,20 @@ import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.mapper.ProductMapper;
 import com.example.product_service.repository.CategoryRepository;
 import com.example.product_service.repository.ProductRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -37,12 +43,16 @@ public class ProductService {
     ProductRepository productRepository;
     ProductMapper productMapper;
     CategoryRepository categoryRepository;
+    RedisTemplate<String, Object> redisTemplate;
+    ObjectMapper objectMapper;
 
     String urlImagePath = "http://localhost:8082/products/image-product/";
 
     // ===== USER APIs =====
 
+    @Cacheable(value = "products", key = "'PRODUCT_' + #productId")
     public ProductResponse getProductByIdForUser(Long productId) {
+        log.info("Fetching product from DB for user with ID: {}", productId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -50,50 +60,60 @@ public class ProductService {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        ProductResponse response = productMapper.toProductResponse(product);
-        response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
-        return response;
+        return mapToProductResponseWithImage(product);
     }
 
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_USER_ALL_' + #page + '_' + #size")
     public PageResponse<ProductResponse> getAllProductsForUser(int page, int size) {
-        Specification<Product> spec = (root, query, cb) -> cb.isTrue(root.get("active"));
+        log.info("Fetching all active products for page: {}, size: {}", page, size);
+        Specification<Product> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
         Page<Product> productPage = productRepository.findAll(spec, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
 
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_USER_CATEGORY_' + #categoryId + '_' + #page + '_' + #size")
     public PageResponse<ProductResponse> getProductsByCategoryForUser(long categoryId, int page, int size) {
+        log.info("Fetching active products by category ID: {}, page: {}, size: {}", categoryId, page, size);
         Specification<Product> spec = (root, query, cb) -> cb.and(
                 cb.equal(root.get("category").get("id"), categoryId),
                 cb.isTrue(root.get("isActive"))
         );
         Page<Product> productPage = productRepository.findAll(spec, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
+
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_USER_FILTER_' + #filter.toString() + '_' + #page + '_' + #size")
     public PageResponse<ProductResponse> getProductsByFilter(FilterRequest filter, int page, int size) {
+        log.info("Fetching products by filter for page: {}, size: {}", page, size);
         Specification<Product> spec = filterProductsForUser(filter);
         Page<Product> productPage = productRepository.findAll(spec, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
+
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_USER_SEARCH_' + #query + '_' + #page + '_' + #size")
     public PageResponse<ProductResponse> searchProductsByUser(String query, int page, int size) {
+        log.info("Searching active products with query: {}, page: {}, size: {}", query, page, size);
         Specification<Product> spec = (root, q, cb) -> cb.and(
-                cb.isTrue(root.get("active")),
+                cb.isTrue(root.get("isActive")),
                 cb.like(cb.lower(root.get("name")), "%" + query.trim().toLowerCase() + "%")
         );
 
         Page<Product> productPage = productRepository.findAll(spec, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
 
     // ===== ADMIN APIs =====
 
+    @Cacheable(value = "products", key = "'PRODUCT_' + #productId")
     public ProductResponse getProductById(Long productId) {
-        ProductResponse response = productMapper.toProductResponse(
-                productRepository.findById(productId)
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND)));
-        response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
-        return response;
+        log.info("Fetching product from DB with ID: {}", productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        return mapToProductResponseWithImage(product);
     }
 
+    @Transactional
+    @CacheEvict(value = {"products", "productsPage"}, allEntries = true)
     public ProductResponse createProduct(ProductRequest productRequest, MultipartFile file) {
         Product product = productMapper.toProduct(productRequest);
         Category category = categoryRepository.findById(productRequest.getId_category())
@@ -106,11 +126,18 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-        ProductResponse response = productMapper.toProductResponse(savedProduct);
-        response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
-        return response;
+        String cacheKey = "PRODUCT_" + savedProduct.getId_product();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedProduct));
+            log.info("Cached product with key: {}", cacheKey);
+        } catch (JsonProcessingException e) {
+            log.error("Error caching product: {}", e.getMessage());
+        }
+        return mapToProductResponseWithImage(savedProduct);
     }
 
+    @Transactional
+    @CacheEvict(value = {"products", "productsPage"}, allEntries = true)
     public ProductResponse updateProduct(Long productId, ProductRequest productRequest, MultipartFile file) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -128,51 +155,129 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-        ProductResponse response = productMapper.toProductResponse(savedProduct);
-        response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
-        return response;
+        String cacheKey = "PRODUCT_" + savedProduct.getId_product();
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedProduct));
+            log.info("Updated cache for product with key: {}", cacheKey);
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
+        return mapToProductResponseWithImage(savedProduct);
     }
 
+    @Transactional
+    @CacheEvict(value = {"products", "productsPage"}, allEntries = true)
     public void deleteProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        product.setActive(false); // Soft delete
-        productRepository.save(product);
+        product.setActive(false);
+        Product savedProduct = productRepository.save(product);
+        String cacheKey = "PRODUCT_" + productId;
+        redisTemplate.delete(cacheKey);
+        log.info("Deleted product ID: {}, cache key: {}", productId, cacheKey);
     }
 
+    @Transactional
+    @CacheEvict(value = {"products", "productsPage"}, allEntries = true)
     public void restoreProduct(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        product.setActive(true); // Restore
-        productRepository.save(product);
+        product.setActive(true);
+        Product savedProduct = productRepository.save(product);
+        String cacheKey = "PRODUCT_" + productId;
+        try {
+            redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedProduct));
+            log.info("Restored product ID: {}, cache key: {}", productId, cacheKey);
+        } catch (JsonProcessingException e) {
+            log.error("Error updating Redis cache: {}", e.getMessage());
+        }
     }
 
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_ADMIN_ALL_' + #page + '_' + #size")
     public PageResponse<ProductResponse> getAllProducts(int page, int size) {
+        log.info("Fetching all products from DB for page: {}, size: {}", page, size);
         Page<Product> productPage = productRepository.findAll(PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
 
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_ADMIN_CATEGORY_' + #categoryId + '_' + #page + '_' + #size")
     public PageResponse<ProductResponse> getProductsByCategory(long categoryId, int page, int size) {
+        log.info("Fetching products by category ID: {}, page: {}, size: {}", categoryId, page, size);
         Page<Product> productPage = productRepository.findByCategoryId(categoryId, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
 
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_ADMIN_SEARCH_' + #query + '_' + #page + '_' + #size")
     public PageResponse<ProductResponse> searchProducts(String query, int page, int size) {
+        log.info("Searching products with query: {}, page: {}, size: {}", query, page, size);
         Page<Product> productPage = productRepository.searchProducts(query, PageRequest.of(page - 1, size));
-        return getListProductResponses(productPage, page);
+        return mapToPageResponse(productPage, page);
     }
 
+    // ===== STOCK MANAGEMENT =====
+
+    @Transactional
+    @CacheEvict(value = {"products", "productsPage"}, allEntries = true)
+    public void updateStock(UpdateStockRequest request) {
+        request.getItems().forEach(req -> {
+            Optional<Product> productOp = productRepository.findById(req.getProductId());
+            if (productOp.isPresent()) {
+                Product product = productOp.get();
+                for (WeightProduct weightProduct : product.getWeightProducts()) {
+                    if (weightProduct.getWeightType().getValue() == req.getWeight()) {
+                        int newStock = weightProduct.getStock() + req.getQuantity();
+                        if (newStock < 0) {
+                            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+                        }
+                        weightProduct.setStock(newStock);
+                        break;
+                    }
+                }
+                Product savedProduct = productRepository.save(product);
+                String cacheKey = "PRODUCT_" + savedProduct.getId_product();
+                try {
+                    redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedProduct));
+                    log.info("Updated cache for product with key: {}", cacheKey);
+                } catch (JsonProcessingException e) {
+                    log.error("Error updating Redis cache for product ID {}: {}", savedProduct.getId_product(), e.getMessage());
+                }
+            } else {
+                log.error("Product not found for ID {}", req.getProductId());
+                throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+            }
+        });
+    }
+
+    public List<String> checkStock(List<OrderItemRequest> request) {
+        List<String> outOfStockProducts = new ArrayList<>();
+
+        for (OrderItemRequest item : request) {
+            Optional<Product> productOpt = productRepository.findById(Long.valueOf(item.getProductCode()));
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                for (WeightProduct weightProduct : product.getWeightProducts()) {
+                    if (weightProduct.getWeightType().getValue() == item.getWeight()) {
+                        if (weightProduct.getStock() < item.getQuantity()) {
+                            outOfStockProducts.add(product.getName() +
+                                    " (" + weightProduct.getWeightType().getValue() + "kg) chỉ còn " +
+                                    weightProduct.getStock() + ", yêu cầu " + item.getQuantity());
+                        }
+                    }
+                }
+            } else {
+                outOfStockProducts.add("Sản phẩm có mã " + item.getProductCode() + " không tồn tại");
+            }
+        }
+
+        return outOfStockProducts;
+    }
 
     // ===== SHARED METHODS =====
 
-    private PageResponse<ProductResponse> getListProductResponses(Page<Product> productPage, int page) {
+    private PageResponse<ProductResponse> mapToPageResponse(Page<Product> productPage, int page) {
         List<ProductResponse> productResponses = productPage.getContent()
                 .stream()
-                .map(product -> {
-                    ProductResponse response = productMapper.toProductResponse(product);
-                    response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
-                    return response;
-                })
+                .map(this::mapToProductResponseWithImage)
                 .toList();
 
         return PageResponse.<ProductResponse>builder()
@@ -183,12 +288,17 @@ public class ProductService {
                 .build();
     }
 
+    private ProductResponse mapToProductResponseWithImage(Product product) {
+        ProductResponse response = productMapper.toProductResponse(product);
+        response.setImage(response.getImage() != null ? urlImagePath + response.getImage() : null);
+        return response;
+    }
+
     private Specification<Product> filterProductsForUser(FilterRequest filter) {
         return (root, queryObj, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Chỉ lấy sản phẩm đang active
-            predicates.add(criteriaBuilder.isTrue(root.get("active")));
+            predicates.add(criteriaBuilder.isTrue(root.get("isActive")));
 
             if (filter.getOrganic() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("organic"), filter.getOrganic()));
@@ -215,45 +325,5 @@ public class ProductService {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
-    }
-    public void updateStock(UpdateStockRequest request) {
-        request.getItems().forEach(req -> {
-            Optional<Product> productOp = productRepository.findById(req.getProductId());
-            if (productOp.isPresent()) {
-                Product p = productOp.get();
-                for (WeightProduct o : p.getWeightProducts()) {
-                    if (o.getWeightType().getValue() == req.getWeight()) {
-                        o.setStock(o.getStock() + req.getQuantity());
-                        break;
-                    }
-                }
-                productRepository.save(p);
-            } else {
-                log.error("Product not found for ID {}", req.getProductId());
-            }
-        });
-    }
-
-    public List<String> checkStock(List<OrderItemRequest> request) {
-        List<String> outOfStockProducts = new ArrayList<>();
-
-        for (OrderItemRequest item : request) {
-            Optional<Product> productOpt = productRepository.findById(Long.valueOf(item.getProductCode()));
-            if (productOpt.isPresent()) {
-                Product product = productOpt.get();
-                for (WeightProduct weightProduct : product.getWeightProducts()) {
-                    if (weightProduct.getWeightType().getValue() == item.getWeight()) {
-                        if (weightProduct.getStock() < item.getQuantity()) {
-                            outOfStockProducts.add(product.getName() +
-                                    " (" + weightProduct.getWeightType().getValue() + "kg)");
-                        }
-                    }
-                }
-            } else {
-                outOfStockProducts.add("Sản phẩm có mã " + item.getProductCode() + " không tồn tại");
-            }
-        }
-
-        return outOfStockProducts;
     }
 }

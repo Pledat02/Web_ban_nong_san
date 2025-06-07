@@ -17,24 +17,45 @@ class CategoryService {
                 const token = user.token;
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
+                    console.log("Request Headers:", config.headers); // Debug
+                } else {
+                    console.warn("No token found in localStorage");
                 }
                 return config;
             },
             (error) => {
+                console.error("Interceptor Error:", error);
+                return Promise.reject(error);
+            }
+        );
+
+        this.api.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 401) {
+                    toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.", {
+                        position: "top-right",
+                    });
+                    localStorage.removeItem("user");
+                    window.location.href = "/login";
+                } else if (error.response?.status === 403) {
+                    // Redirect to 403 page for any 403 error
+                    window.location.href = "/403";
+                }
                 return Promise.reject(error);
             }
         );
     }
 
-    // Get all categories with pagination and search
     async getAllCategories(page = 1, size = 10, keyword = "") {
         try {
             const response = await this.api.get("", {
                 params: { page, size, keyword },
             });
+            console.log("Get Categories Response:", response); // Debug
             if (response.status === 200 && response.data.code === 0) {
                 const data = response.data.data;
-                if (data && typeof data === 'object' && Array.isArray(data.elements)) {
+                if (data && typeof data === "object" && Array.isArray(data.elements)) {
                     return {
                         content: data.elements,
                         page: data.currentPage || page,
@@ -43,42 +64,46 @@ class CategoryService {
                         totalPages: data.totalPages || 1,
                     };
                 } else {
-                    console.warn('Unexpected response structure:', data);
-                    toast.error('Dữ liệu danh mục không hợp lệ', { position: 'top-right' });
+                    console.warn("Unexpected response structure:", data);
+                    toast.error("Dữ liệu danh mục không hợp lệ", { position: "top-right" });
                     return { content: [], page, size, totalElements: 0, totalPages: 1 };
                 }
             } else {
+                console.error("API Error:", response.data);
                 toast.error(response.data.message || "Không lấy được danh sách danh mục", {
                     position: "top-right",
                 });
                 return { content: [], page, size, totalElements: 0, totalPages: 1 };
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy danh sách danh mục: " + (error.response?.data?.message || error.message), {
-                position: "top-right",
-            });
+            console.error("Get Categories Failed:", error.response?.data || error); // Debug
             return { content: [], page, size, totalElements: 0, totalPages: 1 };
         }
     }
-    // Create a new category
+
     async createCategory(name) {
         try {
             const response = await this.api.post("", { name });
+            console.log("Create Category Response:", response); // Debug
             if (response.status === 200 && response.data.code === 0) {
                 toast.success("Tạo danh mục thành công", { position: "top-right" });
                 return response.data.data;
             } else {
+                console.error("API Error:", response.data);
                 toast.error(response.data.message || "Không thể tạo danh mục", {
                     position: "top-right",
                 });
                 return null;
             }
         } catch (error) {
-            toast.error("Lỗi khi tạo danh mục: " + (error.response?.data?.message || error.message), {
-                position: "top-right",
-            });
+            console.error("Create Category Failed:", error.response?.data || error); // Debug
             return null;
         }
+    }
+
+    logout() {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
     }
 }
 

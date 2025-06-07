@@ -27,65 +27,78 @@ public class PermissionController {
 
     // Get all permissions
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_PERMISSION')")
     public ApiResponse<PageResponse<PermissionResponse>> getAllPermissions(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ){
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<PermissionResponse>>builder()
-               .data(permissionService.getAllPermissions(page, size))
-               .build();
+                .data(permissionService.getAllPermissions(page, size))
+                .build();
     }
-    // search
+
+    // Search permissions
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_PERMISSION')")
     public ApiResponse<PageResponse<PermissionResponse>> searchPermissions(
             @RequestParam(value = "q", required = false) String q,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size){
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<PermissionResponse>>builder()
                 .data(permissionService.searchPermissions(q, page, size))
-               .build();
+                .build();
     }
-    // Get permission by id
+
+    // Get permission by ID
     @GetMapping("/{id}")
-    public ApiResponse<PermissionResponse> getPermissionById(@PathVariable String id){
+    @PreAuthorize("hasAuthority('READ_PERMISSION')")
+    public ApiResponse<PermissionResponse> getPermissionById(@PathVariable String id) {
         PermissionResponse permission = permissionService.getPermission(id);
-        if(permission == null) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+        if (permission == null) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
         return ApiResponse.<PermissionResponse>builder()
                 .data(permission)
-               .build();
+                .build();
     }
-    // Get permissions by role id
+
+    // Get permissions by role ID
 //    @GetMapping("/role/{roleId}")
-//    public ApiResponse<List<PermissionResponse>> getPermissionsByRoleId(@PathVariable String roleId){
+//    @PreAuthorize("hasAuthority('READ_PERMISSION')")
+//    public ApiResponse<List<PermissionResponse>> getPermissionsByRoleId(@PathVariable String roleId) {
 //        List<PermissionResponse> permissions = permissionService.getPermissionsByRoleId(roleId);
-//        if(permissions.isEmpty()) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+//        if (permissions.isEmpty()) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
 //        return ApiResponse.<List<PermissionResponse>>builder()
-//               .data(permissions)
-//               .build();
+//                .data(permissions)
+//                .build();
 //    }
-    // update permissions
+
+    // Update permission
     @PutMapping("/{id}")
-    public ApiResponse<PermissionResponse> updatePermission
-    (@PathVariable String id, @RequestBody PermissionRequest requestBody){
+    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
+    public ApiResponse<PermissionResponse> updatePermission(
+            @PathVariable String id, @RequestBody PermissionRequest requestBody) {
         PermissionResponse permission = permissionService.update(id, requestBody);
-        if(permission == null) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+        if (permission == null) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
         return ApiResponse.<PermissionResponse>builder()
-               .data(permission)
-               .build();
+                .data(permission)
+                .build();
     }
+
+    // Create permission
     @PostMapping
-    public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest requestBody){
+    @PreAuthorize("hasAuthority('WRITE_PERMISSION')")
+    public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest requestBody) {
         PermissionResponse permission = permissionService.create(requestBody);
         return ApiResponse.<PermissionResponse>builder()
-               .data(permission)
-               .build();
+                .data(permission)
+                .build();
     }
-    // delete permissions
+
+    // Delete permission
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deletePermission(@PathVariable String id){
+    @PreAuthorize("hasAuthority('DELETE_PERMISSION')")
+    public ApiResponse<Void> deletePermission(@PathVariable String id) {
         permissionService.deletePermission(id);
         return ApiResponse.<Void>builder()
-                .message("permission deleted")
-               .build();
+                .message("Permission deleted")
+                .build();
     }
 }

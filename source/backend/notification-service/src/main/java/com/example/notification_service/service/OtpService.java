@@ -5,6 +5,7 @@ import com.example.event.dto.ChangePhoneRequest;
 import com.example.event.dto.ResetPasswordRequest;
 import com.example.notification_service.configuration.TwilioConfig;
 import com.example.notification_service.dto.request.*;
+import com.example.notification_service.repository.IdentityClient;
 import com.example.notification_service.repository.SendEmailClient;
 import com.twilio.Twilio;
 import com.twilio.rest.verify.v2.service.Verification;
@@ -30,6 +31,7 @@ public class OtpService {
     final TwilioConfig twilioConfig;
     final KafkaTemplate<String, Object> kafkaTemplate;
     final SendEmailClient sendEmailClient;
+    final IdentityClient identityClient;
     private static final String RESET_PASSWORD_TOPIC = "reset-password-topic";
     final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
     @Value("${app.mail.brevo.api-key}")
@@ -124,7 +126,9 @@ public class OtpService {
     public String sendForgotPasswordMail(OtpRequest request) {
         String email = request.getEmail();
         long currentTime = System.currentTimeMillis();
-
+        if(!identityClient.checkEmail(email).getData()){
+            return "Email không tồn tại trong cơ sở dữ liệu";
+        }
         OtpData existingData = otpStorage.get(email);
         if (existingData != null && (currentTime - existingData.lastSentTime < RESEND_COOLDOWN_MS)) {
             return "Vui lòng chờ " + (RESEND_COOLDOWN_MS / 1000) + " giây trước khi gửi lại OTP.";

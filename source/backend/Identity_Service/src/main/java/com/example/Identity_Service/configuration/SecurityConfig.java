@@ -35,7 +35,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(rq -> rq
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         );
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

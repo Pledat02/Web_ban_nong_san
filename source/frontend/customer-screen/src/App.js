@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, useNavigate } from "react-router-dom";
 import './App.css';
-
+import logo from "./images/logo/agri-fresh-logo.png"
 import AppRoutes from "./route/route-config";
 import {UserProvider, useUser} from "./context/UserContext";
 import { CartProvider } from "./context/cart-context";
@@ -24,7 +24,7 @@ const App = () => {
         // Cập nhật favicon
         const link = document.querySelector("link[rel~='icon']");
         if (link) {
-            link.href = "https://nongsan4.vnwordpress.net/wp-content/uploads/2019/07/halonalogo.png";
+            link.href = logo;
         }
     }, []);
     return (

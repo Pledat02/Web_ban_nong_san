@@ -41,6 +41,13 @@ public class AuthenController {
                 .data(result)
                 .build();
     }
+    @PostMapping("/check-exists-email")
+    ApiResponse<Boolean> checkExistsEmail(@RequestParam("email") String email){
+        Boolean result = authenService.findByEmail(email);
+        return ApiResponse.<Boolean>builder()
+                .data(result)
+                .build();
+    }
 
     @PostMapping("/log-in-social")
     ApiResponse<AuthenicationResponse> loginSocial

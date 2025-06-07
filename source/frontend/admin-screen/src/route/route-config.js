@@ -9,6 +9,7 @@ import MainLayout from '../layout/main-layout';
 import Profile from '../pages/profile';
 import LoginPage from '../pages/login';
 import ProtectedRoute from '../utils/ProtectedRoute';
+import ForbiddenPage from "../pages/403";
 
 const AppRoutes = () => {
     return (
@@ -63,7 +64,8 @@ const AppRoutes = () => {
                         </ProtectedRoute>
                     }
                 />
-                <Route index element={<LoginPage />} /> {/* Trang mặc định */}
+                <Route path="/403" element={<ForbiddenPage/>} />
+                <Route index element={<LoginPage />} />
             </Route>
         </Routes>
     );

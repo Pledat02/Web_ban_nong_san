@@ -271,4 +271,10 @@ public class OrderService {
         }
         return order;
     }
+
+    public boolean isOrderOwner(String orderId, String userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        return order.getId_user().equals(userId);
+    }
 }

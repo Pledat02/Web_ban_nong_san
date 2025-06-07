@@ -4,10 +4,8 @@ import { Loader2, Mail } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
 import authService from "../service/auth-service";
 
-const API_URL = 'http://localhost:8080/api/auth';
 
 const LoginPage = () => {
     const [credentials, setCredentials] = useState({
@@ -56,11 +54,7 @@ const LoginPage = () => {
             const response = await authService.login(credentials.email,credentials.password);
             if (response.authenticated) {
                 const decoded = jwtDecode(response.token);
-                // Kiểm tra vai trò admin
-                const scope = decoded.scope || '';
-                if (!scope.includes('ROLE_MODERATOR') && !scope.includes('ROLE_ADMIN')) {
-                    throw new Error('Bạn không có quyền truy cập khu vực admin');
-                }
+
                 const user = {
                     id_user: decoded.id_user,
                     username: decoded.sub,

@@ -1,6 +1,8 @@
 package com.example.product_service.controller;
 
+import com.example.event.dto.UpdateStockRequest;
 import com.example.product_service.dto.request.FilterRequest;
+import com.example.product_service.dto.request.OrderItemRequest;
 import com.example.product_service.dto.response.ApiResponse;
 import com.example.product_service.dto.response.PageResponse;
 import com.example.product_service.dto.response.ProductResponse;
@@ -12,7 +14,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,5 +78,19 @@ public class ProductController {
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .data(products)
                 .build();
+    }
+    //update stock
+    @KafkaListener(topics = "update-stock")
+    public void updateStock(@Payload UpdateStockRequest request) {
+        productService.updateStock(request);
+    }
+
+    @PostMapping("/stock/check")
+    public ApiResponse<List<String>> isStock(@RequestBody List<OrderItemRequest> request) {
+        List<String> nameNotStockProducts = productService.checkStock(request);
+        return  ApiResponse.<List<String>>
+                        builder()
+                .data(nameNotStockProducts)
+                .build()  ;
     }
 }
