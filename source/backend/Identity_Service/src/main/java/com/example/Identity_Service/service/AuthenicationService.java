@@ -162,7 +162,6 @@ public class AuthenicationService {
                 .build();
     }
 
-
     public ValidTokenResponse introspect(TokenRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
         boolean isValid  = false;
@@ -235,7 +234,7 @@ public class AuthenicationService {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(response.getUsername())
-                .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
+                .expirationTime(Date.from(Instant.now().plus(12, ChronoUnit.MINUTES)))
                 .issueTime(new Date())
                 .claim("email", response.getEmail())
                 .issuer("admin")

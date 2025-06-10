@@ -16,6 +16,7 @@ public enum ErrorCode {
     USER_NOT_AUTHENTICATED(1004,"User is not authorized",HttpStatus.UNAUTHORIZED),
     USER_ALREADY_ACTIVE(1005,"User is already active",HttpStatus.BAD_REQUEST),
     EMAIL_NOT_EXISTED(1001,"Email không tồn tại trong cơ sở dữ liệu",HttpStatus.BAD_REQUEST),
+    EXISTS_PHONE(3001,"Số điện thoại đã tồn tại trong cơ sở dữ liệu",HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(1002,"Username is invalid",HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(1003,"Email is invalid",HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1004,"Your password must be least {min} character",HttpStatus.BAD_REQUEST),

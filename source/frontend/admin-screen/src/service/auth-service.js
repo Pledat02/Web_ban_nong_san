@@ -49,11 +49,11 @@ class AuthService {
             return false;
         }
     }
-    checkExpiredToken(token) {
-        if (!token) return true;
-        const decodedToken = typeof token === "string" ? jwtDecode(token) : token;
-        if (!decodedToken.exp) return true;
-       return new Date(decodedToken.exp * 1000) < new Date();
+    checkExpiredToken(token){
+        if(token){
+            return  new Date(token.exp * 1000) < new Date();
+        }
+        return true;
     }
     async logout(token) {
         try {

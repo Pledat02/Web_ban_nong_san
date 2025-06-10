@@ -14,6 +14,7 @@ const isTokenExpiringSoon = () => {
 
     const decodedToken = JSON.parse(atob(user.token.split(".")[1]));
     const now = Math.floor(Date.now() / 1000);
+    console.log(decodedToken.exp - now)
     return decodedToken.exp - now < 700;
 };
 

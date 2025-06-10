@@ -145,6 +145,9 @@ public class ProfileService {
                 .elements(productResponses)
                 .build();
     }
+    public boolean checkExistsPhone(String phone){
+        return profileRepository.existsByPhone(phone);
+    }
 
 
 }

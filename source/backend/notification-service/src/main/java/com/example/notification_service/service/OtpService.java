@@ -5,7 +5,10 @@ import com.example.event.dto.ChangePhoneRequest;
 import com.example.event.dto.ResetPasswordRequest;
 import com.example.notification_service.configuration.TwilioConfig;
 import com.example.notification_service.dto.request.*;
+import com.example.notification_service.exception.AppException;
+import com.example.notification_service.exception.ErrorCode;
 import com.example.notification_service.repository.IdentityClient;
+import com.example.notification_service.repository.ProfileClient;
 import com.example.notification_service.repository.SendEmailClient;
 import com.twilio.Twilio;
 import com.twilio.rest.verify.v2.service.Verification;
@@ -32,6 +35,7 @@ public class OtpService {
     final KafkaTemplate<String, Object> kafkaTemplate;
     final SendEmailClient sendEmailClient;
     final IdentityClient identityClient;
+    final ProfileClient profileClient;
     private static final String RESET_PASSWORD_TOPIC = "reset-password-topic";
     final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
     @Value("${app.mail.brevo.api-key}")
@@ -59,6 +63,10 @@ public class OtpService {
     public String sendOtpMail(OtpRequest request) {
         String email = request.getEmail();
         long currentTime = System.currentTimeMillis();
+        // Kiểm tra email có tồn tại không
+        if (identityClient.checkEmail(email).getData()) {
+            return "Email đã tồn tại trong hệ thống.";
+        }
 
         OtpData existingData = otpStorage.get(email);
         if (existingData != null && (currentTime - existingData.lastSentTime < RESEND_COOLDOWN_MS)) {
@@ -200,7 +208,9 @@ public class OtpService {
 
     public void sendPhoneOtp(OtpRequest request) {
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
-
+        if (profileClient.checkPhone(request.getPhone()).getData()) {
+           throw new AppException(ErrorCode.EXISTS_PHONE);
+        }
         Verification verification = Verification.creator(
                 twilioConfig.getServiceSid(),
                 request.getPhone(),

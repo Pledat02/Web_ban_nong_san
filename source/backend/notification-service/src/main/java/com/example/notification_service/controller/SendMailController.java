@@ -18,14 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class SendMailController {
     SendMailService sendMailService;
-    // Send email
-//    @PostMapping("/send-email")
-//    public ApiResponse<SendMailResponse> sendMail(@RequestBody SendMailRequest request){
-//        return ApiResponse.<SendMailResponse>builder()
-//               .data(sendMailService.sendMail(request))
-//               .build();
-//    }
-    @KafkaListener(topics = "user-created")
+
+    @KafkaListener(topics = "notification-requests")
     public void consume(@Payload NotificationRequest notificationRequest) {
         System.out.println("Received: " + notificationRequest);
         sendMailService.sendMail(

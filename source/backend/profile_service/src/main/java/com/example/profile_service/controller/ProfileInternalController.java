@@ -28,6 +28,13 @@ public class ProfileInternalController {
                 .data(profileService.saveProfile(profile))
                 .build();
     }
+    @PostMapping("/check-exists-phone")
+    ApiResponse<Boolean> checkExistsEmail(@RequestParam("phone") String phone){
+        Boolean result = profileService.checkExistsPhone(phone);
+        return ApiResponse.<Boolean>builder()
+                .data(result)
+                .build();
+    }
     // 🔹 Xử lý sự kiện thay đổi email từ Kafka
     @KafkaListener(topics = "change-email", groupId = "notification-group")
     public void changeEmail(ChangeEmailRequest request) {

@@ -17,4 +17,7 @@ public interface ProfileRepository extends JpaRepository<Profile,String> {
             "LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))"
     )
     Page<Profile> searchUsers(String keyword, Pageable pageable);
+
+    boolean existsByPhone(String phone);
+
 }

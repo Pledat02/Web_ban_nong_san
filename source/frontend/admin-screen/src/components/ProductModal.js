@@ -27,7 +27,7 @@ const ProductModal = ({ isOpen, onClose, mode, product, onSave }) => {
         brand: '',
         howToUse: '',
         howToPreserve: '',
-        weightProducts: [], // [{ weightType: { id_weight_type }, stock }, ...]
+        weightProducts: [],
     });
     const [file, setFile] = useState(null);
     const [errors, setErrors] = useState({});

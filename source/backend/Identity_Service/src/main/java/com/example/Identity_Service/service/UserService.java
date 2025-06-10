@@ -107,7 +107,7 @@ public class UserService {
                         + "Tên tài khoản: " + savedUser.getUsername() + "\n"
                         + "Ngày tạo: " + LocalDate.now() + ".")
                 .build();
-        kafkaTemplate.send("user-created", notificationRequest);
+        kafkaTemplate.send("notification-requests", notificationRequest);
 
         return userMapper.toUserResponse(savedUser);
     }

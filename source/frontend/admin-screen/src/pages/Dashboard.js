@@ -166,7 +166,15 @@ const App = () => {
       barChartInstance?.dispose();
     };
   }, [chartInstance, pieChartInstance, barChartInstance]);
-
+  const formatRevenue = (value) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} tỷ`;
+    } else if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} triệu`;
+    }  else {
+      return value.toLocaleString();
+    }
+  };
   // Update revenue chart
   useEffect(() => {
     if (chartInstance && revenueData.length > 0) {
@@ -345,10 +353,10 @@ const App = () => {
                   <i className="fas fa-dollar-sign text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Tổng doanh thu</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400"> Doanh thu tháng này</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {loading ? 'Loading...' : `${(currentRevenue / 1000000).toFixed(1)} tỷ`}
+                      {loading ? 'Loading...' : `${formatRevenue(currentRevenue)}`}
                     </h2>
                     <span className={`ml-2 text-sm font-medium ${growthRate.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     <i className={`fas fa-arrow-${growthRate.isPositive ? 'up' : 'down'} mr-1`}></i>
@@ -365,7 +373,7 @@ const App = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Doanh thu trung bình tháng</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {loading ? 'Loading...' : `${(averageMonthlyRevenue / 1000000).toFixed(1)} tỷ`}
+                      {loading ? 'Loading...' :`${formatRevenue(averageMonthlyRevenue)}`}
                     </h2>
                   </div>
                 </div>

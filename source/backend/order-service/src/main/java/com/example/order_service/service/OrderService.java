@@ -1,7 +1,6 @@
 package com.example.order_service.service;
 
-import com.example.event.dto.ItemUpdateStock;
-import com.example.event.dto.UpdateStockRequest;
+import com.example.event.dto.*;
 import com.example.order_service.dto.request.OrderItemRequest;
 import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.request.ShippingRequest;
@@ -19,7 +18,10 @@ import com.example.order_service.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +48,13 @@ public class OrderService {
     KafkaTemplate<String, Object> kafkaTemplate;
     ProductClientHttp productClientHttp;
     ShippingClientHttp shippingClientHttp;
+
+    @Value("${app.email-admin}")
+    @NonFinal
+    String adminEmail;
+    @Value("${app.name-admin}")
+    @NonFinal
+    String adminName;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -76,6 +85,20 @@ public class OrderService {
         order = orderRepository.save(order);
         // Gửi danh sách cập nhật tồn kho đến Kafka
         kafkaTemplate.send("update-stock", listUpdations);
+        //     Gửi thông báo cho user về hủy đơn hàng
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .nameReceptor(adminName)
+                .emailReceptor(adminEmail)
+                .subject("Đơn hàng mới: " + order.getId_order())
+                .textContent(String.format(
+                        "Đơn hàng mới (%s) được tạo bởi người dùng %s với trạng thái %s vào lúc %s.",
+                        order.getId_order(),
+                        order.getId_user(),
+                        OrderStatus.fromCode(order.getStatus()).name(),
+                        order.getOrder_date()
+                ))
+                .build();
+        kafkaTemplate.send("notification-requests", notificationRequest);
         return orderMapper.toOrderResponse(order);
     }
 
@@ -107,7 +130,24 @@ public class OrderService {
 
         // Restore stock when order is canceled
         restoreStock(order);
+//     Gửi thông báo cho user về hủy đơn hàng
+        // Gửi thông báo Kafka cho người dùng
+        var userProfile = profileClientHttp.getProfile(order.getId_user()).getData();
+        String name =userProfile.getFirstName()+userProfile.getLastName();
 
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .nameReceptor(name)
+                .emailReceptor(userProfile.getEmail())
+                .subject("Đơn hàng đã hủy: " + order.getId_order())
+                .textContent(String.format(
+                        "Kính gửi %s, đơn hàng (%s) của bạn đã được hủy vào lúc %s.",
+                        name,
+                        order.getId_order(),
+                        java.time.LocalDateTime.now()
+                ))
+                .build();
+        kafkaTemplate.send("notification-requests", notificationRequest);
+        log.info("Đã gửi thông báo Kafka cho người dùng về hủy đơn hàng {}", order.getId_order());
         return orderMapper.toOrderResponse(order);
     }
 
@@ -180,6 +220,20 @@ public class OrderService {
             default:
                 throw new AppException(ErrorCode.INVALID_STATUS);
         }
+        var userProfile = profileClientHttp.getProfile(order.getId_user()).getData();
+        String name =userProfile.getFirstName()+userProfile.getLastName();
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .nameReceptor(name)
+                .emailReceptor(userProfile.getEmail())
+                .subject("Cập nhật trạng thái đơn hàng: " + order.getId_order())
+                .textContent(String.format(
+                        "Kính gửi %s, đơn hàng (%s) của bạn đã được cập nhật trạng thái thành %s vào lúc %s.",
+                        name,
+                        order.getId_order(),
+                        newStatus.name(),
+                        java.time.LocalDateTime.now()
+                ))
+                .build();
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
 
