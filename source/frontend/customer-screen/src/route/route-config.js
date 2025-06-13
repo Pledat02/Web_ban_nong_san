@@ -11,6 +11,8 @@ import MyProfile from "../pages/my-profile";
 import Checkout from "../pages/checkout";
 import PaymentResult from "../pages/payment-result";
 import OrderHistory from "../pages/order-history";
+import Contact from "../pages/contact";
+import Intro from "../pages/intro";
 const AppRoutes = () => {
     return (
         <Routes>
@@ -27,6 +29,8 @@ const AppRoutes = () => {
                 <Route path="checkout" element={<Checkout/>} />
                 <Route path="order-history" element={<OrderHistory/>} />
                 <Route path="/payment-result" element={<PaymentResult/>} />
+                <Route path="/contact" element={<Contact/>} />
+                <Route path="/intro" element={<Intro/>} />
             </Route>
             {/* Route không cần Header/Footer */}
             {/*<Route path="*" element={<NotFound/>} />*/}

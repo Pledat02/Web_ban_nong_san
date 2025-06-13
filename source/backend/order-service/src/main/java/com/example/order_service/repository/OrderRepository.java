@@ -38,6 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             "GROUP BY CONCAT(YEAR(o.order_date), '-', LPAD(MONTH(o.order_date), 2, '0'))", nativeQuery = true)
     List<Object[]> getMonthlyRevenue();
 
+
     @Query("SELECT YEAR(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue " +
             "FROM Order o " +
             "WHERE o.status = 3 " +

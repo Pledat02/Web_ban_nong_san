@@ -64,7 +64,25 @@ const Checkout = () => {
                     if (!profile.address?.ward) missingFields.push("Phường/Xã");
 
                     if (missingFields.length > 0) {
-                        toast.warning(`Vui lòng cập nhật hồ sơ với các thông tin sau: ${missingFields.join(", ")}`);
+                        setLoading(true);
+                        toast.warning(
+                            <div>
+                                Vui lòng cập nhật hồ sơ với các thông tin sau: {missingFields.join(", ")}.{" "}
+                                <a
+                                    href="/profile"
+                                    onClick={(e) => {
+                                        e.preventDefault(); // Prevent default anchor behavior
+                                        navigate("/profile"); // Use react-router-dom navigation
+                                    }}
+                                    className="text-blue-600 underline hover:text-blue-800"
+                                >
+                                    Cập nhật hồ sơ
+                                </a>
+                            </div>,
+                            {
+                                autoClose: false,
+                            }
+                        );
                     }
                 }
             } catch (error) {
@@ -76,7 +94,7 @@ const Checkout = () => {
         };
 
         fetchProfile();
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         const calculateShipping = async () => {
@@ -119,6 +137,33 @@ const Checkout = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate required profile fields
+        const requiredFields = {
+            firstName: "Họ",
+            lastName: "Tên",
+            phone: "Số điện thoại",
+            email: "Email",
+            province: "Tỉnh/Thành phố",
+            district: "Quận/Huyện",
+            ward: "Phường/Xã",
+        };
+
+        const missingFields = Object.keys(requiredFields).filter(
+            (field) => !formData[field] || formData[field].trim() === ""
+        );
+
+        if (missingFields.length > 0) {
+            const missingFieldNames = missingFields.map((field) => requiredFields[field]);
+            toast.warning(
+                `Vui lòng cập nhật hồ sơ với các thông tin sau: ${missingFieldNames.join(", ")}`,
+                {
+                    onClick: () => navigate("/profile"),
+                    autoClose: false,
+                }
+            );
+            return; // Stop submission if profile is incomplete
+        }
 
         try {
             let orderData = {

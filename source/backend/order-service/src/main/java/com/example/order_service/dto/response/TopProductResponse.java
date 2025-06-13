@@ -13,4 +13,5 @@ public class TopProductResponse {
      String name;
      long quantity;
      double revenue;
+     double growth;
 }

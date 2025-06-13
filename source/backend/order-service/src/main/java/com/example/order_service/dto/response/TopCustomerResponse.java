@@ -13,4 +13,5 @@ public class TopCustomerResponse {
     private String customerName;
     private long totalOrders;
     private double totalValue;
+    private String favoriteProduct; //name
 }

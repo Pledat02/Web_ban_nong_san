@@ -68,8 +68,10 @@ class ProfileForm extends Component {
                 return;
             }
             value = `+84${phoneNumber}`;
+            toast.success("Gửi OTP thành công", { position: "top-right" });
             await NotificationService.sendPhoneOtp(value);
         } else if (type === "email") {
+            toast.success("Gửi OTP thành công", { position: "top-right" });
             await NotificationService.sendEmailOtp(value);
         }
         this.setState((prevState) => ({

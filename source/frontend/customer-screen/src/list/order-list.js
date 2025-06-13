@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Mail, X, Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Phone, Mail, X, Package2, Clock, MapPin, ChevronDown, ChevronUp, ShoppingBag, AlertCircle, Check } from 'lucide-react';
 import { getStatusColor, canCancelOrder, canReturnOrder, getStatusLabel, getStatusIcon } from '../utils/status';
 import OrderService from '../services/order-service';
 
@@ -33,6 +33,7 @@ const OrderList = ({ orders, onOrderUpdate }) => {
     const [loading, setLoading] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     // Toggle order expansion
@@ -46,9 +47,21 @@ const OrderList = ({ orders, onOrderUpdate }) => {
         setIsCancelModalOpen(true);
     };
 
+    // Open confirm order modal
+    const openConfirmModal = (orderId) => {
+        setSelectedOrderId(orderId);
+        setIsConfirmModalOpen(true);
+    };
+
     // Close cancel confirmation modal
     const closeCancelModal = () => {
         setIsCancelModalOpen(false);
+        setSelectedOrderId(null);
+    };
+
+    // Close confirm order modal
+    const closeConfirmModal = () => {
+        setIsConfirmModalOpen(false);
         setSelectedOrderId(null);
     };
 
@@ -64,6 +77,23 @@ const OrderList = ({ orders, onOrderUpdate }) => {
         } catch (error) {
             console.error('Error canceling order:', error);
             alert('Không thể hủy đơn hàng. Vui lòng thử lại sau.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle order confirmation
+    const handleConfirmOrder = async () => {
+        if (!selectedOrderId) return;
+
+        try {
+            setLoading(true);
+            await OrderService.confirmOrder(selectedOrderId);
+            onOrderUpdate();
+            closeConfirmModal();
+        } catch (error) {
+            console.error('Error confirming order:', error);
+            alert('Không thể xác nhận đơn hàng. Vui lòng thử lại sau.');
         } finally {
             setLoading(false);
         }
@@ -103,8 +133,8 @@ const OrderList = ({ orders, onOrderUpdate }) => {
                                             <div className="flex items-center gap-2">
                                                 {getStatusIcon(order.status)}
                                                 <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${bgStatus} ${textStatus}`}>
-                          {getStatusLabel(order.status)}
-                        </span>
+                                                    {getStatusLabel(order.status)}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -192,6 +222,16 @@ const OrderList = ({ orders, onOrderUpdate }) => {
                                             </button>
                                         )}
 
+                                        {order.status === 'DELIVERED' && (
+                                            <button
+                                                onClick={() => openConfirmModal(order.id)}
+                                                disabled={loading}
+                                                className="w-full py-2 px-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:opacity-50"
+                                            >
+                                                Xác nhận nhận hàng
+                                            </button>
+                                        )}
+
                                         {canReturnOrder(order.status) && (
                                             <button
                                                 onClick={openContactModal}
@@ -253,10 +293,30 @@ const OrderList = ({ orders, onOrderUpdate }) => {
                 </div>
             </Modal>
 
+            {/* Confirm Order Modal */}
+            <Modal isOpen={isConfirmModalOpen} onClose={closeConfirmModal}>
+                <h2 className="text-2xl font-bold mb-4">Xác nhận nhận hàng</h2>
+                <p className="text-gray-600 mb-6">Bạn có chắc đã nhận được đơn hàng này và muốn xác nhận không?</p>
+                <div className="flex gap-4 justify-end">
+                    <button
+                        onClick={closeConfirmModal}
+                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                    >
+                        Không
+                    </button>
+                    <button
+                        onClick={handleConfirmOrder}
+                        className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+                    >
+                        Có, xác nhận
+                    </button>
+                </div>
+            </Modal>
+
             {/* Admin Contact Modal */}
             <Modal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)}>
                 <h2 className="text-2xl font-bold mb-4">Thông tin liên hệ Admin</h2>
-                <p className="text-gray-600 mb-4"> Vui lòng liên hệ với admin để được hỗ trợ về việc trả hàng.</p>
+                <p className="text-gray-600 mb-4">Vui lòng liên hệ với admin để được hỗ trợ về việc trả hàng.</p>
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Phone className="text-gray-600" />
@@ -272,11 +332,9 @@ const OrderList = ({ orders, onOrderUpdate }) => {
                             <p className="text-gray-600">admin@example.com</p>
                         </div>
                     </div>
-
                 </div>
             </Modal>
         </div>
     );
 };
-
 export default OrderList;

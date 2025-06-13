@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class RevenueService {
     OrderRepository orderRepository;
     OrderItemRepository orderItemRepository;
+
     public List<RevenueResponse> getDailyRevenue() {
         List<Object[]> results = orderRepository.getDailyRevenue();
         return results.stream()
@@ -52,31 +54,79 @@ public class RevenueService {
     }
 
     public List<TopProductResponse> getTopProductsByRevenue(String timeframe, int limit) {
-        List<Object[]> results = orderItemRepository.findTopProductsByRevenue(timeframe);
-        return results.stream()
-                .limit(limit) // Apply limit
+        List<Object[]> currentResults = orderItemRepository.findTopProductsByRevenue(timeframe);
+        String previousTimeframe = getPreviousTimeframe(timeframe);
+        List<Object[]> previousResults = orderItemRepository.findTopProductsByRevenue(previousTimeframe);
+
+        Map<Long, Double> previousRevenueMap = previousResults.stream()
+                .collect(Collectors.toMap(
+                        row ->((Number) row[0]).longValue(),
+                        row -> ((Number) row[3]).doubleValue()
+                ));
+
+        return currentResults.stream()
+                .limit(limit)
                 .map(result -> {
-                    TopProductResponse dto = new TopProductResponse();
-                    dto.setId((Long) result[0]);
-                    dto.setName((String) result[1]);
-                    dto.setQuantity(((Number) result[2]).longValue());
-                    dto.setRevenue(((Number) result[3]).doubleValue());
-                    return dto;
+                    long productCode = ((Number) result[0]).longValue();
+                    double currentRevenue = ((Number) result[3]).doubleValue();
+                    double previousRevenue = previousRevenueMap.getOrDefault(productCode, 0.0);
+                    double growth = previousRevenue == 0 ? 0.0 :
+                            ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+
+                    return TopProductResponse.builder()
+                            .id(productCode)
+                            .name((String) result[1])
+                            .quantity(((Number) result[2]).longValue())
+                            .revenue(currentRevenue)
+                            .growth(Double.isFinite(growth) ? growth : 0.0)
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
+
     public List<TopCustomerResponse> getTopCustomersByValue(String timeframe, int limit) {
-        List<Object[]> results = orderItemRepository.findTopCustomersByValue(timeframe);
-        return results.stream()
+        List<Object[]> customerResults = orderItemRepository.findTopCustomersByValue(timeframe);
+        List<Object[]> favoriteProductResults = orderItemRepository.findFavoriteProductsByCustomer(timeframe);
+
+        Map<String, String> favoriteProductMap = favoriteProductResults.stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0], // userId
+                        row -> (String) row[1], // productName
+                        (existing, replacement) -> existing // Giữ lại giá trị đầu tiên nếu trùng
+                ));
+
+        return customerResults.stream()
                 .limit(limit)
                 .map(row -> {
-                    TopCustomerResponse dto = new TopCustomerResponse();
-                    dto.setUserId((String) row[0]);
-                    dto.setCustomerName((String) row[1]);
-                    dto.setTotalOrders(((Number) row[2]).longValue());
-                    dto.setTotalValue(((Number) row[3]).doubleValue());
-                    return dto;
+                    String userId = (String) row[0];
+                    return TopCustomerResponse.builder()
+                            .userId(userId)
+                            .customerName((String) row[1])
+                            .totalOrders(((Number) row[2]).longValue())
+                            .totalValue(((Number) row[3]).doubleValue())
+                            .favoriteProduct(favoriteProductMap.getOrDefault(userId, "Unknown"))
+                            .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    public long getCustomerCount(String timeframe) {
+        return orderItemRepository.countCustomersByTimeframe(timeframe);
+    }
+
+    public long getProductsSoldCount(String timeframe) {
+        Long result = orderItemRepository.countProductsSoldByTimeframe(timeframe);
+        return result != null ? result : 0L;
+    }
+
+    private String getPreviousTimeframe(String timeframe) {
+        return switch (timeframe.toLowerCase()) {
+            case "daily" -> "yesterday";
+            case "weekly" -> "last_week";
+            case "monthly" -> "last_month";
+            case "yearly" -> "last_year";
+            case "all" -> "all";
+            default -> throw new IllegalArgumentException("Invalid timeframe: " + timeframe);
+        };
     }
 }

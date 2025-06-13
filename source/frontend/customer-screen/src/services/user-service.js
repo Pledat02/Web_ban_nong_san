@@ -76,7 +76,7 @@ class UserService {
     }
     async changePassword(userId, request) {
         try {
-            await this.api.put(`username/${userId}`, request);
+            await this.api.put(`change-password/${userId}`, request);
             toast.success("Thay đổi mật khẩu thành công!");
         } catch (error) {
             console.error("Lỗi khi cập nhật thông tin người dùng:", error);

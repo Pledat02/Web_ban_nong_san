@@ -16,15 +16,14 @@ class NotificationService {
         try {
             const response = await this.api.post("/send-confirm-phone-otp", { phone });
 
-            if (response.status === 200) {
-                toast.success(response.data.data, { position: "top-right" });
+            if (response.status === 200 && response.data.code!==5000) {
                 return true;
             } else {
-                toast.error(response.data.data, { position: "top-right" });
+                toast.error(response.data.message, { position: "top-right" });
                 return false;
             }
         } catch (error) {
-            toast.error("Lỗi khi gửi OTP!", { position: "top-right" });
+            toast.error("Lỗi khi gửi OTP!"+error, { position: "top-right" });
             return false;
         }
     }
@@ -32,12 +31,10 @@ class NotificationService {
     async sendEmailOtp(email) {
         try {
             const response = await this.api.post("/send-confirm-email-otp", { email });
-
-            if (response.status === 200) {
-                toast.success(response.data.data, { position: "top-right" });
+            if (response.status === 200 && response.data.code!==1000) {
                 return true;
             } else {
-                toast.error(response.data.data, { position: "top-right" });
+                toast.error(response.data.message, { position: "top-right" });
                 return false;
             }
         } catch (error) {

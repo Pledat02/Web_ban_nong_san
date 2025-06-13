@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import authService from "../services/auth-service";
+import {toast} from "react-toastify";
 
 const UserContext = createContext();
 
@@ -15,6 +16,7 @@ export const UserProvider = ({ children }) => {
 
     // Hàm đăng nhập
     const login = (userData) => {
+        toast.success("Đăng nhập thành công")
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
     };

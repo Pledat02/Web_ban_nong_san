@@ -31,7 +31,6 @@ class RevenueService {
                     toast.error("Bạn không có quyền truy cập tài nguyên này!", {
                         position: "top-right",
                     });
-
                     window.location.href = "/403";
                 }
                 return Promise.reject(error);
@@ -161,17 +160,20 @@ class RevenueService {
             return { currentRevenue: 0, growthRate: 0, isPositive: true };
         }
     }
+
+    // Lấy top sản phẩm theo doanh thu
     async getTopProductsByRevenue(timeframe = 'all', limit = 5) {
         try {
             const response = await this.api.get("/top-products", {
                 params: { timeframe, limit },
             });
             if (response.status === 200) {
-                return response.data.data.map(({ productCode, name, quantity, revenue }) => ({
-                    id: productCode,
+                return response.data.data.map(({ id, name, quantity, revenue, growth }) => ({
+                    id: Number(id),
                     name,
                     quantity: Number(quantity),
                     revenue: Number(revenue),
+                    growth: Number(growth),
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được top sản phẩm", {
@@ -180,21 +182,26 @@ class RevenueService {
                 return [];
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy top sản phẩm "+error, { position: "top-right" });
+            toast.error("Lỗi khi lấy top sản phẩm: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return [];
         }
     }
+
+    // Lấy top khách hàng theo giá trị
     async getTopCustomersByValue(timeframe = 'all', limit = 5) {
         try {
             const response = await this.api.get("/top-customers", {
                 params: { timeframe, limit },
             });
             if (response.status === 200) {
-                return response.data.data.map(({ userId, customerName, totalOrders, totalValue }) => ({
+                return response.data.data.map(({ userId, customerName, totalOrders, totalValue, favoriteProduct }) => ({
                     id: userId,
                     name: customerName,
                     totalOrders: Number(totalOrders),
                     totalSpent: Number(totalValue),
+                    favoriteProduct,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được top khách hàng", {
@@ -210,6 +217,49 @@ class RevenueService {
         }
     }
 
+    // Lấy số lượng khách hàng đã mua hàng
+    async getCustomerCount(timeframe = 'all') {
+        try {
+            const response = await this.api.get("/customer-count", {
+                params: { timeframe },
+            });
+            if (response.status === 200) {
+                return Number(response.data.data) || 0;
+            } else {
+                toast.error(response.data.message || "Không lấy được số lượng khách hàng", {
+                    position: "top-right",
+                });
+                return 0;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi lấy số lượng khách hàng: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
+            return 0;
+        }
+    }
+
+    // Lấy số lượng sản phẩm đã được bán
+    async getProductsSoldCount(timeframe = 'all') {
+        try {
+            const response = await this.api.get("/products-sold-count", {
+                params: { timeframe },
+            });
+            if (response.status === 200) {
+                return Number(response.data.data) || 0;
+            } else {
+                toast.error(response.data.message || "Không lấy được số lượng sản phẩm đã bán", {
+                    position: "top-right",
+                });
+                return 0;
+            }
+        } catch (error) {
+            toast.error("Lỗi khi lấy số lượng sản phẩm đã bán: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
+            return 0;
+        }
+    }
 }
 
 const revenueService = new RevenueService();

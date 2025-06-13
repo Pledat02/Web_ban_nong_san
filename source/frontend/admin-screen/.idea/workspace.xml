@@ -5,26 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/repository/ProfileClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/event/dto/NotificationRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/UserService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/controller/SendMailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/controller/SendMailController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/exception/ErrorCode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/service/OtpService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/java/com/example/notification_service/service/OtpService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/service/permission-service.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/components/logo.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/pages/contact.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../customer-screen/src/pages/intro.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../document/DeCuongTieuLuan_PhamLeDat_checked 11122024.docx" beforeDir="false" afterPath="$PROJECT_DIR$/../../../document/DeCuongTieuLuan_PhamLeDat_checked 11122024.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/PermissionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/PermissionService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/OrderController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/RevenueController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/RevenueController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/TopCustomerResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/TopCustomerResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/TopProductResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/dto/response/TopProductResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/ProfileInternalController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/ProfileInternalController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/repository/ProfileRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/repository/ProfileRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/service/ProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/service/ProfileService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/RevenueService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/RevenueService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ProductModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ProductModal.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/Dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/auth-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/auth-service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../customer-screen/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/revenue-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/revenue-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/status.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/status.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/ForgotPasswordModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/ForgotPasswordModal.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/header.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/components/profile-form.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/components/profile-form.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/context/UserContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/context/UserContext.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/list/order-list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/checkout.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/checkout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/pages/login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/route/route-config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/route/route-config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/services/notification-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/services/notification-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/services/order-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/services/order-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/services/user-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/services/user-service.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../customer-screen/src/utils/status.js" beforeDir="false" afterPath="$PROJECT_DIR$/../customer-screen/src/utils/status.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -193,6 +205,11 @@
       <workItem from="1749287566941" duration="846000" />
       <workItem from="1749537923443" duration="1157000" />
       <workItem from="1749539341375" duration="312000" />
+      <workItem from="1749718249618" duration="2957000" />
+      <workItem from="1749795776337" duration="202000" />
+      <workItem from="1749817924573" duration="1207000" />
+      <workItem from="1749821996657" duration="1206000" />
+      <workItem from="1749823476052" duration="1478000" />
     </task>
     <servers />
   </component>

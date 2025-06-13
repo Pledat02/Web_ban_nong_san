@@ -82,11 +82,11 @@ const Login = () => {
     const handleFacebookLogin = async () => {
         try {
             const result = await signInWithPopup(auth,facebookProvider);
-            if(result.user.email ===null){
+            const userFB = result._tokenResponse;
+            if(userFB.email ===null){
                 toast.info("Tài khoản chưa xác thực email")
                 return
             }
-            const userFB = result._tokenResponse;
             const user = {
                 username: userFB.displayName,
                 email: userFB.email,

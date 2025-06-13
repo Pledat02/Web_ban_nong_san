@@ -21,50 +21,70 @@ public class RevenueController {
 
     @GetMapping("/daily")
     public ApiResponse<List<RevenueResponse>> getDailyRevenue() {
-       return ApiResponse.<List<RevenueResponse>>builder()
-               .data(revenueService.getDailyRevenue())
-               .build();
+        return ApiResponse.<List<RevenueResponse>>builder()
+                .data(revenueService.getDailyRevenue())
+                .build();
     }
+
     @GetMapping("/weekly")
     public ApiResponse<List<RevenueResponse>> getWeeklyRevenue() {
         return ApiResponse.<List<RevenueResponse>>builder()
                 .data(revenueService.getWeeklyRevenue())
                 .build();
     }
+
     @GetMapping("/monthly")
     public ApiResponse<List<RevenueResponse>> getMonthlyRevenue() {
         return ApiResponse.<List<RevenueResponse>>builder()
-               .data(revenueService.getMonthlyRevenue())
-               .build();
+                .data(revenueService.getMonthlyRevenue())
+                .build();
     }
+
     @GetMapping("/yearly")
     public ApiResponse<List<RevenueResponse>> getYearlyRevenue() {
         return ApiResponse.<List<RevenueResponse>>builder()
-               .data(revenueService.getYearlyRevenue())
-               .build();
+                .data(revenueService.getYearlyRevenue())
+                .build();
     }
+
     @GetMapping("/average-monthly")
     public ApiResponse<Double> getAvgRevenue() {
         return ApiResponse.<Double>builder()
                 .data(revenueService.getAverageMonthlyRevenue())
                 .build();
     }
+
     @GetMapping("/top-products")
     public ApiResponse<List<TopProductResponse>> getTopProductsByRevenue(
             @RequestParam(defaultValue = "all") String timeframe,
             @RequestParam(defaultValue = "5") int limit) {
         return ApiResponse.<List<TopProductResponse>>builder()
-                .data(revenueService.getTopProductsByRevenue(timeframe,limit))
+                .data(revenueService.getTopProductsByRevenue(timeframe, limit))
                 .build();
     }
+
     @GetMapping("/top-customers")
     public ApiResponse<List<TopCustomerResponse>> getTopCustomersByRevenue(
-    @RequestParam(defaultValue = "all") String timeframe,
-    @RequestParam(defaultValue = "5") int limit) {
+            @RequestParam(defaultValue = "all") String timeframe,
+            @RequestParam(defaultValue = "5") int limit) {
         return ApiResponse.<List<TopCustomerResponse>>builder()
-                .data(revenueService.getTopCustomersByValue(timeframe,limit))
+                .data(revenueService.getTopCustomersByValue(timeframe, limit))
                 .build();
     }
 
-}
+    @GetMapping("/customer-count")
+    public ApiResponse<Long> getCustomerCount(
+            @RequestParam(defaultValue = "all") String timeframe) {
+        return ApiResponse.<Long>builder()
+                .data(revenueService.getCustomerCount(timeframe))
+                .build();
+    }
 
+    @GetMapping("/products-sold-count")
+    public ApiResponse<Long> getProductsSoldCount(
+            @RequestParam(defaultValue = "all") String timeframe) {
+        return ApiResponse.<Long>builder()
+                .data(revenueService.getProductsSoldCount(timeframe))
+                .build();
+    }
+}

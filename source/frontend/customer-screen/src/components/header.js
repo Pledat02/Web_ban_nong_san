@@ -109,8 +109,8 @@ const Header = () => {
                         <Link to="/" className="hover:text-green-600 transition">Trang chủ</Link>
                         <Link to="/search" className="hover:text-green-600 transition">Cửa hàng</Link>
                         <Link to="/cart" className="hover:text-green-600 transition">Giỏ hàng</Link>
-                        <Link to="/" className="hover:text-green-600 transition">Giới thiệu</Link>
-                        <Link to="/" className="hover:text-green-600 transition">Liên hệ</Link>
+                        <Link to="/intro" className="hover:text-green-600 transition">Giới thiệu</Link>
+                        <Link to="/contact" className="hover:text-green-600 transition">Liên hệ</Link>
                     </nav>
 
                     <div className="relative hidden md:block">

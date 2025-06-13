@@ -21,7 +21,7 @@ public class OrderController {
 
     // Get all orders
     @GetMapping("")
-    @CrossOrigin(value = "http://localhost:3000/,null", allowCredentials = "true")
+    @CrossOrigin(value = "http://localhost:3000/,http://localhost:3001/,null", allowCredentials = "true")
     @PreAuthorize("hasAuthority('GET_ORDER')")
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -70,7 +70,6 @@ public class OrderController {
 
     // Create order
     @PostMapping
-    @PreAuthorize("hasAuthority('WRITE_ORDER')")
     public ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
         OrderResponse order = orderService.createOrder(orderRequest);
         return ApiResponse.<OrderResponse>builder()
@@ -78,6 +77,14 @@ public class OrderController {
                 .code(201)
                 .build();
     }
+    @PutMapping("/confirm/{id}")
+    public ApiResponse<OrderResponse> confirmOrder(@PathVariable String id) {
+        OrderResponse order = orderService.confirmOrderByCustomer(id);
+        return ApiResponse.<OrderResponse>builder()
+                .data(order)
+                .build();
+    }
+
 
     // Delete order
     @DeleteMapping("/{id}")

@@ -71,7 +71,7 @@ const App = () => {
         setTopCustomers(topCustomersData.map(c => ({
           id: c.id,
           name: c.name,
-          revenue: c.totalSpent, // Map totalSpent to revenue
+          revenue: c.totalSpent,
           orders: c.totalOrders,
           favoriteProduct: c.favoriteProduct || 'N/A', // Placeholder
         })));
@@ -383,7 +383,7 @@ const App = () => {
                   <i className="fas fa-box text-purple-600 dark:text-purple-400 text-xl"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Tổng sản phẩm</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tổng sản phẩm đã bán</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{mockStats.totalProducts.toLocaleString()}</h2>
                   </div>
@@ -394,7 +394,7 @@ const App = () => {
                   <i className="fas fa-users text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Tổng khách hàng</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tổng khách hàng đã mua</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{mockStats.totalCustomers.toLocaleString()}</h2>
                   </div>

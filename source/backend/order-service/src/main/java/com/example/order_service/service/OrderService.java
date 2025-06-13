@@ -115,6 +115,46 @@ public class OrderService {
         log.info("Restored stock for order {}", order.getId_order());
     }
 
+    @Transactional
+    public OrderResponse confirmOrderByCustomer(String id_Order) {
+        // Kiểm tra quyền sở hữu đơn hàng
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userId = jwt.getClaim("id_user");
+
+        if (!isOrderOwner(id_Order, userId)) {
+            throw new AppException(ErrorCode.USER_NOT_AUTHORIZED, "Bạn không có quyền xác nhận đơn hàng này");
+        }
+
+        Order order = orderRepository.findById(id_Order)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (order.getStatus() != OrderStatus.DELIVERED.getCode()) {
+            throw new AppException(ErrorCode.INVALID_STATUS, "Đơn hàng chưa được giao, không thể xác nhận");
+        }
+
+        order.setStatus(OrderStatus.CONFIRMED_BY_CUSTOMER.getCode());
+        order = orderRepository.save(order);
+
+        // Gửi thông báo xác nhận
+        var userProfile = profileClientHttp.getProfile(order.getId_user()).getData();
+        String name = userProfile.getFirstName() + userProfile.getLastName();
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .nameReceptor(name)
+                .emailReceptor(userProfile.getEmail())
+                .subject("Xác nhận đơn hàng: " + order.getId_order())
+                .textContent(String.format(
+                        "Kính gửi %s, bạn đã xác nhận nhận hàng cho đơn hàng (%s) vào lúc %s.",
+                        name,
+                        order.getId_order(),
+                        java.time.LocalDateTime.now()
+                ))
+                .build();
+        kafkaTemplate.send("notification-requests", notificationRequest);
+        log.info("Đã gửi thông báo Kafka cho người dùng về xác nhận đơn hàng {}", order.getId_order());
+
+        return orderMapper.toOrderResponse(order);
+    }
     // User role
     @Transactional
     public OrderResponse updateStatusCancelOrder(String id_Order) {
@@ -204,10 +244,27 @@ public class OrderService {
                 order.setStatus(OrderStatus.DELIVERED.getCode());
                 break;
             case DELIVERED:
-                if (newStatus != OrderStatus.RETURN_APPROVED) {
+                if (newStatus == OrderStatus.CONFIRMED_BY_CUSTOMER) {
+                    order.setStatus(OrderStatus.CONFIRMED_BY_CUSTOMER.getCode());
+                } else if (newStatus == OrderStatus.RETURN_APPROVED) {
+                    order.setStatus(OrderStatus.RETURN_APPROVED.getCode());
+                } else {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
-                order.setStatus(OrderStatus.RETURN_APPROVED.getCode());
+                break;
+            case CONFIRMED_BY_CUSTOMER:
+                if (newStatus == OrderStatus.RETURN_REQUESTED) {
+                    order.setStatus(OrderStatus.RETURN_REQUESTED.getCode());
+                } else {
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
+                break;
+            case RETURN_REQUESTED:
+                if (newStatus == OrderStatus.RETURN_APPROVED) {
+                    order.setStatus(OrderStatus.RETURN_APPROVED.getCode());
+                } else {
+                    throw new AppException(ErrorCode.INVALID_STATUS);
+                }
                 break;
             case RETURN_APPROVED:
                 if (newStatus != OrderStatus.RETURNED) {
@@ -220,8 +277,9 @@ public class OrderService {
             default:
                 throw new AppException(ErrorCode.INVALID_STATUS);
         }
+
         var userProfile = profileClientHttp.getProfile(order.getId_user()).getData();
-        String name =userProfile.getFirstName()+userProfile.getLastName();
+        String name = userProfile.getFirstName() + userProfile.getLastName();
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .nameReceptor(name)
                 .emailReceptor(userProfile.getEmail())
@@ -230,13 +288,13 @@ public class OrderService {
                         "Kính gửi %s, đơn hàng (%s) của bạn đã được cập nhật trạng thái thành %s vào lúc %s.",
                         name,
                         order.getId_order(),
-                        newStatus.name(),
+                        newStatus.getDescription(), // Sử dụng description để hiển thị tiếng Việt
                         java.time.LocalDateTime.now()
                 ))
                 .build();
+        kafkaTemplate.send("notification-requests", notificationRequest);
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
-
     public OrderResponse getOrderById(String orderId) {
         Order order = updateOrderStatusFromGHTK(orderId);
         log.info("order {}", order);

@@ -82,6 +82,20 @@ class OrderService {
             toast.error("Không tìm thấy đơn hàng", {position: "top-right"});
         }
     }
+    async confirmOrder(orderId) {
+        try {
+            const response = await this.api.put(`/confirm/${orderId}`);
+            if (response.status === 200) {
+                toast.success(response.data.message || "Xác nhận đơn hàng thành công", { position: "top-right" });
+                return response.data.data;
+            } else {
+                toast.error(response.data.message || "Xác nhận đơn hàng thất bại", { position: "top-right" });
+            }
+        } catch (error) {
+            toast.error("Xác nhận đơn hàng thất bại, vui lòng thử lại", { position: "top-right" });
+            throw error;
+        }
+    }
 
 }
 export default new OrderService();
