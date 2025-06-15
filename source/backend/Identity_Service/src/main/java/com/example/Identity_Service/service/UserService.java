@@ -229,9 +229,7 @@ public class UserService {
     }
 
     // Get reviewer information
-    @Cacheable(value = "reviewers", key = "#id")
     public ReviewerResponse getReviewer(String id) {
-        log.info("Fetching reviewer from DB with ID: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!user.isActive()) {

@@ -56,7 +56,7 @@ export const getStatusColor = (status) => {
 };
 
 export const canCancelOrder = (status) => {
-    return ['PENDING_CONFIRMATION', 'WAITING_FOR_SHIPMENT'].includes(status);
+    return ['PENDING_CONFIRMATION'].includes(status);
 };
 
 export const canReturnOrder = (status) => {

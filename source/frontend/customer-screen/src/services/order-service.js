@@ -73,6 +73,7 @@ class OrderService {
     async cancelOrder(orderId) {
         try {
             const response = await this.api.put(`cancel/${orderId}`);
+            toast.error(response);
             if (response.status === 200) {
                 toast.success(response.data.message, {position: "top-right"});
             } else {

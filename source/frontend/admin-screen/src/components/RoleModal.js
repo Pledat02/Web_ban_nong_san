@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import permissionService from '../service/permission-service';
+import { toast } from 'react-toastify';
 
 const Modal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
@@ -23,15 +25,30 @@ const RoleModal = ({ isOpen, onClose, mode, role, onSave }) => {
         permissions: [], // Stores [{ name }, ...]
     });
     const [errors, setErrors] = useState({});
+    const [availablePermissions, setAvailablePermissions] = useState([]); // Lưu quyền từ API
+    const [loading, setLoading] = useState(false); // Trạng thái tải quyền
 
-    // Mock permissions (replace with API call if needed)
-    const availablePermissions = [
-        { name: 'READ' },
-        { name: 'WRITE' },
-        { name: 'DELETE' },
-        { name: 'ADMIN' },
-    ];
+    // Fetch permissions từ API khi modal mở
+    useEffect(() => {
+        if (isOpen) {
+            const fetchPermissions = async () => {
+                setLoading(true);
+                try {
+                    const response = await permissionService.getAllPermissions(1, 100); // Lấy tối đa 100 quyền
+                    const permissions = response.content.map((perm) => ({ name: perm.name }));
+                    setAvailablePermissions(permissions);
+                } catch (error) {
+                    // Lỗi đã được xử lý trong PermissionService (hiển thị toast)
+                    setAvailablePermissions([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchPermissions();
+        }
+    }, [isOpen]);
 
+    // Cập nhật formData khi role hoặc isOpen thay đổi
     useEffect(() => {
         if (role) {
             setFormData({
@@ -93,9 +110,6 @@ const RoleModal = ({ isOpen, onClose, mode, role, onSave }) => {
                     <h2 className="text-xl font-bold">
                         {mode === 'add' ? 'Thêm vai trò' : mode === 'edit' ? 'Chỉnh sửa vai trò' : 'Xem vai trò'}
                     </h2>
-                    {/*<button onClick={onClose}>*/}
-                    {/*    <X className="w-5 h-5 text-gray-500" />*/}
-                    {/*</button>*/}
                 </div>
                 <div>
                     <label className="block text-sm font-medium">Tên vai trò</label>
@@ -121,23 +135,31 @@ const RoleModal = ({ isOpen, onClose, mode, role, onSave }) => {
                 </div>
                 <div>
                     <label className="block text-sm font-medium">Quyền hạn</label>
-                    <div className="mt-2 space-y-2">
-                        {availablePermissions.map((permission) => (
-                            <div key={permission.name} className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id={`permission-${permission.name}`}
-                                    checked={formData.permissions.some((p) => p.name === permission.name)}
-                                    onChange={() => handlePermissionChange(permission)}
-                                    disabled={mode === 'view'}
-                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                <label htmlFor={`permission-${permission.name}`} className="ml-2 text-sm text-gray-600">
-                                    {permission.name}
-                                </label>
-                            </div>
-                        ))}
-                    </div>
+                    {loading ? (
+                        <p className="text-gray-500 mt-2">Đang tải quyền...</p>
+                    ) : availablePermissions.length === 0 ? (
+                        <p className="text-red-500 mt-2">Không có quyền nào khả dụng</p>
+                    ) : (
+                        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
+                            {availablePermissions.map((permission) => (
+                                <div key={permission.name} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`permission-${permission.name}`}
+                                        checked={formData.permissions.some((p) => p.name === permission.name)}
+                                        onChange={() => handlePermissionChange(permission)}
+                                        disabled={mode === 'view'}
+                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    />
+                                    <label htmlFor={`permission-${permission.name}`}
+                                           className="ml-2 text-sm text-gray-600 break-words">
+                                        {permission.name}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+
+                    )}
                 </div>
                 <div className="mt-4 flex justify-end gap-2">
                     <button

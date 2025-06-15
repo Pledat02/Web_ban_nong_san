@@ -17,7 +17,7 @@ class CategoryService {
                 const token = user.token;
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
-                    console.log("Request Headers:", config.headers); // Debug
+
                 } else {
                     console.warn("No token found in localStorage");
                 }

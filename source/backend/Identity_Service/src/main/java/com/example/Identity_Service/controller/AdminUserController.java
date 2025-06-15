@@ -81,7 +81,7 @@ public class AdminUserController {
     }
 
     // Create a new user (requires WRITE_USER)
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="", consumes = {"multipart/form-data"})
     @PreAuthorize("hasAuthority('WRITE_USER')")
     public ApiResponse<UserResponse> createUser(
             @Valid @RequestPart("user") UserCreationRequest request,

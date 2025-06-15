@@ -99,7 +99,8 @@ class UserService {
     async createUser({ userData, file }) {
         try {
             const formData = new FormData();
-            formData.append('user', JSON.stringify(userData));
+            const userBlob = new Blob([JSON.stringify(userData)], { type: 'application/json' });
+            formData.append('user', userBlob);
             if (file) {
                 formData.append('file', file);
             }

@@ -4,13 +4,8 @@ import * as XLSX from 'xlsx';
 import { Download } from 'lucide-react';
 import { toast } from 'react-toastify';
 import revenueService from '../service/revenue-service';
-
-// Mock data for static stats
-const mockStats = {
-  totalCustomers: 1250,
-  totalProducts: 384,
-};
-
+import 'react-toastify/dist/ReactToastify.css';
+import { getISOWeek, getYear } from 'date-fns';
 const App = () => {
   const [timeFilter, setTimeFilter] = useState('month');
   const [chartInstance, setChartInstance] = useState(null);
@@ -22,9 +17,10 @@ const App = () => {
   const [growthRate, setGrowthRate] = useState({ value: 0, isPositive: true });
   const [topProducts, setTopProducts] = useState([]);
   const [topCustomers, setTopCustomers] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Map timeframe options
   const timeframeOptions = [
     { value: 'day', label: 'Ngày', api: 'daily' },
     { value: 'week', label: 'Tuần', api: 'weekly' },
@@ -32,7 +28,20 @@ const App = () => {
     { value: 'year', label: 'Năm', api: 'yearly' },
   ];
 
-  // Fetch data
+  // Format revenue to display as k VND, triệu VND, or tỷ VND
+  const formatRevenue = (value) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} tỷ VND`;
+    } else if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)} triệu VND`;
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}k VND`;
+    } else {
+      return `${value.toLocaleString()} VND`;
+    }
+  };
+
+  // Fetch data from RevenueService
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -42,8 +51,8 @@ const App = () => {
         setAverageMonthlyRevenue(avgData);
 
         // Fetch revenue by timeframe
+        const selectedTimeframe = timeframeOptions.find((opt) => opt.value === timeFilter)?.api || 'monthly';
         let formattedData = [];
-        const selectedTimeframe = timeframeOptions.find(opt => opt.value === timeFilter)?.api || 'monthly';
         switch (selectedTimeframe) {
           case 'daily':
             formattedData = await revenueService.getDailyRevenue();
@@ -62,49 +71,56 @@ const App = () => {
         }
         setRevenueData(formattedData);
 
-        // Fetch top products
+        // Fetch top products and customers
         const topProductsData = await revenueService.getTopProductsByRevenue(selectedTimeframe, 5);
         setTopProducts(topProductsData);
 
-        // Fetch top customers
         const topCustomersData = await revenueService.getTopCustomersByValue(selectedTimeframe, 5);
-        setTopCustomers(topCustomersData.map(c => ({
-          id: c.id,
-          name: c.name,
-          revenue: c.totalSpent,
-          orders: c.totalOrders,
-          favoriteProduct: c.favoriteProduct || 'N/A', // Placeholder
-        })));
+        setTopCustomers(
+            topCustomersData.map((c) => ({
+              id: c.id,
+              name: c.name,
+              revenue: c.totalSpent,
+              orders: c.totalOrders,
+              favoriteProduct: c.favoriteProduct || 'N/A',
+            }))
+        );
 
-        // Fetch current revenue and growth rate
+        // Fetch total products and customers
+        const productsSold = await revenueService.getProductsSoldCount(selectedTimeframe);
+        const customersCount = await revenueService.getCustomerCount(selectedTimeframe);
+        setTotalProducts(productsSold);
+        setTotalCustomers(customersCount);
+
+        // Calculate current revenue and growth rate
+        const currentDate = new Date();
         if (selectedTimeframe === 'monthly') {
           const { currentRevenue, growthRate, isPositive } = await revenueService.getCurrentMonthGrowth();
           setCurrentRevenue(currentRevenue);
           setGrowthRate({ value: growthRate, isPositive });
         } else {
           let currentDateStr, previousDateStr, currentData, previousData;
-          const currentDate = new Date('2025-05-31T09:46:00+07:00'); // Use provided date
           if (selectedTimeframe === 'daily') {
-            currentDateStr = currentDate.toISOString().slice(0, 10); // e.g., '2025-05-31'
+            currentDateStr = currentDate.toISOString().slice(0, 10);
             const previousDate = new Date(currentDate);
             previousDate.setDate(currentDate.getDate() - 1);
             previousDateStr = previousDate.toISOString().slice(0, 10);
-            currentData = formattedData.find(item => item.date === currentDateStr);
-            previousData = formattedData.find(item => item.date === previousDateStr);
+            currentData = formattedData.find((item) => item.date === currentDateStr);
+            previousData = formattedData.find((item) => item.date === previousDateStr);
           } else if (selectedTimeframe === 'weekly') {
-            const currentYear = currentDate.getFullYear();
-            const currentWeek = Math.ceil(((currentDate - new Date(currentYear, 0, 1)) / 86400000 + 1) / 7);
-            currentDateStr = `${currentYear}-W${currentWeek}`;
-            const previousWeek = currentWeek === 1 ? 52 : currentWeek - 1;
-            const previousYear = currentWeek === 1 ? currentYear - 1 : currentYear;
-            previousDateStr = `${previousYear}-W${previousWeek}`;
-            currentData = formattedData.find(item => item.date === currentDateStr);
-            previousData = formattedData.find(item => item.date === previousDateStr);
+            const currentYear = getYear(currentDate);
+            const currentWeek = getISOWeek(currentDate);
+            currentDateStr = `${currentYear}-W${currentWeek < 10 ? '0' + currentWeek : currentWeek}`; // Ví dụ: 2025-W24
+            previousDateStr = `${currentWeek === 1 ? currentYear - 1 : currentYear}-W${currentWeek === 1 ? 52 : currentWeek - 1 < 10 ? '0' + (currentWeek - 1) : currentWeek - 1}`; // Ví dụ: 2025-W23
+            currentData = formattedData.find((item) => item.date === currentDateStr) ||
+                formattedData.sort((a, b) => b.date.localeCompare(a.date))[0]; // Lấy tuần gần nhất (2025-W23)
+            previousData = formattedData.find((item) => item.date === previousDateStr);
+
           } else {
             currentDateStr = currentDate.getFullYear().toString();
             previousDateStr = (currentDate.getFullYear() - 1).toString();
-            currentData = formattedData.find(item => item.date === currentDateStr);
-            previousData = formattedData.find(item => item.date === previousDateStr);
+            currentData = formattedData.find((item) => item.date === currentDateStr);
+            previousData = formattedData.find((item) => item.date === previousDateStr);
           }
           const currentRevenue = currentData?.revenue || 0;
           const previousRevenue = previousData?.revenue || 0;
@@ -116,6 +132,7 @@ const App = () => {
           });
         }
       } catch (error) {
+        console.error('Error fetching dashboard data:', error);
         toast.error('Lỗi khi tải dữ liệu dashboard', { position: 'top-right' });
         setRevenueData([]);
         setAverageMonthlyRevenue(0);
@@ -123,11 +140,12 @@ const App = () => {
         setGrowthRate({ value: 0, isPositive: true });
         setTopProducts([]);
         setTopCustomers([]);
+        setTotalProducts(0);
+        setTotalCustomers(0);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [timeFilter]);
 
@@ -151,7 +169,6 @@ const App = () => {
       setBarChartInstance(barChart);
     }
 
-    // Handle resize
     const handleResize = () => {
       chartInstance?.resize();
       pieChartInstance?.resize();
@@ -166,37 +183,37 @@ const App = () => {
       barChartInstance?.dispose();
     };
   }, [chartInstance, pieChartInstance, barChartInstance]);
-  const formatRevenue = (value) => {
-    if (value >= 1000000000) {
-      return `${(value / 1000000000).toFixed(1)} tỷ`;
-    } else if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)} triệu`;
-    }  else {
-      return value.toLocaleString();
-    }
-  };
+
   // Update revenue chart
   useEffect(() => {
     if (chartInstance && revenueData.length > 0) {
       const option = {
-        animation: false,
-        tooltip: { trigger: 'axis', formatter: '{b}: {c} triệu đồng' },
+        animation: true,
+        tooltip: {
+          trigger: 'axis',
+          formatter: (params) => {
+            const { name, value } = params[0];
+            return `${name}: ${formatRevenue(value * 1000000)}`;
+          },
+        },
         color: ['#16A34A'],
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: revenueData.map(item => item.date),
+          data: revenueData.map((item) => item.date),
         },
         yAxis: {
           type: 'value',
-          axisLabel: { formatter: '{value} tr' },
+          axisLabel: {
+            formatter: (value) => `${value.toFixed(0)} tr`,
+          },
         },
         series: [
           {
             name: 'Doanh thu',
             type: 'line',
-            data: revenueData.map(item => item.revenue / 1000000), // Convert to millions
+            data: revenueData.map((item) => item.revenue / 1000000),
             smooth: true,
             lineStyle: { width: 3, color: '#16A34A' },
             areaStyle: {
@@ -226,13 +243,19 @@ const App = () => {
   useEffect(() => {
     if (pieChartInstance && topProducts.length > 0) {
       const pieOption = {
-        animation: false,
-        tooltip: { trigger: 'item', formatter: '{b}: {c} triệu đồng ({d}%)' },
+        animation: true,
+        tooltip: {
+          trigger: 'item',
+          formatter: (params) => {
+            const { name, value } = params;
+            return `${name}: ${formatRevenue(value * 1000000)} (${params.percent}%)`;
+          },
+        },
         legend: {
           orient: 'vertical',
           right: 10,
           top: 'center',
-          data: topProducts.map(p => p.name),
+          data: topProducts.map((p) => p.name),
         },
         series: [
           {
@@ -260,20 +283,30 @@ const App = () => {
   useEffect(() => {
     if (barChartInstance && topCustomers.length > 0) {
       const barOption = {
-        animation: false,
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c} triệu đồng' },
+        animation: true,
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          formatter: (params) => {
+            const { name, value } = params[0];
+            return `${name}: ${formatRevenue(value * 1000000)}`;
+          },
+        },
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'value', axisLabel: { formatter: '{value} tr' } },
+        xAxis: {
+          type: 'value',
+          axisLabel: { formatter: (value) => `${value.toFixed(0)} tr` },
+        },
         yAxis: {
           type: 'category',
-          data: topCustomers.map(c => c.name),
+          data: topCustomers.map((c) => c.name),
           axisLabel: { fontSize: 12, width: 120, overflow: 'truncate' },
         },
         series: [
           {
             name: 'Doanh thu',
             type: 'bar',
-            data: topCustomers.map(c => c.revenue / 1000000),
+            data: topCustomers.map((c) => c.revenue / 1000000),
             itemStyle: {
               color: {
                 type: 'linear',
@@ -297,9 +330,26 @@ const App = () => {
 
   // Handle export to Excel
   const handleExport = () => {
-    const ws = XLSX.utils.json_to_sheet(revenueData);
+    const revenueSheet = XLSX.utils.json_to_sheet(revenueData.map((item) => ({
+      Date: item.date,
+      Revenue: formatRevenue(item.revenue),
+    })));
+    const productsSheet = XLSX.utils.json_to_sheet(topProducts.map((p) => ({
+      Name: p.name,
+      Quantity: p.quantity,
+      Revenue: formatRevenue(p.revenue),
+      Growth: p.growth ? `${p.growth}%` : 'N/A',
+    })));
+    const customersSheet = XLSX.utils.json_to_sheet(topCustomers.map((c) => ({
+      Name: c.name,
+      Orders: c.orders,
+      Revenue: formatRevenue(c.revenue),
+      FavoriteProduct: c.favoriteProduct,
+    })));
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Revenue Data');
+    XLSX.utils.book_append_sheet(wb, revenueSheet, 'Revenue Data');
+    XLSX.utils.book_append_sheet(wb, productsSheet, 'Top Products');
+    XLSX.utils.book_append_sheet(wb, customersSheet, 'Top Customers');
     XLSX.writeFile(wb, `revenue-${timeFilter}-report.xlsx`);
   };
 
@@ -310,15 +360,13 @@ const App = () => {
 
   return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        {/* Main Content */}
         <div className="w-full">
-          {/* Header */}
           <header className="bg-white dark:bg-gray-800 shadow">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Thống kê tổng quan</h1>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                  {timeframeOptions.map(option => (
+                  {timeframeOptions.map((option) => (
                       <button
                           key={option.value}
                           onClick={() => handleTimeFilterChange(option.value)}
@@ -332,9 +380,6 @@ const App = () => {
                       </button>
                   ))}
                 </div>
-                <button className="p-2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 cursor-pointer">
-                  <i className="fas fa-sync-alt"></i>
-                </button>
                 <button
                     onClick={handleExport}
                     className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -346,19 +391,22 @@ const App = () => {
             </div>
           </header>
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Card Thống kê Tổng quan */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 flex items-center">
                 <div className="rounded-full bg-green-100 dark:bg-green-900 p-3 mr-4">
                   <i className="fas fa-dollar-sign text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400"> Doanh thu tháng này</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Doanh thu {timeFilter === 'month' ? 'tháng này' : timeFilter}</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {loading ? 'Loading...' : `${formatRevenue(currentRevenue)}`}
+                      {loading ? 'Loading...' : formatRevenue(currentRevenue)}
                     </h2>
-                    <span className={`ml-2 text-sm font-medium ${growthRate.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    <span
+                        className={`ml-2 text-sm font-medium ${
+                            growthRate.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}
+                    >
                     <i className={`fas fa-arrow-${growthRate.isPositive ? 'up' : 'down'} mr-1`}></i>
                       {Math.abs(growthRate.value)}%
                   </span>
@@ -385,7 +433,7 @@ const App = () => {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Tổng sản phẩm đã bán</p>
                   <div className="flex items-baseline">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{mockStats.totalProducts.toLocaleString()}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalProducts}</h2>
                   </div>
                 </div>
               </div>
@@ -396,7 +444,7 @@ const App = () => {
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Tổng khách hàng đã mua</p>
                   <div className="flex items-baseline">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{mockStats.totalCustomers.toLocaleString()}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalCustomers}</h2>
                   </div>
                 </div>
               </div>

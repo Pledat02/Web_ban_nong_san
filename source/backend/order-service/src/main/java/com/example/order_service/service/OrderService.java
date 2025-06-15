@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +96,7 @@ public class OrderService {
                         order.getId_order(),
                         order.getId_user(),
                         OrderStatus.fromCode(order.getStatus()).name(),
-                        order.getOrder_date()
+                        LocalDate.now()
                 ))
                 .build();
         kafkaTemplate.send("notification-requests", notificationRequest);
@@ -158,6 +159,13 @@ public class OrderService {
     // User role
     @Transactional
     public OrderResponse updateStatusCancelOrder(String id_Order) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userId = jwt.getClaim("id_user");
+
+        if (!isOrderOwner(id_Order, userId)) {
+            throw new AppException(ErrorCode.USER_NOT_AUTHORIZED, "Bạn không có quyền xác nhận đơn hàng này");
+        }
         Order order = orderRepository.findById(id_Order).orElseThrow(
                 () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
         );
@@ -194,6 +202,7 @@ public class OrderService {
     // Admin role
     @Transactional
     public OrderResponse updateStatusOrder(String id_Order, String status) {
+
         Order order = orderRepository.findById(id_Order).orElseThrow(
                 () -> new AppException(ErrorCode.ORDER_NOT_FOUND)
         );
@@ -228,11 +237,7 @@ public class OrderService {
             case WAITING_FOR_SHIPMENT:
                 if (newStatus == OrderStatus.SHIPPING) {
                     order.setStatus(OrderStatus.SHIPPING.getCode());
-                } else if (newStatus == OrderStatus.CANCELED) {
-                    shippingClientHttp.cancelShipping(id_Order);
-                    order.setStatus(OrderStatus.CANCELED.getCode());
-                    // Restore stock when order is canceled
-                    restoreStock(order);
+
                 } else {
                     throw new AppException(ErrorCode.INVALID_STATUS);
                 }
@@ -359,7 +364,8 @@ public class OrderService {
         if (order.getStatus() == OrderStatus.PENDING_CONFIRMATION.getCode()
                 || order.getStatus() == OrderStatus.RETURN_REQUESTED.getCode()
                 || order.getStatus() == OrderStatus.DELIVERED.getCode()
-                || order.getStatus() == OrderStatus.CANCELED.getCode()) {
+                || order.getStatus() == OrderStatus.CANCELED.getCode()
+                || order.getStatus() == OrderStatus.CONFIRMED_BY_CUSTOMER.getCode()) {
             return order;
         }
 

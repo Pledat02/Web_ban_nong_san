@@ -68,7 +68,7 @@ const OrderList = ({ orders, onOrderUpdate }) => {
     // Handle order cancellation
     const handleCancelOrder = async () => {
         if (!selectedOrderId) return;
-
+        console.log(selectedOrderId)
         try {
             setLoading(true);
             await OrderService.cancelOrder(selectedOrderId);

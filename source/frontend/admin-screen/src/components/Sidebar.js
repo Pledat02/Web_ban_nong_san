@@ -11,12 +11,12 @@ const Sidebar = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'dashboard', path: '/dashboard' },
-    { icon: Users, label: 'users', path: '/users-management' },
-    { icon: Shield, label: 'roles', path: '/roles-management' },
-    { icon: ShoppingBag, label: 'products', path: '/products-management' },
-    { icon: Package, label: 'orders', path: '/orders-management' },
-    { icon: User, label: 'Hồ sơ', path: '/profile-management' },
+    { icon: LayoutDashboard, label: 'Trang chủ', path: '/dashboard' },
+    { icon: Users, label: 'Quản lý gười dùng', path: '/users-management' },
+    { icon: Shield, label: 'Quản lý phân quyền', path: '/roles-management' },
+    { icon: ShoppingBag, label: 'Quản lý sản phẩm', path: '/products-management' },
+    { icon: Package, label: 'Quản lý đơn hàng', path: '/orders-management' },
+    { icon: User, label: 'Quản lý hồ sơ', path: '/profile-management' },
   ];
 
   const handleLogout = async () => {
@@ -41,7 +41,7 @@ const Sidebar = () => {
   return (
       <div className="w-64 bg-white h-screen fixed left-0 top-0 shadow-lg">
         <div className="p-4 border-b">
-          <h1 className="text-2xl font-bold text-green-600">Admin Portal</h1>
+          <h1 className="text-2xl font-bold text-green-600">AgriFruit</h1>
         </div>
         <nav className="p-4">
           {menuItems.map((item) => (

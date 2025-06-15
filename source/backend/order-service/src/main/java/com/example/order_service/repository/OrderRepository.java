@@ -22,33 +22,34 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     @Query("SELECT DATE(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue " +
             "FROM Order o " +
-            "WHERE o.status = 3 " +
+            "WHERE o.status = 3 or  o.status = 5 " +
             "GROUP BY DATE(o.order_date)")
     List<Object[]> getDailyRevenue();
 
-    @Query(value = "SELECT CONCAT(YEAR(o.order_date), '-W', LPAD(WEEK(o.order_date), 2, '0')) AS timePeriod, SUM(o.total_price) AS totalRevenue " +
+    @Query(value = "SELECT CONCAT(YEAR(o.order_date), '-W', LPAD(WEEK(o.order_date, 1), 2, '0')) AS timePeriod, " +
+            "SUM(o.total_price) AS totalRevenue " +
             "FROM orders o " +
-            "WHERE o.status = 3 " +
-            "GROUP BY CONCAT(YEAR(o.order_date), '-W', LPAD(WEEK(o.order_date), 2, '0'))", nativeQuery = true)
+            "WHERE o.status = 3 OR o.status = 5 " +
+            "GROUP BY CONCAT(YEAR(o.order_date), '-W', LPAD(WEEK(o.order_date, 1), 2, '0')) " +
+            "ORDER BY timePeriod", nativeQuery = true)
     List<Object[]> getWeeklyRevenue();
-
     @Query(value = "SELECT CONCAT(YEAR(o.order_date), '-', LPAD(MONTH(o.order_date), 2, '0')) AS timePeriod, SUM(o.total_price) AS totalRevenue " +
             "FROM orders o " +
-            "WHERE o.status = 3 " +
+            "WHERE o.status = 3 or  o.status = 5 " +
             "GROUP BY CONCAT(YEAR(o.order_date), '-', LPAD(MONTH(o.order_date), 2, '0'))", nativeQuery = true)
     List<Object[]> getMonthlyRevenue();
 
 
     @Query("SELECT YEAR(o.order_date) AS timePeriod, SUM(o.totalPrice) AS totalRevenue " +
             "FROM Order o " +
-            "WHERE o.status = 3 " +
+            "WHERE o.status = 3 or  o.status = 5 " +
             "GROUP BY YEAR(o.order_date)")
     List<Object[]> getYearlyRevenue();
 
     @Query("SELECT AVG(monthlyRevenue.totalRevenue) " +
             "FROM (SELECT SUM(o.totalPrice) AS totalRevenue " +
             "FROM Order o " +
-            "WHERE o.status = 3 " +
+            "WHERE o.status = 3 or  o.status = 5 " +
             "GROUP BY YEAR(o.order_date), MONTH(o.order_date)) AS monthlyRevenue")
     Double getAverageMonthlyRevenue();
 

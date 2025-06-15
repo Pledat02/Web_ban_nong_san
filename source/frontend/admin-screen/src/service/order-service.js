@@ -8,13 +8,15 @@ class OrderService {
             headers: {
                 "Content-Type": "application/json",
             },
-             withCredentials: true, // Giữ session nếu dùng cookie
+             withCredentials: true,
         });
 
         this.api.interceptors.request.use(
             (config) => {
                 const user = JSON.parse(localStorage.getItem("user")) || {};
                 const token = user.token;
+                console.log(token);
+
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
@@ -24,19 +26,19 @@ class OrderService {
                 return Promise.reject(error);
             }
         );
-        this.api.interceptors.response.use(
-            (response) => response,
-            (error) => {
-                if (error.response?.status === 403) {
-                    toast.error("Bạn không có quyền truy cập tài nguyên này!", {
-                        position: "top-right",
-                    });
-
-                    window.location.href = "/403";
-                }
-                return Promise.reject(error);
-            }
-        );
+        // this.api.interceptors.response.use(
+        //     (response) => response,
+        //     (error) => {
+        //         if (error.response?.status === 403) {
+        //             toast.error("Bạn không có quyền truy cập tài nguyên này!", {
+        //                 position: "top-right",
+        //             });
+        //
+        //             window.location.href = "/403";
+        //         }
+        //         return Promise.reject(error);
+        //     }
+        // );
     }
 
 

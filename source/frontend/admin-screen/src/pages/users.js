@@ -114,10 +114,8 @@ const Users = () => {
       console.log('Saving user:', user); // Debug log
       if (modalMode === 'add') {
         await UserService.createUser(user);
-        toast.success('Tạo người dùng thành công', { position: 'top-right' });
       } else if (modalMode === 'edit') {
         await UserService.updateUser(user.id_user, user);
-        toast.success('Cập nhật người dùng thành công', { position: 'top-right' });
       }
       await fetchUsers();
       setIsModalOpen(false);
@@ -140,7 +138,6 @@ const Users = () => {
     setLoading(true);
     try {
       await UserService.deleteUser(selectedUser.id_user);
-      toast.success('Xóa người dùng thành công', { position: 'top-right' });
       await fetchUsers();
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
@@ -160,7 +157,6 @@ const Users = () => {
     setLoading(true);
     try {
       await UserService.restoreUser(user.id_user);
-      toast.success('Khôi phục người dùng thành công', { position: 'top-right' });
       await fetchUsers();
     } catch (error) {
       // Error handling is managed by UserService (toast notifications)

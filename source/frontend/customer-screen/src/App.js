@@ -21,7 +21,7 @@ const isTokenExpiringSoon = () => {
 
 const App = () => {
     useEffect(() => {
-        document.title = "Halona Fruits";
+        document.title = "AgriFruit";
         // Cập nhật favicon
         const link = document.querySelector("link[rel~='icon']");
         if (link) {

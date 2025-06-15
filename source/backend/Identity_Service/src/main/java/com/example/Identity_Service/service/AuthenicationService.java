@@ -234,7 +234,7 @@ public class AuthenicationService {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(response.getUsername())
-                .expirationTime(Date.from(Instant.now().plus(12, ChronoUnit.MINUTES)))
+                .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)))
                 .issueTime(new Date())
                 .claim("email", response.getEmail())
                 .issuer("admin")

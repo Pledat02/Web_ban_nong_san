@@ -22,7 +22,7 @@ public class OrderController {
     // Get all orders
     @GetMapping("")
     @CrossOrigin(value = "http://localhost:3000/,http://localhost:3001/,null", allowCredentials = "true")
-    @PreAuthorize("hasAuthority('GET_ORDER')")
+//    @PreAuthorize("hasAuthority('READ_ORDER')or hasRole('MODERATOR') or hasRole('MANAGE_ORDER')")
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size,
@@ -34,7 +34,7 @@ public class OrderController {
 
     // Get order by ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('GET_ORDER')")
+    @PreAuthorize("hasAuthority('READ_ORDER')")
     public ApiResponse<OrderResponse> getOrderById(@PathVariable String id) {
         OrderResponse order = orderService.getOrderById(id);
         if (order == null) throw new AppException(ErrorCode.ORDER_NOT_FOUND);
@@ -45,7 +45,7 @@ public class OrderController {
 
     // Get orders by customer ID
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAuthority('GET_ORDER')")
+    @PreAuthorize("hasAuthority('READ_ORDER')")
     public ApiResponse<PageResponse<OrderResponse>> getOrdersByUserId(
             @PathVariable String userId,
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -97,7 +97,6 @@ public class OrderController {
 
     // Cancel order (user must own the order)
     @PutMapping("/cancel/{id}")
-    @PreAuthorize("@orderService.isOrderOwner(#id, authentication.principal.id)")
     public ApiResponse<OrderResponse> cancelOrder(@PathVariable String id) {
         OrderResponse order = orderService.updateStatusCancelOrder(id);
         if (order == null) throw new AppException(ErrorCode.ORDER_NOT_FOUND);

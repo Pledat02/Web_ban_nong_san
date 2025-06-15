@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "profile-service", url = "http://localhost:8081",
+@FeignClient(name = "profile-service", url = "http://localhost:8081/profiles/internal",
         configuration = AuthenRequestInterceptor.class)
 public interface ProfileClientHttp {
-    @GetMapping("/profiles/{userId}")
+    @GetMapping("/{userId}")
     ApiResponse<ProfileResponse> getProfile(@PathVariable String userId);
 }

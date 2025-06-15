@@ -50,4 +50,10 @@ public class ProfileInternalController {
     public void changePhone(ChangePhoneRequest request) {
         profileService.updatePhone(request.getUserId(), request.getPhone());
     }
+    @GetMapping("/{id}")
+    public ApiResponse<ProfileResponse> getProfileById(@PathVariable String id) {
+        return ApiResponse.<ProfileResponse>builder()
+                .data(profileService.getProfileById(id))
+                .build();
+    }
 }
