@@ -19,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/admin")
 //@PreAuthorize("hasAuthority('MANAGE_PROFILE')")
-@PreAuthorize("hasRole('MODERATOR')")
+
 public class AdminProfileController {
     // Lấy tất cả hồ sơ với phân trang
     ProfileService profileService;
 
     @GetMapping("")
 //    @CrossOrigin(origins = "http://localhost:3000,http://localhost:3001,null", allowCredentials = "true")
+    @PreAuthorize("hasAuthority('READ_PROFILE')")
     public ApiResponse<PageResponse<ProfileResponse>> getAllProfiles(
             @RequestParam(required = false, defaultValue = "") String keyword ,
             @RequestParam(required = false, defaultValue = "1") Integer page,
@@ -36,17 +37,20 @@ public class AdminProfileController {
                 .build();
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('WRITE_PROFILE')")
     public ApiResponse<Void> updateProfileByAdmin(@PathVariable String id, @RequestBody AdminUpdationProfileRequest request) {
         profileService.updateProfile(id, request);
         return ApiResponse.<Void>builder().build();
     }
     @PatchMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_PROFILE')")
     public ApiResponse<Void> deleteProfile(@PathVariable String id) {
         profileService.deleteProfile(id);
         return ApiResponse.<Void>builder().build();
     }
 
     @PatchMapping("/restore/{id}")
+    @PreAuthorize("hasAuthority('WRITE_PROFILE')")
     public ApiResponse<Void> restoreProfile(@PathVariable String id) {
         profileService.restoreProfile(id);
         return ApiResponse.<Void>builder()
@@ -55,16 +59,17 @@ public class AdminProfileController {
     }
     //  Lấy hồ sơ theo ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_PROFILE')")
     public ApiResponse<ProfileResponse> getProfile(@PathVariable String id) {
         return ApiResponse.<ProfileResponse>builder()
                 .data(profileService.getProfileById(id))
                 .build();
     }
-    @PostMapping
-    public ApiResponse<ProfileResponse> getProfile(@RequestBody CreationProfileRequest request) {
-        return ApiResponse.<ProfileResponse>builder()
-                .data(profileService.saveProfile(request))
-                .build();
-    }
+//    @PostMapping
+//    public ApiResponse<ProfileResponse> save(@RequestBody CreationProfileRequest request) {
+//        return ApiResponse.<ProfileResponse>builder()
+//                .data(profileService.saveProfile(request))
+//                .build();
+//    }
 
 }

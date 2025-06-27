@@ -32,16 +32,18 @@ public class VNPayController {
                 .build();
 
     }
+
     @GetMapping("/pay-callback")
     public void payCallbackHandler(HttpServletRequest request, HttpServletResponse response) throws IOException, IOException {
         String status = request.getParameter("vnp_ResponseCode");
 
         if ("00".equals(status)) {
-            response.sendRedirect(frontendPaymentReturn+"?status=success");
+            response.sendRedirect(frontendPaymentReturn + "?status=success");
         } else {
-            response.sendRedirect(frontendPaymentReturn+"?status=failed");
+            response.sendRedirect(frontendPaymentReturn + "?status=failed");
         }
     }
+
 
 }
 

@@ -20,10 +20,9 @@ class RevenueService {
                 }
                 return config;
             },
-            (error) => {
-                return Promise.reject(error);
-            }
+            (error) => Promise.reject(error)
         );
+
         this.api.interceptors.response.use(
             (response) => response,
             (error) => {
@@ -45,7 +44,7 @@ class RevenueService {
             if (response.status === 200) {
                 return response.data.data.map(({ timePeriod, totalRevenue }) => ({
                     date: timePeriod,
-                    revenue: Number(totalRevenue),
+                    revenue: Number(totalRevenue) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được doanh thu theo ngày", {
@@ -54,7 +53,9 @@ class RevenueService {
                 return [];
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy doanh thu theo ngày", { position: "top-right" });
+            toast.error("Lỗi khi lấy doanh thu theo ngày: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return [];
         }
     }
@@ -66,7 +67,7 @@ class RevenueService {
             if (response.status === 200) {
                 return response.data.data.map(({ timePeriod, totalRevenue }) => ({
                     date: timePeriod,
-                    revenue: Number(totalRevenue),
+                    revenue: Number(totalRevenue) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được doanh thu theo tuần", {
@@ -75,7 +76,9 @@ class RevenueService {
                 return [];
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy doanh thu theo tuần", { position: "top-right" });
+            toast.error("Lỗi khi lấy doanh thu theo tuần: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return [];
         }
     }
@@ -87,7 +90,7 @@ class RevenueService {
             if (response.status === 200) {
                 return response.data.data.map(({ timePeriod, totalRevenue }) => ({
                     date: timePeriod,
-                    revenue: Number(totalRevenue),
+                    revenue: Number(totalRevenue) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được doanh thu theo tháng", {
@@ -96,7 +99,9 @@ class RevenueService {
                 return [];
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy doanh thu theo tháng", { position: "top-right" });
+            toast.error("Lỗi khi lấy doanh thu theo tháng: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return [];
         }
     }
@@ -108,7 +113,7 @@ class RevenueService {
             if (response.status === 200) {
                 return response.data.data.map(({ timePeriod, totalRevenue }) => ({
                     date: timePeriod,
-                    revenue: Number(totalRevenue),
+                    revenue: Number(totalRevenue) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được doanh thu theo năm", {
@@ -117,7 +122,9 @@ class RevenueService {
                 return [];
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy doanh thu theo năm", { position: "top-right" });
+            toast.error("Lỗi khi lấy doanh thu theo năm: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return [];
         }
     }
@@ -135,7 +142,9 @@ class RevenueService {
                 return 0;
             }
         } catch (error) {
-            toast.error("Lỗi khi lấy doanh thu trung bình tháng", { position: "top-right" });
+            toast.error("Lỗi khi lấy doanh thu trung bình tháng: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return 0;
         }
     }
@@ -144,7 +153,7 @@ class RevenueService {
     async getCurrentMonthGrowth() {
         try {
             const data = await this.getMonthlyRevenue();
-            const currentMonth = new Date().toISOString().slice(0, 7); // Ví dụ: '2025-04'
+            const currentMonth = new Date().toISOString().slice(0, 7); // Ví dụ: '2025-06'
             const [year, month] = currentMonth.split('-').map(Number);
             const previousMonthDate = `${month === 1 ? year - 1 : year}-${month === 1 ? '12' : String(month - 1).padStart(2, '0')}`;
             const current = data.find(item => item.date === currentMonth)?.revenue || 0;
@@ -156,24 +165,35 @@ class RevenueService {
                 isPositive: growth >= 0,
             };
         } catch (error) {
-            toast.error("Lỗi khi tính tỉ lệ tăng trưởng", { position: "top-right" });
+            toast.error("Lỗi khi tính tỉ lệ tăng trưởng: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
             return { currentRevenue: 0, growthRate: 0, isPositive: true };
         }
     }
 
     // Lấy top sản phẩm theo doanh thu
-    async getTopProductsByRevenue(timeframe = 'all', limit = 5) {
+    async getTopProductsByRevenue(timeframe = 'all', limit = 5, startDate = null, endDate = null) {
         try {
-            const response = await this.api.get("/top-products", {
-                params: { timeframe, limit },
-            });
+            const params = { timeframe, limit };
+            if (timeframe.toLowerCase() === 'date-range' && startDate && endDate) {
+                params.startDate = startDate;
+                params.endDate = endDate;
+            } else if (timeframe.toLowerCase() === 'date-range') {
+                toast.error("startDate and endDate are required for date-range timeframe", {
+                    position: "top-right",
+                });
+                return [];
+            }
+
+            const response = await this.api.get("/top-products", { params });
             if (response.status === 200) {
                 return response.data.data.map(({ id, name, quantity, revenue, growth }) => ({
-                    id: Number(id),
-                    name,
-                    quantity: Number(quantity),
-                    revenue: Number(revenue),
-                    growth: Number(growth),
+                    id: Number(id) || 0,
+                    name: name || "Unknown",
+                    quantity: Number(quantity) || 0,
+                    revenue: Number(revenue) || 0,
+                    growth: Number(growth) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được top sản phẩm", {
@@ -190,18 +210,27 @@ class RevenueService {
     }
 
     // Lấy top khách hàng theo giá trị
-    async getTopCustomersByValue(timeframe = 'all', limit = 5) {
+    async getTopCustomersByValue(timeframe = 'all', limit = 5, startDate = null, endDate = null) {
         try {
-            const response = await this.api.get("/top-customers", {
-                params: { timeframe, limit },
-            });
+            const params = { timeframe, limit };
+            if (timeframe.toLowerCase() === 'date-range' && startDate && endDate) {
+                params.startDate = startDate;
+                params.endDate = endDate;
+            } else if (timeframe.toLowerCase() === 'date-range') {
+                toast.error("startDate and endDate are required for date-range timeframe", {
+                    position: "top-right",
+                });
+                return [];
+            }
+
+            const response = await this.api.get("/top-customers", { params });
             if (response.status === 200) {
                 return response.data.data.map(({ userId, customerName, totalOrders, totalValue, favoriteProduct }) => ({
-                    id: userId,
-                    name: customerName,
-                    totalOrders: Number(totalOrders),
-                    totalSpent: Number(totalValue),
-                    favoriteProduct,
+                    id: userId || "",
+                    name: customerName || "Unknown",
+                    totalOrders: Number(totalOrders) || 0,
+                    totalSpent: Number(totalValue) || 0,
+                    favoriteProduct: favoriteProduct || "Unknown",
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được top khách hàng", {
@@ -218,11 +247,20 @@ class RevenueService {
     }
 
     // Lấy số lượng khách hàng đã mua hàng
-    async getCustomerCount(timeframe = 'all') {
+    async getCustomerCount(timeframe = 'all', startDate = null, endDate = null) {
         try {
-            const response = await this.api.get("/customer-count", {
-                params: { timeframe },
-            });
+            const params = { timeframe };
+            if (timeframe.toLowerCase() === 'date-range' && startDate && endDate) {
+                params.startDate = startDate;
+                params.endDate = endDate;
+            } else if (timeframe.toLowerCase() === 'date-range') {
+                toast.error("startDate and endDate are required for date-range timeframe", {
+                    position: "top-right",
+                });
+                return 0;
+            }
+
+            const response = await this.api.get("/customer-count", { params });
             if (response.status === 200) {
                 return Number(response.data.data) || 0;
             } else {
@@ -240,11 +278,20 @@ class RevenueService {
     }
 
     // Lấy số lượng sản phẩm đã được bán
-    async getProductsSoldCount(timeframe = 'all') {
+    async getProductsSoldCount(timeframe = 'all', startDate = null, endDate = null) {
         try {
-            const response = await this.api.get("/products-sold-count", {
-                params: { timeframe },
-            });
+            const params = { timeframe };
+            if (timeframe.toLowerCase() === 'date-range' && startDate && endDate) {
+                params.startDate = startDate;
+                params.endDate = endDate;
+            } else if (timeframe.toLowerCase() === 'date-range') {
+                toast.error("startDate and endDate are required for date-range timeframe", {
+                    position: "top-right",
+                });
+                return 0;
+            }
+
+            const response = await this.api.get("/products-sold-count", { params });
             if (response.status === 200) {
                 return Number(response.data.data) || 0;
             } else {
@@ -258,6 +305,38 @@ class RevenueService {
                 position: "top-right",
             });
             return 0;
+        }
+    }
+
+    // Lấy doanh thu theo khoảng thời gian
+    async getRevenueByDateRange(startDate, endDate) {
+        try {
+            if (!startDate || !endDate) {
+                toast.error("startDate and endDate are required for date-range", {
+                    position: "top-right",
+                });
+                return [];
+            }
+
+            const response = await this.api.get("/date-range", {
+                params: { startDate, endDate },
+            });
+            if (response.status === 200) {
+                return response.data.data.map(({ date, revenue }) => ({
+                    date,
+                    revenue: Number(revenue) || 0,
+                }));
+            } else {
+                toast.error(response.data.message || "Không lấy được doanh thu theo khoảng thời gian", {
+                    position: "top-right",
+                });
+                return [];
+            }
+        } catch (error) {
+            toast.error("Lỗi khi lấy doanh thu theo khoảng thời gian: " + (error.response?.data?.message || error.message), {
+                position: "top-right",
+            });
+            return [];
         }
     }
 }

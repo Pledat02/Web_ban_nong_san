@@ -21,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -123,7 +122,7 @@ public class OrderService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String userId = jwt.getClaim("id_user");
 
-        if (!isOrderOwner(id_Order, userId)) {
+        if (isOrderOwner(id_Order, userId)) {
             throw new AppException(ErrorCode.USER_NOT_AUTHORIZED, "Bạn không có quyền xác nhận đơn hàng này");
         }
 
@@ -163,7 +162,7 @@ public class OrderService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String userId = jwt.getClaim("id_user");
 
-        if (!isOrderOwner(id_Order, userId)) {
+        if (isOrderOwner(id_Order, userId)) {
             throw new AppException(ErrorCode.USER_NOT_AUTHORIZED, "Bạn không có quyền xác nhận đơn hàng này");
         }
         Order order = orderRepository.findById(id_Order).orElseThrow(
@@ -393,6 +392,6 @@ public class OrderService {
     public boolean isOrderOwner(String orderId, String userId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        return order.getId_user().equals(userId);
+        return !order.getId_user().equals(userId);
     }
 }

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,54 +50,71 @@ public class RevenueService {
                 .toList();
     }
 
-    public Double getAverageMonthlyRevenue() {
-        return orderRepository.getAverageMonthlyRevenue();
+    public List<RevenueResponse> getRevenueByDateRange(Date startDate, Date endDate) {
+        List<Object[]> results = orderRepository.getRevenueByDateRange(startDate, endDate);
+        return results.stream()
+                .map(row -> new RevenueResponse(row[0].toString(), (Double) row[1]))
+                .toList();
     }
 
-    public List<TopProductResponse> getTopProductsByRevenue(String timeframe, int limit) {
-        List<Object[]> currentResults = orderItemRepository.findTopProductsByRevenue(timeframe);
-        String previousTimeframe = getPreviousTimeframe(timeframe);
-        List<Object[]> previousResults = orderItemRepository.findTopProductsByRevenue(previousTimeframe);
+    public Double getAverageMonthlyRevenue() {
+        Double result = orderRepository.getAverageMonthlyRevenue();
+        return result != null ? result : 0.0; // Xử lý null
+    }
 
-        Map<Long, Double> previousRevenueMap = previousResults.stream()
-                .collect(Collectors.toMap(
-                        row ->((Number) row[0]).longValue(),
-                        row -> ((Number) row[3]).doubleValue()
-                ));
+    public List<TopProductResponse> getTopProductsByRevenue(String timeframe, int limit, Date startDate, Date endDate) {
+        List<Object[]> currentResults;
 
+        if ("date-range".equalsIgnoreCase(timeframe)) {
+            if (startDate == null || endDate == null || startDate.after(endDate)) {
+                throw new IllegalArgumentException("Invalid date range: startDate must be before endDate and both must be provided");
+            }
+            currentResults = orderItemRepository.findTopProductsByRevenueCustomRange(startDate, endDate, limit);
+        } else {
+            currentResults = orderItemRepository.findTopProductsByRevenue(timeframe, limit);
+        }
+
+        // Không tính growth cho date-range, đặt growth = 0.0
         return currentResults.stream()
-                .limit(limit)
                 .map(result -> {
                     long productCode = ((Number) result[0]).longValue();
                     double currentRevenue = ((Number) result[3]).doubleValue();
-                    double previousRevenue = previousRevenueMap.getOrDefault(productCode, 0.0);
-                    double growth = previousRevenue == 0 ? 0.0 :
-                            ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+                    double growth = "date-range".equalsIgnoreCase(timeframe) ? 0.0 : 0.0; // Không có previous data
 
                     return TopProductResponse.builder()
                             .id(productCode)
                             .name((String) result[1])
                             .quantity(((Number) result[2]).longValue())
                             .revenue(currentRevenue)
-                            .growth(Double.isFinite(growth) ? growth : 0.0)
+                            .growth(growth)
                             .build();
                 })
                 .collect(Collectors.toList());
     }
 
-    public List<TopCustomerResponse> getTopCustomersByValue(String timeframe, int limit) {
-        List<Object[]> customerResults = orderItemRepository.findTopCustomersByValue(timeframe);
-        List<Object[]> favoriteProductResults = orderItemRepository.findFavoriteProductsByCustomer(timeframe);
+    public List<TopCustomerResponse> getTopCustomersByValue(String timeframe, int limit, Date startDate, Date endDate) {
+        List<Object[]> customerResults;
+        List<Object[]> favoriteProductResults;
+
+        if ("date-range".equalsIgnoreCase(timeframe)) {
+            if (startDate == null || endDate == null || startDate.after(endDate)) {
+                throw new IllegalArgumentException("Invalid date range: startDate must be before endDate and both must be provided");
+            }
+            customerResults = orderItemRepository.findTopCustomersByValueCustomRange(startDate, endDate, limit);
+            favoriteProductResults = orderItemRepository.findFavoriteProductsByCustomerCustomRange(startDate, endDate);
+        } else {
+            customerResults = orderItemRepository.findTopCustomersByValue(timeframe, limit);
+            favoriteProductResults = orderItemRepository.findFavoriteProductsByCustomer(timeframe,limit);
+        }
 
         Map<String, String> favoriteProductMap = favoriteProductResults.stream()
                 .collect(Collectors.toMap(
-                        row -> (String) row[0], // userId
-                        row -> (String) row[1], // productName
-                        (existing, replacement) -> existing // Giữ lại giá trị đầu tiên nếu trùng
+                        row -> (String) row[0],
+                        row -> (String) row[1],
+                        (existing, replacement) -> existing
                 ));
 
         return customerResults.stream()
-                .limit(limit)
                 .map(row -> {
                     String userId = (String) row[0];
                     return TopCustomerResponse.builder()
@@ -110,21 +128,38 @@ public class RevenueService {
                 .collect(Collectors.toList());
     }
 
-    public long getCustomerCount(String timeframe) {
+    public long getCustomerCount(String timeframe, Date startDate, Date endDate) {
+        if ("date-range".equalsIgnoreCase(timeframe)) {
+            if (startDate == null || endDate == null || startDate.after(endDate)) {
+                throw new IllegalArgumentException("Invalid date range: startDate must be before endDate and both must be provided");
+            }
+            return orderItemRepository.countCustomersByCustomRange(startDate, endDate);
+        }
         return orderItemRepository.countCustomersByTimeframe(timeframe);
     }
 
-    public long getProductsSoldCount(String timeframe) {
+    public long getProductsSoldCount(String timeframe, Date startDate, Date endDate) {
+        if ("date-range".equalsIgnoreCase(timeframe)) {
+            if (startDate == null || endDate == null || startDate.after(endDate)) {
+                throw new IllegalArgumentException("Invalid date range: startDate must be before endDate and both must be provided");
+            }
+            Long result = orderItemRepository.countProductsSoldByCustomRange(startDate, endDate);
+            return result != null ? result : 0L;
+        }
         Long result = orderItemRepository.countProductsSoldByTimeframe(timeframe);
         return result != null ? result : 0L;
     }
 
     private String getPreviousTimeframe(String timeframe) {
+        // Không áp dụng cho date-range
+        if ("date-range".equalsIgnoreCase(timeframe)) {
+            throw new IllegalArgumentException("Previous timeframe not applicable for date-range");
+        }
         return switch (timeframe.toLowerCase()) {
-            case "daily" -> "yesterday";
-            case "weekly" -> "last_week";
-            case "monthly" -> "last_month";
-            case "yearly" -> "last_year";
+            case "daily" -> "daily";
+            case "weekly" -> "weekly";
+            case "monthly" -> "monthly";
+            case "yearly" -> "yearly";
             case "all" -> "all";
             default -> throw new IllegalArgumentException("Invalid timeframe: " + timeframe);
         };

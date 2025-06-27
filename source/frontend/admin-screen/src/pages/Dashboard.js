@@ -5,7 +5,10 @@ import { Download } from 'lucide-react';
 import { toast } from 'react-toastify';
 import revenueService from '../service/revenue-service';
 import 'react-toastify/dist/ReactToastify.css';
-import { getISOWeek, getYear } from 'date-fns';
+import { getISOWeek, getYear, subDays, format, eachDayOfInterval } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 const App = () => {
   const [timeFilter, setTimeFilter] = useState('month');
   const [chartInstance, setChartInstance] = useState(null);
@@ -20,20 +23,23 @@ const App = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState({
+    startDate: subDays(new Date(), 30),
+    endDate: new Date(),
+  });
 
   const timeframeOptions = [
     { value: 'day', label: 'Ngày', api: 'daily' },
     { value: 'week', label: 'Tuần', api: 'weekly' },
     { value: 'month', label: 'Tháng', api: 'monthly' },
     { value: 'year', label: 'Năm', api: 'yearly' },
+    { value: 'custom', label: 'Tùy chỉnh', api: 'date-range' },
   ];
 
-  // Format revenue to display as k VND, triệu VND, or tỷ VND
   const formatRevenue = (value) => {
-    if (value >= 1000000000) {
-      return `${(value / 1000000000).toFixed(1)} tỷ VND`;
-    } else if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)} triệu VND`;
+    console.log(value)
+ if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)} triệu VND`;
     } else if (value >= 1000) {
       return `${(value / 1000).toFixed(0)}k VND`;
     } else {
@@ -41,99 +47,135 @@ const App = () => {
     }
   };
 
-  // Fetch data from RevenueService
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      const selectedTimeframe = timeframeOptions.find((opt) => opt.value === timeFilter)?.api || 'monthly';
       try {
-        // Fetch average monthly revenue
-        const avgData = await revenueService.getAverageMonthlyRevenue();
-        setAverageMonthlyRevenue(avgData);
-
-        // Fetch revenue by timeframe
-        const selectedTimeframe = timeframeOptions.find((opt) => opt.value === timeFilter)?.api || 'monthly';
         let formattedData = [];
-        switch (selectedTimeframe) {
-          case 'daily':
-            formattedData = await revenueService.getDailyRevenue();
-            break;
-          case 'weekly':
-            formattedData = await revenueService.getWeeklyRevenue();
-            break;
-          case 'monthly':
-            formattedData = await revenueService.getMonthlyRevenue();
-            break;
-          case 'yearly':
-            formattedData = await revenueService.getYearlyRevenue();
-            break;
-          default:
-            formattedData = await revenueService.getMonthlyRevenue();
+
+        if (selectedTimeframe === 'date-range') {
+          const startDateStr = format(dateRange.startDate, 'yyyy-MM-dd');
+          const endDateStr = format(dateRange.endDate, 'yyyy-MM-dd');
+          formattedData = await revenueService.getRevenueByDateRange(startDateStr, endDateStr);
+          if (formattedData.length > 0) {
+            const totalRevenue = formattedData.reduce((sum, item) => sum + item.revenue, 0);
+            setCurrentRevenue(totalRevenue);
+            // Tính growthRate cho date-range (so sánh với khoảng thời gian trước)
+            const previousStartDate = subDays(dateRange.startDate, (dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60 * 24));
+            const previousEndDate = subDays(dateRange.startDate, 1);
+            const previousData = await revenueService.getRevenueByDateRange(
+                format(previousStartDate, 'yyyy-MM-dd'),
+                format(previousEndDate, 'yyyy-MM-dd')
+            );
+            const previousTotal = previousData.reduce((sum, item) => sum + item.revenue, 0, 0);
+            const growth = previousTotal === 0 ? 0 : ((totalRevenue - previousTotal) / previousTotal) * 100;
+            setGrowthRate({
+              value: Math.round(Math.abs(growth) * 10) / 10,
+              isPositive: growth >= 0,
+            });
+          } else {
+            setCurrentRevenue(0);
+            setGrowthRate({ value: 0, isPositive: true });
+          }
+
+          // Lấy dữ liệu topProducts và topCustomers cho date-range
+          const topProductsData = await revenueService.getTopProductsByRevenue('date-range', 5, startDateStr, endDateStr);
+          setTopProducts(topProductsData);
+          const topCustomersData = await revenueService.getTopCustomersByValue('date-range', 5, startDateStr, endDateStr);
+          setTopCustomers(
+              topCustomersData.map((c) => ({
+                id: c.id,
+                name: c.name,
+                revenue: c.totalSpent,
+                orders: c.totalOrders,
+                favoriteProduct: c.favoriteProduct || 'N/A',
+              }))
+          );
+          const productsSold = await revenueService.getProductsSoldCount('date-range', startDateStr, endDateStr);
+          const customersCount = await revenueService.getCustomerCount('date-range', startDateStr, endDateStr);
+          setTotalProducts(productsSold);
+          setTotalCustomers(customersCount);
+        } else {
+          const avgData = await revenueService.getAverageMonthlyRevenue();
+          setAverageMonthlyRevenue(avgData);
+
+          switch (selectedTimeframe) {
+            case 'daily':
+              formattedData = await revenueService.getDailyRevenue();
+              break;
+            case 'weekly':
+              formattedData = await revenueService.getWeeklyRevenue();
+              break;
+            case 'monthly':
+              formattedData = await revenueService.getMonthlyRevenue();
+              break;
+            case 'yearly':
+              formattedData = await revenueService.getYearlyRevenue();
+              break;
+            default:
+              formattedData = await revenueService.getMonthlyRevenue();
+          }
+
+          const topProductsData = await revenueService.getTopProductsByRevenue(selectedTimeframe, 5);
+          setTopProducts(topProductsData);
+
+          const topCustomersData = await revenueService.getTopCustomersByValue(selectedTimeframe, 5);
+          setTopCustomers(
+              topCustomersData.map((c) => ({
+                id: c.id,
+                name: c.name,
+                revenue: c.totalSpent,
+                orders: c.totalOrders,
+                favoriteProduct: c.favoriteProduct || 'N/A',
+              }))
+          );
+
+          const productsSold = await revenueService.getProductsSoldCount(selectedTimeframe);
+          const customersCount = await revenueService.getCustomerCount(selectedTimeframe);
+          setTotalProducts(productsSold);
+          setTotalCustomers(customersCount);
+
+          const currentDate = new Date();
+          if (selectedTimeframe === 'monthly') {
+            const { currentRevenue, growthRate, isPositive } = await revenueService.getCurrentMonthGrowth();
+            setCurrentRevenue(currentRevenue);
+            setGrowthRate({ value: growthRate, isPositive });
+          } else {
+            let currentDateStr, previousDateStr, currentData, previousData;
+            if (selectedTimeframe === 'daily') {
+              currentDateStr = currentDate.toISOString().slice(0, 10);
+              const previousDate = subDays(currentDate, 1);
+              previousDateStr = previousDate.toISOString().slice(0, 10);
+              currentData = formattedData.find((item) => item.date === currentDateStr);
+              previousData = formattedData.find((item) => item.date === previousDateStr);
+            } else if (selectedTimeframe === 'weekly') {
+              const currentYear = getYear(currentDate);
+              const currentWeek = getISOWeek(currentDate);
+              currentDateStr = `${currentYear}-W${currentWeek < 10 ? '0' + currentWeek : currentWeek}`;
+              previousDateStr = `${currentWeek === 1 ? currentYear - 1 : currentYear}-W${currentWeek === 1 ? 52 : currentWeek - 1 < 10 ? '0' + (currentWeek - 1) : currentWeek - 1}`;
+              currentData = formattedData.find((item) => item.date === currentDateStr) || formattedData.sort((a, b) => b.date.localeCompare(a.date))[0];
+              previousData = formattedData.find((item) => item.date === previousDateStr);
+            } else {
+              currentDateStr = currentDate.getFullYear().toString();
+              previousDateStr = (currentDate.getFullYear() - 1).toString();
+              currentData = formattedData.find((item) => item.date === currentDateStr);
+              previousData = formattedData.find((item) => item.date === previousDateStr);
+            }
+            const currentRevenue = currentData?.revenue || 0;
+            const previousRevenue = previousData?.revenue || 0;
+            const growth = previousRevenue === 0 ? 0 : ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+            setCurrentRevenue(currentRevenue);
+            setGrowthRate({
+              value: Math.round(Math.abs(growth) * 10) / 10,
+              isPositive: growth >= 0,
+            });
+          }
         }
         setRevenueData(formattedData);
-
-        // Fetch top products and customers
-        const topProductsData = await revenueService.getTopProductsByRevenue(selectedTimeframe, 5);
-        setTopProducts(topProductsData);
-
-        const topCustomersData = await revenueService.getTopCustomersByValue(selectedTimeframe, 5);
-        setTopCustomers(
-            topCustomersData.map((c) => ({
-              id: c.id,
-              name: c.name,
-              revenue: c.totalSpent,
-              orders: c.totalOrders,
-              favoriteProduct: c.favoriteProduct || 'N/A',
-            }))
-        );
-
-        // Fetch total products and customers
-        const productsSold = await revenueService.getProductsSoldCount(selectedTimeframe);
-        const customersCount = await revenueService.getCustomerCount(selectedTimeframe);
-        setTotalProducts(productsSold);
-        setTotalCustomers(customersCount);
-
-        // Calculate current revenue and growth rate
-        const currentDate = new Date();
-        if (selectedTimeframe === 'monthly') {
-          const { currentRevenue, growthRate, isPositive } = await revenueService.getCurrentMonthGrowth();
-          setCurrentRevenue(currentRevenue);
-          setGrowthRate({ value: growthRate, isPositive });
-        } else {
-          let currentDateStr, previousDateStr, currentData, previousData;
-          if (selectedTimeframe === 'daily') {
-            currentDateStr = currentDate.toISOString().slice(0, 10);
-            const previousDate = new Date(currentDate);
-            previousDate.setDate(currentDate.getDate() - 1);
-            previousDateStr = previousDate.toISOString().slice(0, 10);
-            currentData = formattedData.find((item) => item.date === currentDateStr);
-            previousData = formattedData.find((item) => item.date === previousDateStr);
-          } else if (selectedTimeframe === 'weekly') {
-            const currentYear = getYear(currentDate);
-            const currentWeek = getISOWeek(currentDate);
-            currentDateStr = `${currentYear}-W${currentWeek < 10 ? '0' + currentWeek : currentWeek}`; // Ví dụ: 2025-W24
-            previousDateStr = `${currentWeek === 1 ? currentYear - 1 : currentYear}-W${currentWeek === 1 ? 52 : currentWeek - 1 < 10 ? '0' + (currentWeek - 1) : currentWeek - 1}`; // Ví dụ: 2025-W23
-            currentData = formattedData.find((item) => item.date === currentDateStr) ||
-                formattedData.sort((a, b) => b.date.localeCompare(a.date))[0]; // Lấy tuần gần nhất (2025-W23)
-            previousData = formattedData.find((item) => item.date === previousDateStr);
-
-          } else {
-            currentDateStr = currentDate.getFullYear().toString();
-            previousDateStr = (currentDate.getFullYear() - 1).toString();
-            currentData = formattedData.find((item) => item.date === currentDateStr);
-            previousData = formattedData.find((item) => item.date === previousDateStr);
-          }
-          const currentRevenue = currentData?.revenue || 0;
-          const previousRevenue = previousData?.revenue || 0;
-          const growth = previousRevenue === 0 ? 0 : ((currentRevenue - previousRevenue) / previousRevenue) * 100;
-          setCurrentRevenue(currentRevenue);
-          setGrowthRate({
-            value: Math.round(Math.abs(growth) * 10) / 10,
-            isPositive: growth >= 0,
-          });
-        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        toast.error('Lỗi khi tải dữ liệu dashboard', { position: 'top-right' });
+        toast.error('Lỗi khi tải dữ liệu dashboard: ' + (error.response?.data?.message || error.message), { position: 'top-right' });
         setRevenueData([]);
         setAverageMonthlyRevenue(0);
         setCurrentRevenue(0);
@@ -147,9 +189,8 @@ const App = () => {
       }
     };
     fetchData();
-  }, [timeFilter]);
+  }, [timeFilter, dateRange]);
 
-  // Initialize charts
   useEffect(() => {
     const chartDom = document.getElementById('revenue-chart');
     if (chartDom && !chartInstance) {
@@ -184,7 +225,6 @@ const App = () => {
     };
   }, [chartInstance, pieChartInstance, barChartInstance]);
 
-  // Update revenue chart
   useEffect(() => {
     if (chartInstance && revenueData.length > 0) {
       const option = {
@@ -196,7 +236,7 @@ const App = () => {
             return `${name}: ${formatRevenue(value * 1000000)}`;
           },
         },
-        color: ['#16A34A'],
+        color: ['#22C55E'],
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
         xAxis: {
           type: 'category',
@@ -215,7 +255,7 @@ const App = () => {
             type: 'line',
             data: revenueData.map((item) => item.revenue / 1000000),
             smooth: true,
-            lineStyle: { width: 3, color: '#16A34A' },
+            lineStyle: { width: 3, color: '#22C55E' },
             areaStyle: {
               color: {
                 type: 'linear',
@@ -224,14 +264,14 @@ const App = () => {
                 x2: 0,
                 y2: 1,
                 colorStops: [
-                  { offset: 0, color: 'rgba(22, 163, 74, 0.4)' },
-                  { offset: 1, color: 'rgba(22, 163, 74, 0.1)' },
+                  { offset: 0, color: 'rgba(34, 197, 94, 0.4)' },
+                  { offset: 1, color: 'rgba(34, 197, 94, 0.1)' },
                 ],
               },
             },
             symbol: 'circle',
             symbolSize: 8,
-            itemStyle: { color: '#16A34A' },
+            itemStyle: { color: '#22C55E' },
           },
         ],
       };
@@ -239,7 +279,6 @@ const App = () => {
     }
   }, [chartInstance, revenueData]);
 
-  // Update pie chart for top products
   useEffect(() => {
     if (pieChartInstance && topProducts.length > 0) {
       const pieOption = {
@@ -270,7 +309,7 @@ const App = () => {
             data: topProducts.map((p, i) => ({
               value: p.revenue / 1000000,
               name: p.name,
-              itemStyle: { color: ['#16A34A', '#22C55E', '#4ADE80', '#86EFAC', '#BBF7D0'][i % 5] },
+              itemStyle: { color: ['#22C55E', '#4ADE80', '#86EFAC', '#BBF7D0', '#DCFCE7'][i % 5] },
             })),
           },
         ],
@@ -279,7 +318,6 @@ const App = () => {
     }
   }, [pieChartInstance, topProducts]);
 
-  // Update bar chart for top customers
   useEffect(() => {
     if (barChartInstance && topCustomers.length > 0) {
       const barOption = {
@@ -315,8 +353,8 @@ const App = () => {
                 x2: 1,
                 y2: 0,
                 colorStops: [
-                  { offset: 0, color: '#16A34A' },
-                  { offset: 1, color: '#22C55E' },
+                  { offset: 0, color: '#22C55E' },
+                  { offset: 1, color: '#4ADE80' },
                 ],
               },
               borderRadius: [0, 4, 4, 0],
@@ -328,24 +366,29 @@ const App = () => {
     }
   }, [barChartInstance, topCustomers]);
 
-  // Handle export to Excel
   const handleExport = () => {
-    const revenueSheet = XLSX.utils.json_to_sheet(revenueData.map((item) => ({
-      Date: item.date,
-      Revenue: formatRevenue(item.revenue),
-    })));
-    const productsSheet = XLSX.utils.json_to_sheet(topProducts.map((p) => ({
-      Name: p.name,
-      Quantity: p.quantity,
-      Revenue: formatRevenue(p.revenue),
-      Growth: p.growth ? `${p.growth}%` : 'N/A',
-    })));
-    const customersSheet = XLSX.utils.json_to_sheet(topCustomers.map((c) => ({
-      Name: c.name,
-      Orders: c.orders,
-      Revenue: formatRevenue(c.revenue),
-      FavoriteProduct: c.favoriteProduct,
-    })));
+    const revenueSheet = XLSX.utils.json_to_sheet(
+        revenueData.map((item) => ({
+          Date: item.date,
+          Revenue: formatRevenue(item.revenue),
+        }))
+    );
+    const productsSheet = XLSX.utils.json_to_sheet(
+        topProducts.map((p) => ({
+          Name: p.name,
+          Quantity: p.quantity,
+          Revenue: formatRevenue(p.revenue ),
+          Growth: p.growth ? `${p.growth}%` : 'N/A',
+        }))
+    );
+    const customersSheet = XLSX.utils.json_to_sheet(
+        topCustomers.map((c) => ({
+          Name: c.name,
+          Orders: c.orders,
+          Revenue: formatRevenue(c.revenue),
+          FavoriteProduct: c.favoriteProduct,
+        }))
+    );
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, revenueSheet, 'Revenue Data');
     XLSX.utils.book_append_sheet(wb, productsSheet, 'Top Products');
@@ -353,7 +396,6 @@ const App = () => {
     XLSX.writeFile(wb, `revenue-${timeFilter}-report.xlsx`);
   };
 
-  // Handle time filter change
   const handleTimeFilterChange = (filter) => {
     setTimeFilter(filter);
   };
@@ -397,10 +439,12 @@ const App = () => {
                   <i className="fas fa-dollar-sign text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Doanh thu {timeFilter === 'month' ? 'tháng này' : timeFilter}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Doanh thu {timeFilter === 'month' ? 'tháng này' : timeFilter === 'custom' ? 'khoảng thời gian' : timeFilter}
+                  </p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {loading ? 'Loading...' : formatRevenue(currentRevenue)}
+                      {loading ? 'Loading...' : formatRevenue(currentRevenue )}
                     </h2>
                     <span
                         className={`ml-2 text-sm font-medium ${
@@ -421,7 +465,7 @@ const App = () => {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Doanh thu trung bình tháng</p>
                   <div className="flex items-baseline">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {loading ? 'Loading...' :`${formatRevenue(averageMonthlyRevenue)}`}
+                      {loading ? 'Loading...' : formatRevenue(averageMonthlyRevenue )}
                     </h2>
                   </div>
                 </div>
@@ -449,16 +493,33 @@ const App = () => {
                 </div>
               </div>
             </div>
-            {/* Biểu đồ Doanh thu */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-8">
               <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 niveles de texto">Biểu đồ doanh thu</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Biểu đồ doanh thu</h2>
                   <div className="flex space-x-2">
-                    <button className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                      <i className="fas fa-calendar-alt mr-2"></i>
-                      31/05/2025 - 31/05/2025
-                    </button>
+                    {timeFilter === 'custom' ? (
+                        <div className="flex space-x-2">
+                          <DatePicker
+                              selected={dateRange.startDate}
+                              onChange={(date) => setDateRange({ ...dateRange, startDate: date })}
+                              dateFormat="dd/MM/yyyy"
+                              className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          />
+                          <span className="text-gray-500 dark:text-gray-300">-</span>
+                          <DatePicker
+                              selected={dateRange.endDate}
+                              onChange={(date) => setDateRange({ ...dateRange, endDate: date })}
+                              dateFormat="dd/MM/yyyy"
+                              className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          />
+                        </div>
+                    ) : (
+                        <button className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                          <i className="fas fa-calendar-alt mr-2"></i>
+                          {format(dateRange.startDate, 'dd/MM/yyyy')} - {format(dateRange.endDate, 'dd/MM/yyyy')}
+                        </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -467,7 +528,6 @@ const App = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Phân tích Sản phẩm */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Phân tích sản phẩm</h2>
@@ -482,18 +542,44 @@ const App = () => {
                       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                          <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Sản phẩm</th>
-                          <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">SL</th>
-                          <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Doanh thu</th>
-                          <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tăng trưởng</th>
+                          <th
+                              scope="col"
+                              className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Sản phẩm
+                          </th>
+                          <th
+                              scope="col"
+                              className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            SL
+                          </th>
+                          <th
+                              scope="col"
+                              className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Doanh thu
+                          </th>
+                          <th
+                              scope="col"
+                              className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                          >
+                            Tăng trưởng
+                          </th>
                         </tr>
                         </thead>
                         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {topProducts.map((product, index) => (
                             <tr key={index}>
-                              <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{product.name}</td>
-                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{product.quantity.toLocaleString()}</td>
-                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{(product.revenue / 1000000).toFixed(1)}tr</td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {product.name}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {product.quantity.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                {formatRevenue(product.revenue )}
+                              </td>
                               <td className="px-3 py-2 whitespace-nowrap text-sm text-green-600 dark:text-green-400">
                                 {product.growth ? `+${product.growth}%` : 'N/A'}
                               </td>
@@ -505,7 +591,6 @@ const App = () => {
                   </div>
                 </div>
               </div>
-              {/* Phân tích Khách hàng */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Phân tích khách hàng</h2>
@@ -517,19 +602,47 @@ const App = () => {
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                       <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Khách hàng</th>
-                        <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Giá trị</th>
-                        <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Đơn hàng</th>
-                        <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Sản phẩm ưa thích</th>
+                        <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Khách hàng
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Giá trị
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Đơn hàng
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                        >
+                          Sản phẩm ưa thích
+                        </th>
                       </tr>
                       </thead>
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {topCustomers.map((customer, index) => (
                           <tr key={index}>
-                            <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{customer.name}</td>
-                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{(customer.revenue / 1000000).toFixed(1)}tr</td>
-                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{customer.orders.toLocaleString()}</td>
-                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{customer.favoriteProduct}</td>
+                            <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {customer.name}
+                            </td>
+                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                              {formatRevenue(customer.revenue )}
+                            </td>
+                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                              {customer.orders.toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                              {customer.favoriteProduct}
+                            </td>
                           </tr>
                       ))}
                       </tbody>
