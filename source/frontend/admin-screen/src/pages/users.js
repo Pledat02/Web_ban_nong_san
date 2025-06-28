@@ -260,7 +260,7 @@ const Users = () => {
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white shadow">
           <div className="max-w-7xl mx-auto px-4 py-6 flex items-center">
-            <User className="h-8 w-8 text-blue-600" />
+            <User className="h-8 w-8 text-green-600" />
             <h1 className="ml-3 text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
           </div>
         </div>
@@ -294,7 +294,7 @@ const Users = () => {
 
               <button
                   onClick={() => openModal('add')}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
                   disabled={loading}
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
@@ -310,7 +310,7 @@ const Users = () => {
                 Không có dữ liệu người dùng.
                 <button
                     onClick={fetchUsers}
-                    className="ml-2 text-blue-600 hover:underline"
+                    className="ml-2 text-green-600 hover:underline"
                 >
                   Thử lại
                 </button>

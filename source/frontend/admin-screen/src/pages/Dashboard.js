@@ -58,17 +58,17 @@ const App = () => {
           const startDateStr = format(dateRange.startDate, 'yyyy-MM-dd');
           const endDateStr = format(dateRange.endDate, 'yyyy-MM-dd');
           formattedData = await revenueService.getRevenueByDateRange(startDateStr, endDateStr);
-          if (formattedData.length > 0) {
-            const totalRevenue = formattedData.reduce((sum, item) => sum + item.revenue, 0);
+          if (formattedData && formattedData.length > 0) {
+            const totalRevenue = formattedData.reduce((sum, item) => sum + (item.revenue || 0), 0);
             setCurrentRevenue(totalRevenue);
-            // Tính growthRate cho date-range (so sánh với khoảng thời gian trước)
+            // Tính growthRate cho date-range
             const previousStartDate = subDays(dateRange.startDate, (dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60 * 24));
             const previousEndDate = subDays(dateRange.startDate, 1);
             const previousData = await revenueService.getRevenueByDateRange(
                 format(previousStartDate, 'yyyy-MM-dd'),
                 format(previousEndDate, 'yyyy-MM-dd')
             );
-            const previousTotal = previousData.reduce((sum, item) => sum + item.revenue, 0, 0);
+            const previousTotal = previousData.reduce((sum, item) => sum + (item.revenue || 0), 0);
             const growth = previousTotal === 0 ? 0 : ((totalRevenue - previousTotal) / previousTotal) * 100;
             setGrowthRate({
               value: Math.round(Math.abs(growth) * 10) / 10,
@@ -79,26 +79,26 @@ const App = () => {
             setGrowthRate({ value: 0, isPositive: true });
           }
 
-          // Lấy dữ liệu topProducts và topCustomers cho date-range
+          // Lấy dữ liệu cho date-range
           const topProductsData = await revenueService.getTopProductsByRevenue('date-range', 5, startDateStr, endDateStr);
-          setTopProducts(topProductsData);
+          setTopProducts(topProductsData || []);
           const topCustomersData = await revenueService.getTopCustomersByValue('date-range', 5, startDateStr, endDateStr);
           setTopCustomers(
               topCustomersData.map((c) => ({
                 id: c.id,
-                name: c.name,
-                revenue: c.totalSpent,
-                orders: c.totalOrders,
+                name: c.name || 'Unknown',
+                revenue: c.totalSpent || 0,
+                orders: c.totalOrders || 0,
                 favoriteProduct: c.favoriteProduct || 'N/A',
-              }))
+              })) || []
           );
           const productsSold = await revenueService.getProductsSoldCount('date-range', startDateStr, endDateStr);
           const customersCount = await revenueService.getCustomerCount('date-range', startDateStr, endDateStr);
-          setTotalProducts(productsSold);
-          setTotalCustomers(customersCount);
+          setTotalProducts(productsSold || 0);
+          setTotalCustomers(customersCount || 0);
         } else {
           const avgData = await revenueService.getAverageMonthlyRevenue();
-          setAverageMonthlyRevenue(avgData);
+          setAverageMonthlyRevenue(avgData || 0);
 
           switch (selectedTimeframe) {
             case 'daily':
@@ -118,29 +118,27 @@ const App = () => {
           }
 
           const topProductsData = await revenueService.getTopProductsByRevenue(selectedTimeframe, 5);
-          setTopProducts(topProductsData);
-
+          setTopProducts(topProductsData || []);
           const topCustomersData = await revenueService.getTopCustomersByValue(selectedTimeframe, 5);
           setTopCustomers(
               topCustomersData.map((c) => ({
                 id: c.id,
-                name: c.name,
-                revenue: c.totalSpent,
-                orders: c.totalOrders,
+                name: c.name || 'Unknown',
+                revenue: c.totalSpent || 0,
+                orders: c.totalOrders || 0,
                 favoriteProduct: c.favoriteProduct || 'N/A',
-              }))
+              })) || []
           );
-
           const productsSold = await revenueService.getProductsSoldCount(selectedTimeframe);
           const customersCount = await revenueService.getCustomerCount(selectedTimeframe);
-          setTotalProducts(productsSold);
-          setTotalCustomers(customersCount);
+          setTotalProducts(productsSold || 0);
+          setTotalCustomers(customersCount || 0);
 
           const currentDate = new Date();
           if (selectedTimeframe === 'monthly') {
             const { currentRevenue, growthRate, isPositive } = await revenueService.getCurrentMonthGrowth();
-            setCurrentRevenue(currentRevenue);
-            setGrowthRate({ value: growthRate, isPositive });
+            setCurrentRevenue(currentRevenue || 0);
+            setGrowthRate({ value: growthRate || 0, isPositive: isPositive || true });
           } else {
             let currentDateStr, previousDateStr, currentData, previousData;
             if (selectedTimeframe === 'daily') {
@@ -190,7 +188,6 @@ const App = () => {
     };
     fetchData();
   }, [timeFilter, dateRange]);
-
   useEffect(() => {
     const chartDom = document.getElementById('revenue-chart');
     if (chartDom && !chartInstance) {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Camera, Pencil, CheckCircle, Eye, EyeOff, Check, X } from "lucide-react"; // Import check and x icons
+import { Camera, Pencil, CheckCircle } from "lucide-react"; // Import check and x icons
 import UserService from "../services/user-service";
 import { toast } from "react-toastify";
-
+import "../style/ProfileSidebar.css";
 export function ProfileSidebar() {
     const [editMode, setEditMode] = useState({ username: false, email: false });
     const [avatar, setAvatar] = useState("default-avatar.png");
@@ -10,13 +10,8 @@ export function ProfileSidebar() {
     const [formData, setFormData] = useState({
         username: "",
         email: "",
-        newPassword: "",
-        confirmPassword: "",
-        oldPassword: "",
     });
     const [user, setUser] = useState(null);
-    const [oldPasswordVisible, setOldPasswordVisible] = useState(false);
-    const [isPasswordMatch, setIsPasswordMatch] = useState(false);
     useEffect(() =>{
         if(loading)
             toast.info('đang tải ...')
@@ -30,9 +25,6 @@ export function ProfileSidebar() {
                 setFormData({
                     username: userInfo?.username || "",
                     email: userInfo?.email || "",
-                    newPassword: "",
-                    confirmPassword: "",
-                    oldPassword: "",
                 });
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin người dùng:", error);
@@ -41,15 +33,7 @@ export function ProfileSidebar() {
         fetchUserInfo();
     }, []);
 
-    useEffect(() => {
-        // Check if newPassword matches confirmPassword
-        if (formData.newPassword === formData.confirmPassword
-            && formData.newPassword.trim()!=="") {
-            setIsPasswordMatch(true);
-        } else {
-            setIsPasswordMatch(false);
-        }
-    }, [formData.newPassword, formData.confirmPassword]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -85,20 +69,6 @@ export function ProfileSidebar() {
         }
     };
 
-    const handleChangePassword = async (event) => {
-        if (formData.newPassword.trim() === "") {
-            toast.error("Vui lòng nhập mật khẩu mới!");
-        }
-        else if (formData.newPassword.trim() !== formData.confirmPassword.trim()) {
-            toast.error("Mật khẩu mới và xác nhận mật khẩu không trùng nhau!");
-        }
-        const request = {
-            oldPassword: formData.oldPassword,
-            newPassword: formData.newPassword,
-            confirmPassword: formData.confirmPassword,
-        }
-        await UserService.changePassword(user.id_user, request);
-    };
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
@@ -125,7 +95,6 @@ export function ProfileSidebar() {
         }
     };
 
-    const isUpdateDisabled = !formData.oldPassword.trim(); // Chặn cập nhật nếu chưa nhập mật khẩu cũ
 
     return (
         <div className="p-8 border-b md:border-r md:border-b-0 border-gray-200">
@@ -156,7 +125,7 @@ export function ProfileSidebar() {
                 {/* Form */}
                 <div className="w-full mt-4 space-y-4">
                     {/* Username */}
-                    <div className="relative flex flex-col text-gray-600">
+                    <div className="relative flex flex-col mb-16 text-gray-600">
                         <span>Tên đăng nhập</span>
                         <input
                             type="text"
@@ -171,70 +140,37 @@ export function ProfileSidebar() {
                             onClick={() => toggleEdit("username")}
                             className="absolute right-3 top-9 text-gray-500 hover:text-blue-600"
                         >
-                            {editMode.username ? <CheckCircle size={18} /> : <Pencil size={18} />}
+                            {editMode.username ? <CheckCircle size={18}/> : <Pencil size={18}/>}
                         </button>
                     </div>
-
-                    {/* Đổi mật khẩu */}
-                    <div className="text-lg font-semibold text-gray-700">Đổi mật khẩu</div>
-
-                    <div className="flex flex-col text-gray-600">
-                        <span>Mật khẩu mới</span>
-                        <input
-                            type="password"
-                            name="newPassword"
-                            value={formData.newPassword}
-                            onChange={handleChange}
-                            className="border rounded p-2"
-                        />
-                    </div>
-
-                    {/* Xác nhận mật khẩu */}
-                    <div className="relative flex flex-col text-gray-600">
-                        <span>Xác nhận mật khẩu</span>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className={`border rounded p-2 ${isPasswordMatch ? "border-green-500" : "border-red-500"}`}
-                        />
-                        {/* Add check or cross icon */}
-                        <div className="absolute right-3 top-9">
-                            {isPasswordMatch ? <Check size={18} className="text-green-500" /> : <X size={18} className="text-red-500" />}
-                        </div>
-                    </div>
-
-                    {/* Mật khẩu cũ (Bắt buộc) */}
-                    <div className="relative flex flex-col text-gray-600">
-                        <span className="font-semibold text-red-600">Nhập mật khẩu cũ (*)</span>
-                        <input
-                            type={oldPasswordVisible ? "text" : "password"}
-                            name="oldPassword"
-                            value={formData.oldPassword}
-                            onChange={handleChange}
-                            className={`border rounded p-2 ${!formData.oldPassword.trim() ? "border-red-500" : ""}`}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setOldPasswordVisible(!oldPasswordVisible)}
-                            className="absolute right-3 top-9 text-gray-500 hover:text-blue-600"
-                        >
-                            {oldPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
+                    {/* Typewriter Text */}
+                    <TypewriterText
+                        text="Vui lòng nhập đầy đủ thông tin địa chỉ, email, sdt và kiểm tra kỹ trước để tiến hành đặt hàng"
+                    />
                 </div>
 
-                {/* Nút cập nhật */}
-                <button
-                    className={`mt-8 w-full py-2 px-4 border rounded-lg text-white transition-colors 
-                        ${isUpdateDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
-                    disabled={isUpdateDisabled}
-                    onClick={handleChangePassword}
-                >
-                    Đổi mật khẩu
-                </button>
             </div>
         </div>
     );
 }
+
+function TypewriterText({ text }) {
+    const [displayText, setDisplayText] = useState("");
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        if (currentIndex < text.length) {
+            const timer = setTimeout(() => {
+                setDisplayText((prev) => prev + text[currentIndex]);
+                setCurrentIndex((prev) => prev + 1);
+            }, 100); // Tốc độ gõ (ms mỗi ký tự)
+            return () => clearTimeout(timer);
+        }
+    }, [currentIndex, text]);
+
+    return (
+        <div className="max-w-md break-words text-gray-600 mt-4">
+            {displayText}
+            <span className="border-r-2 border-orange-500 animate-blink">|</span>
+        </div>
+    )}

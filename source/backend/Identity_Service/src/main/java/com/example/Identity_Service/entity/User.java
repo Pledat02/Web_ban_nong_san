@@ -15,8 +15,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "users") // Tránh trùng với từ khóa SQL
-public class User {
+@Table(name = "users")
+public class User implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id_user;

@@ -6,9 +6,9 @@ const categories = [
     { name: "Các loại hạt dinh dưỡng", key: "categoryId", value: 3, type: "radio" },
     { name: "Các loại quả Organic", key: "categoryId", value: 1, type: "radio" },
     { name: "Các loại rau xanh", key: "categoryId", value: 2, type: "radio" },
-    { name: "Xuất xứ", key: "origin", type: "radio", subcategories: ["Việt Nam", "Mỹ", "Úc", "Nhật Bản"] },
+    { name: "Xuất xứ", key: "origin", type: "radio", subcategories: ["Việt Nam","Cần Thơ","Sóc Trăng","Miền Tây" ,"Đà Lạt", "Chile","Sơn La", "Lý Sơn"] },
     { name: "Vùng giá", key: "price", type: "radio", subcategories: ["Tất cả", "0-25k", "25-50k", "Lớn hơn 50k"] },
-    { name: "Nhãn hiệu", key: "brand", type: "radio", subcategories: [ "Vinamilk", "TH True Milk", "Nestlé", "Nutifood"] },
+    { name: "Nhãn hiệu", key: "brand", type: "radio", subcategories: [ "OrganicFarm", "NatureGood", "HealthyFood", "FreshGarden","GreenFarm","Lý Sơn","FreshFarm"] },
 ];
 
 export default function CategorySidebar({ onFilter }) {

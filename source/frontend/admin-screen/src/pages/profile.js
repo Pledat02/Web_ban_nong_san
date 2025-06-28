@@ -247,7 +247,7 @@ const Profiles = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow">
                 <div className="max-w-7xl mx-auto px-4 py-6 flex items-center">
-                    <User className="h-8 w-8 text-blue-600" />
+                    <User className="h-8 w-8 text-green-600" />
                     <h1 className="ml-3 text-2xl font-bold text-gray-900">Quản lý hồ sơ</h1>
                 </div>
             </div>
@@ -260,7 +260,7 @@ const Profiles = () => {
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm hồ sơ..."
-                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -269,7 +269,7 @@ const Profiles = () => {
                         <div className="sm:w-48 relative">
                             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                             <select
-                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                             >
@@ -281,7 +281,7 @@ const Profiles = () => {
 
                         <button
                             onClick={() => openModal('add')}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
                             disabled={loading}
                         >
                             <PlusCircle className="w-4 h-4 mr-2" />
@@ -297,7 +297,7 @@ const Profiles = () => {
                         Không có dữ liệu hồ sơ.
                         <button
                             onClick={fetchProfiles}
-                            className="ml-2 text-blue-600 hover:underline"
+                            className="ml-2 text-green-600 hover:underline"
                         >
                             Thử lại
                         </button>

@@ -1,0 +1,15 @@
+.animate-typewriter {
+    animation:
+            typing 3.5s steps(54, end) forwards,
+            blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: #f97316; } /* Tailwind's orange-500 */
+}

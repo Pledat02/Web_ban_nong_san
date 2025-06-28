@@ -76,17 +76,17 @@ export default function SearchPage() {
                                 disabled={currentPage === 1 || isLoading}
                                 className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
                             >
-                                ← Previous Page
+                                ← Trang trước
                             </button>
                             <span className="font-semibold">
-                                Page {currentPage} / {totalPages}
+                                Trang {currentPage} / {totalPages}
                             </span>
                             <button
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages || isLoading}
                                 className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 hover:bg-gray-400 transition-colors"
                             >
-                                Next Page →
+                                Trang sau →
                             </button>
                         </div>
                     </>

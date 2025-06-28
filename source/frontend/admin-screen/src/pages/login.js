@@ -90,7 +90,7 @@ const LoginPage = () => {
                     <p className="text-gray-600 mb-6">You have successfully logged in.</p>
                     <button
                         onClick={() => setLoginSuccess(false)}
-                        className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                        className="w-full py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
                     >
                         Return to Login
                     </button>
@@ -124,7 +124,7 @@ const LoginPage = () => {
                             value={credentials.email}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
                     </div>
@@ -140,7 +140,7 @@ const LoginPage = () => {
                             value={credentials.password}
                             onChange={handleInputChange}
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
                     </div>
@@ -152,14 +152,14 @@ const LoginPage = () => {
                                 type="checkbox"
                                 checked={credentials.rememberMe}
                                 onChange={handleInputChange}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                             />
                             <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
                                 Remember me
                             </label>
                         </div>
                         <div className="text-sm">
-                            <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
+                            <a href="#" className="text-green-600 hover:text-green-800 font-medium">
                                 Forgot password?
                             </a>
                         </div>
@@ -167,7 +167,7 @@ const LoginPage = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-70"
+                        className="w-full flex items-center justify-center py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-70"
                     >
                         {isLoading ? (
                             <>

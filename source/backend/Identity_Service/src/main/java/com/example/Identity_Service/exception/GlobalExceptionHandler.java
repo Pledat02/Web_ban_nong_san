@@ -1,8 +1,11 @@
 package com.example.Identity_Service.exception;
 
 import com.example.Identity_Service.dto.response.ApiResponse;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.backoff.FixedBackOff;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,4 +70,12 @@ public class GlobalExceptionHandler {
             String minvalue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
         return message.replace("{"+MIN_ATTRIBUTE+"}",minvalue);
     }
+    @Bean
+    public DefaultErrorHandler errorHandler() {
+        FixedBackOff fixedBackOff = new FixedBackOff(1000L, 3); // retry 3 lần, mỗi lần cách 1 giây
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler((record, exception) -> {
+        }, fixedBackOff);
+        return errorHandler;
+    }
+
 }

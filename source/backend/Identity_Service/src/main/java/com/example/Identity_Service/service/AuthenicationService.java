@@ -29,6 +29,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -57,7 +58,7 @@ public class AuthenicationService {
     UserLoginMethodRepository userLoginMethodRepository;
     ProfileClientMapper profileClientMapper;
     ProfileClientHttp profileClientHttp;
-
+    ObjectMapper objectMapper;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signer_key;
@@ -95,16 +96,33 @@ public class AuthenicationService {
     public boolean findByEmail(String email){
         return userRepository.findByEmail(email).isPresent();
     }
-    public void resetPassword(ResetPasswordRequest request){
+    @CacheEvict(value = {"users", "usersPage", "usersList", "reviewers"}, allEntries = true)
+    public void resetPassword(ResetPasswordRequest request) {
         Optional<User> userOp = userRepository.findByEmail(request.getEmail());
-        if(userOp.isPresent()){
+
+        if (userOp.isPresent()) {
             User user = userOp.get();
+
+            if (!user.isActive()) {
+                throw new AppException(ErrorCode.USER_NOT_ACTIVE);
+            }
             user.setPassword(passwordEncoder.encode(request.getPassword()));
-            userRepository.save(user);
+            User savedUser = userRepository.save(user);
+
+            // Update Redis cache
+            try {
+                String cacheKey = "USER_" + request.getEmail();
+                redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(savedUser));
+            } catch (JsonProcessingException e) {
+                log.error("Error updating Redis cache after password reset: {}", e.getMessage());
+            }
+
             return;
         }
+
         throw new AppException(ErrorCode.USER_NOT_FOUND);
     }
+
 
     public AuthenicationResponse loginWithSocial(UserCreationRequest request) {
         Optional<User> user = userRepository.findByEmail(request.getEmail());

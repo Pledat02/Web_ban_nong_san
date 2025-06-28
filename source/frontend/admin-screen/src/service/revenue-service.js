@@ -308,7 +308,7 @@ class RevenueService {
         }
     }
 
-    // Lấy doanh thu theo khoảng thời gian
+    // Trong revenue-service.js
     async getRevenueByDateRange(startDate, endDate) {
         try {
             if (!startDate || !endDate) {
@@ -322,9 +322,9 @@ class RevenueService {
                 params: { startDate, endDate },
             });
             if (response.status === 200) {
-                return response.data.data.map(({ date, revenue }) => ({
-                    date,
-                    revenue: Number(revenue) || 0,
+                return response.data.data.map(({ timePeriod, totalRevenue }) => ({
+                    date: timePeriod,
+                    revenue: Number(totalRevenue) || 0,
                 }));
             } else {
                 toast.error(response.data.message || "Không lấy được doanh thu theo khoảng thời gian", {

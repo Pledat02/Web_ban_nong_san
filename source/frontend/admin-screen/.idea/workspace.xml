@@ -5,19 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a13bc7fa-de35-4be2-b487-dc3955ca6a4f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/src/main/java/com/example/Identity_Service/service/AuthenicationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/Identity_Service/target/classes/com/example/Identity_Service/service/AuthenicationService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/notification-service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/RevenueController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/controller/RevenueController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderItemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/repository/OrderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/RevenueService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/order-service/src/main/java/com/example/order_service/service/RevenueService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/payment-service/src/main/java/com/example/payment_service/controller/VNPayController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/payment-service/src/main/java/com/example/payment_service/controller/VNPayController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/AdminProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/profile_service/src/main/java/com/example/profile_service/controller/AdminProfileController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/RoleModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/RoleModal.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Sidebar.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Sidebar.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UserModal.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/UserModal.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/Dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Dashboard.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Orders.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Orders.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/login.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/products.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/roles.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/roles.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/users.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/revenue-service.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/revenue-service.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -206,7 +207,9 @@
       <workItem from="1749992938378" duration="15000" />
       <workItem from="1750002463330" duration="192000" />
       <workItem from="1751008466304" duration="2220000" />
-      <workItem from="1751011144294" duration="3943000" />
+      <workItem from="1751011144294" duration="4937000" />
+      <workItem from="1751017267611" duration="181000" />
+      <workItem from="1751027505164" duration="1250000" />
     </task>
     <servers />
   </component>

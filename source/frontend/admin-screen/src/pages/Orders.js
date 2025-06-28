@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import DataTable from "../components/DataTable";
 import { createColumnHelper } from "@tanstack/react-table";
 import {
-  Package, Search, Filter, Ban, Clock, MoreHorizontal, X, RotateCcw, AlertCircle, Eye, CheckCircle2
+  Package, Search, Filter, Ban, Clock, MoreHorizontal, X, RotateCcw, Eye, CheckCircle2
 } from "lucide-react";
 import OrderService from "../service/order-service";
 import { getStatusColor, getStatusIcon, canCancelOrder, canReturnOrder, getStatusLabel } from "../utils/status";
@@ -231,7 +231,7 @@ function Orders() {
         <div className="bg-white shadow">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex items-center">
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package className="h-8 w-8 text-green-600" />
               <h1 className="ml-3 text-2xl font-bold text-gray-900">Quản lý đơn hàng</h1>
             </div>
           </div>

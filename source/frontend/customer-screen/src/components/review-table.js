@@ -28,12 +28,12 @@ const ReviewTable = ({ product }) => {
 
     const handleSubmitReview = async () => {
         if (!user) {
-            toast.warn("Please login to submit a review!", { position: "top-right" });
+            toast.warn("Vui lòng đăng nhập trước để thực hiện đánh giá!", { position: "top-right" });
             return;
         }
 
         if (rating === 0 || content.trim() === "") {
-            toast.warn("Please select a rating and enter your review!", { position: "top-right" });
+            toast.warn("Hãy chọn số sao và gửi đánh giá của bạn!", { position: "top-right" });
             return;
         }
 
@@ -50,7 +50,7 @@ const ReviewTable = ({ product }) => {
                 setReviews([response, ...reviews]);
                 setRating(0);
                 setContent("");
-                toast.success("Review submitted successfully!", { position: "top-right" });
+                toast.success("Đăng bình luận thành công!", { position: "top-right" });
             }
         } catch (error) {
             toast.error(error.message || "Error submitting review", { position: "top-right" });
