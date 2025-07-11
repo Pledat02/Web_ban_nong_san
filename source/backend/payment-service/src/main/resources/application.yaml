@@ -1,0 +1,26 @@
+Frontend_Payment_Return: "http://localhost:3000/payment-result"
+vnPay:
+  PAY_URL: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  TMN_CODE: "0FF15K06"
+  SECRET_KEY: "8MI4UR0TM6NZXMVDE91LWU9GSC4YEO6O"
+  RETURN_URL: "http://localhost:8088/payment/vnpay/pay-callback"
+  VERSION: "2.1.0"
+  COMMAND: "pay"
+  ORDER_TYPE: "other"
+logging:
+  level:
+    root: DEBUG
+server:
+  port: 8088
+  servlet:
+    context-path: /payment
+
+spring:
+  application:
+    name: payment-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/payment-service?authSource=admin
