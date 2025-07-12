@@ -107,6 +107,17 @@ class ProductService {
             throw error;
         }
     }
+    async getTopProducts(page = 1, size = 6) {
+        try {
+            const response = await this.api.get("/top-products", {
+                params: { page, size },
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error("Error fetching top products:", error);
+            throw error;
+        }
+    }
 }
 
 export default new ProductService();

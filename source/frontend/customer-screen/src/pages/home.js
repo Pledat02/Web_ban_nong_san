@@ -3,6 +3,7 @@ import ProductCategoryList from "../list/product-category-list";
 import CategoriesList from "../list/tag-home-list";
 import banner from "../images/logo/banner.png"
 import ProductsNewList from "../list/new-product-list";
+import TopProductsList from "../list/top-product-list";
 
 
 
@@ -16,6 +17,11 @@ const Home = () => {
                 <ProductsNewList
                     title="SẢN PHẨM MỚI NHẤT"
                     description="Khám phá những sản phẩm mới nhất, tươi ngon và chất lượng cao từ nông trại đến bàn ăn."
+                />
+                {/*top products*/}
+                <TopProductsList
+                    title="SẢN PHẨM BÁN CHẠY"
+                    description="Khám phá những sản phẩm bán chạy nhất, được yêu thích bởi khách hàng của chúng tôi."
                 />
                     {/*organic products*/}
                 <ProductCategoryList
