@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +36,9 @@ public class Product implements Serializable {
     String brand;
     String howToUse;
     String howToPreserve;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    java.sql.Timestamp createdAt;
     @OneToMany(mappedBy = "product",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     Set<WeightProduct> weightProducts;

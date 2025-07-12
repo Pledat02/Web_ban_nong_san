@@ -14,6 +14,7 @@ import com.example.product_service.exception.AppException;
 import com.example.product_service.exception.ErrorCode;
 import com.example.product_service.mapper.ProductMapper;
 import com.example.product_service.repository.CategoryRepository;
+import com.example.product_service.repository.OrderClientHttp;
 import com.example.product_service.repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,12 +44,40 @@ public class ProductService {
     ProductRepository productRepository;
     ProductMapper productMapper;
     CategoryRepository categoryRepository;
+    OrderClientHttp orderClientHttp;
     RedisTemplate<String, Object> redisTemplate;
     ObjectMapper objectMapper;
 
     String urlImagePath = "http://localhost:8082/products/image-product/";
 
     // ===== USER APIs =====
+    @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_USER_NEW_' + #page + '_' + #size")
+    public PageResponse<ProductResponse> getNewProducts(int page, int size) {
+        log.info("Fetching new products from DB");
+
+        Specification<Product> spec = (root, query, cb) -> cb.isTrue(root.get("isActive"));
+
+        Page<Product> productPage = productRepository.findAll(
+                spec,
+                PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+        );
+        return mapToPageResponse(productPage, page);
+    }
+  @Cacheable(value = "productsPage", key = "'PRODUCTS_PAGE_TOP_NEW_' + #page + '_' + #size")
+  public PageResponse<ProductResponse> getTopProducts(int page, int size) {
+      List<Long> topProductsId = orderClientHttp.getTopProductsId().getData();
+      Specification<Product> spec = (root, query, cb) -> {
+          Predicate isActive = cb.isTrue(root.get("isActive"));
+          Predicate inClause = root.get("id_product").in(topProductsId);
+          return cb.and(isActive, inClause);
+      };
+
+      Page<Product> productPage = productRepository.findAll(
+              spec,
+              PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"))
+      );
+      return mapToPageResponse(productPage, page);
+  }
 
     @Cacheable(value = "products", key = "'PRODUCT_' + #productId")
     public ProductResponse getProductByIdForUser(Long productId) {

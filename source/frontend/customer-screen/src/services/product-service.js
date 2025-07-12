@@ -96,6 +96,17 @@ class ProductService {
         });
         return minValue;
     }
+    async getNewProducts(page = 1, size = 6) {
+        try {
+            const response = await this.api.get("/new", {
+                params: { page, size },
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error("Error fetching new products:", error);
+            throw error;
+        }
+    }
 }
 
 export default new ProductService();

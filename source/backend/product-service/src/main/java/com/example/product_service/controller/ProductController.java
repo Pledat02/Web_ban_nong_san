@@ -36,6 +36,16 @@ public class ProductController {
                 .data(productService.getAllProductsForUser(page, size))
                 .build();
     }
+    // Get new products
+    @GetMapping("/new")
+    public ApiResponse<PageResponse<ProductResponse>> getNewProducts(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ){
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .data(productService.getNewProducts(page, size))
+                .build();
+    }
     // Get product by id
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getProductById(@PathVariable Long id){

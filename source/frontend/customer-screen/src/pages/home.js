@@ -2,6 +2,7 @@ import Carousel from "../components/carousel";
 import ProductCategoryList from "../list/product-category-list";
 import CategoriesList from "../list/tag-home-list";
 import banner from "../images/logo/banner.png"
+import ProductsNewList from "../list/new-product-list";
 
 
 
@@ -11,7 +12,12 @@ const Home = () => {
             <Carousel />
             <CategoriesList/>
             <div className="bg-[#FFFDF1]  mx-auto pb-4">
-                {/*organic products*/}
+                {/*new products*/}
+                <ProductsNewList
+                    title="SẢN PHẨM MỚI NHẤT"
+                    description="Khám phá những sản phẩm mới nhất, tươi ngon và chất lượng cao từ nông trại đến bàn ăn."
+                />
+                    {/*organic products*/}
                 <ProductCategoryList
                     title="TRÁI CÂY HỮU CƠ"
                     description="Cung cấp trái cây hữu cơ tươi sạch, không hóa chất, đảm bảo sức khỏe cho gia đình bạn."
